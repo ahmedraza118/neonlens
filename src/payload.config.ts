@@ -71,7 +71,9 @@ export default buildConfig({
         media: true,
         'client-media': { prefix: 'private' },
       },
-      addRandomSuffix: true,
+      // No random suffix: Blob would rename stored files, but Payload keeps the original names for
+      // the resized versions, so those URLs would 404. Payload already makes filenames unique.
+      addRandomSuffix: false,
       // Keep the storage columns in the schema even locally (no token), so the database
       // migrations match production, where the Blob token is set.
       alwaysInsertFields: true,
