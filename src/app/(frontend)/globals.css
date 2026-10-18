@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/*
+ * Light, airy theme so the photography is the hero. To re-brand, change these colours:
+ * --color-accent is used for buttons, links and highlights.
+ */
+@theme {
+  --color-page: #fbfaf7;
+  --color-surface: #ffffff;
+  --color-surface-2: #f4f2ed;
+  --color-line: #e7e3db;
+  --color-fg: #1d1d1f;
+  --color-muted: #5b6066;
+  --color-accent: #0f766e;
+  --color-accent-strong: #115e59;
+  --color-accent-2: #0f766e;
+  --color-accent-soft: #e4f3ef;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-page text-fg font-sans antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility container-x {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+}
+@utility eyebrow {
+  @apply text-sm font-semibold text-accent;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-accent text-white hover:bg-accent-strong;
+}
+@utility btn-ghost {
+  @apply btn border border-line bg-surface text-fg hover:border-fg/30;
+}
+@utility card {
+  @apply rounded-2xl border border-line bg-surface;
+}
+@utility input {
+  @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-fg placeholder:text-muted/70 focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none;
+}
+@utility label {
+  @apply mb-1.5 block text-sm font-medium text-fg/80;
+}
+@utility accent-text {
+  @apply text-accent;
+}
