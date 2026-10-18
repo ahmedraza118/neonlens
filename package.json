@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
-    "vercel-build": "npm run migrate && npm run build",
+    "vercel-build": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/migrate.ts && cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -17,12 +17,12 @@
     "alt-text": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/generate-alt-text.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
-    "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "migrate": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/migrate.ts",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
   },
   "engines": {
-    "node": ">=20.18.1"
+    "node": "22.x"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.135.0",
