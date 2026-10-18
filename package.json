@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --config ./vitest.config.mts",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
+    "seed:prod": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
     "alt-text": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/generate-alt-text.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",

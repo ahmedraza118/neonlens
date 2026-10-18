@@ -67,6 +67,15 @@ async function seed() {
   if (process.env.NODE_ENV === 'production' && !process.env.SEED_FORCE) {
     throw new Error('Refusing to seed in production. Set SEED_FORCE=1 if you really mean it.')
   }
+  const dbUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || ''
+  const remoteDb = dbUrl.startsWith('libsql:') || dbUrl.startsWith('https:')
+  if (remoteDb && process.env.PAYLOAD_MIGRATING !== 'true') {
+    throw new Error('Seeding a remote database: use `npm run seed:prod` so the schema is not switched to development mode.')
+  }
+  if (remoteDb && !process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error('Set BLOB_READ_WRITE_TOKEN (Vercel → Storage → Blob → .env.local tab) so photos are uploaded to Vercel Blob, not your disk.')
+  }
+
   const payload = await getPayload({ config })
   const log = (msg: string) => payload.logger.info(`🌱 ${msg}`)
 
