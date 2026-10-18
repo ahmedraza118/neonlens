@@ -31,14 +31,27 @@ async function download(seed: string, width: number, height: number): Promise<Bu
   throw new Error('unreachable')
 }
 
+/**
+ * Saves uploads one at a time. Payload picks a free filename by checking the database first, so
+ * parallel uploads to a remote database (Turso) can both claim the same name and fail.
+ */
+let uploadQueue: Promise<unknown> = Promise.resolve()
+function oneAtATime<T>(task: () => Promise<T>): Promise<T> {
+  const run = uploadQueue.then(task, task)
+  uploadQueue = run.catch(() => undefined)
+  return run
+}
+
 async function image(payload: Payload, seed: string, alt: string, size: [number, number] = [2000, 1333], extra: Partial<Media> = {}) {
   const buffer = await download(`neonlens-${seed}`, size[0], size[1])
-  return payload.create({
-    collection: 'media',
-    context: ctx,
-    data: { alt, altNeedsReview: true, ...extra },
-    file: { data: buffer, mimetype: 'image/jpeg', name: `${slugify(alt).slice(0, 55)}-${slugify(seed)}.jpg`, size: buffer.length },
-  })
+  return oneAtATime(() =>
+    payload.create({
+      collection: 'media',
+      context: ctx,
+      data: { alt, altNeedsReview: true, ...extra },
+      file: { data: buffer, mimetype: 'image/jpeg', name: `${slugify(alt).slice(0, 55)}-${slugify(seed)}.jpg`, size: buffer.length },
+    }),
+  )
 }
 
 /** Runs async jobs with limited concurrency so we don't hammer the image service. */
@@ -313,12 +326,14 @@ async function seed() {
     })
     await pool(Array.from({ length: 12 }, (_, i) => i), 4, async (i) => {
       const buffer = await download(`neonlens-client-${i}`, i % 3 === 0 ? 1400 : 2100, i % 3 === 0 ? 2100 : 1400)
-      return payload.create({
-        collection: 'client-media',
-        context: ctx,
-        data: { gallery: gallery.id },
-        file: { data: buffer, mimetype: 'image/jpeg', name: `ana-mihai-wedding-${String(i + 1).padStart(3, '0')}.jpg`, size: buffer.length },
-      })
+      return oneAtATime(() =>
+        payload.create({
+          collection: 'client-media',
+          context: ctx,
+          data: { gallery: gallery.id },
+          file: { data: buffer, mimetype: 'image/jpeg', name: `ana-mihai-wedding-${String(i + 1).padStart(3, '0')}.jpg`, size: buffer.length },
+        }),
+      )
     })
     log('Created demo client gallery at /client/demo-wedding (password: SEED_GALLERY_PASSWORD in .env)')
   }
