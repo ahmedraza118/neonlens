@@ -55,8 +55,9 @@ export default buildConfig({
     // Dev auto-syncs the schema. Production uses the files in src/migrations, applied once by
     // `npm run vercel-build` before building. After changing fields run `npm run migrate:create`.
     client: {
-      url: process.env.DATABASE_URL || 'file:./neonlens.db',
-      authToken: process.env.DATABASE_AUTH_TOKEN,
+      // TURSO_* are the names Vercel's Turso integration sets; DATABASE_* are ours.
+      url: process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || 'file:./neonlens.db',
+      authToken: process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN,
     },
   }),
   sharp,

@@ -15,13 +15,14 @@ function fail(message: string): never {
 }
 
 async function run() {
-  const url = process.env.DATABASE_URL ?? ''
+  const url = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || ''
   const onVercel = Boolean(process.env.VERCEL)
 
   if (onVercel && (!url || url.startsWith('file:'))) {
     fail(
-      'DATABASE_URL is missing (or points to a local file). In Vercel → Settings → Environment Variables, add\n' +
-        'DATABASE_URL (libsql://…) and DATABASE_AUTH_TOKEN from Turso, tick "Production", then redeploy.',
+      'No database address found. In Vercel → Settings → Environment Variables, add DATABASE_URL (libsql://…)\n' +
+        'and DATABASE_AUTH_TOKEN from Turso (or connect the Turso integration), tick "Production", then redeploy.\n' +
+        'Variables only reach new deployments: add them first, then redeploy.',
     )
   }
   console.log(`→ Connecting to database at ${url.replace(/\?.*$/, '').replace(/\/\/[^@]*@/, '//') || '(default local file)'}`)
