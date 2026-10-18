@@ -72,6 +72,9 @@ export default buildConfig({
         'client-media': { prefix: 'private' },
       },
       addRandomSuffix: true,
+      // Keep the storage columns in the schema even locally (no token), so the database
+      // migrations match production, where the Blob token is set.
+      alwaysInsertFields: true,
     }),
   ],
 })

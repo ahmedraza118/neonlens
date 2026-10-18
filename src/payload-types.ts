@@ -376,6 +376,8 @@ export interface Media {
    */
   altNeedsReview?: boolean | null;
   blurDataURL?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -705,6 +707,8 @@ export interface ClientMedia {
   id: number;
   gallery: number | ClientGallery;
   alt?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1095,6 +1099,8 @@ export interface MediaSelect<T extends boolean = true> {
   tags?: T;
   altNeedsReview?: T;
   blurDataURL?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1227,6 +1233,8 @@ export interface ClientGalleriesSelect<T extends boolean = true> {
 export interface ClientMediaSelect<T extends boolean = true> {
   gallery?: T;
   alt?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

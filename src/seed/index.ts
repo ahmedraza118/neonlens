@@ -5,6 +5,7 @@
  * Placeholder photos are downloaded from picsum.photos — replace them with your own work.
  */
 import config from '@payload-config'
+import { sql } from '@payloadcms/db-sqlite'
 import { getPayload, type Payload } from 'payload'
 
 import { slugify } from '@/lib/utils'
@@ -56,10 +57,17 @@ async function pool<T, R>(items: readonly T[], limit: number, fn: (item: T, inde
 }
 
 async function wipe(payload: Payload) {
-  const order = ['client-galleries', 'client-media', 'projects', 'posts', 'testimonials', 'locations', 'services', 'inquiries', 'bookings', 'media'] as const
-  // Clear globals' references first so media can be deleted.
+  // Globals point at services and media through required fields, which blocks deleting those.
+  // Remove the global rows first (their child tables cascade); the seed recreates them below.
+  for (const table of ['site_settings', 'homepage', 'pricing', 'availability']) {
+    await payload.db.drizzle.run(sql.raw(`DELETE FROM "${table}"`))
+  }
+  const order = ['client-media', 'client-galleries', 'projects', 'posts', 'testimonials', 'locations', 'services', 'inquiries', 'bookings', 'media'] as const
   for (const collection of order) {
-    await payload.delete({ collection, where: { id: { exists: true } }, context: ctx, overrideAccess: true })
+    const res = await payload.delete({ collection, where: { id: { exists: true } }, context: ctx, overrideAccess: true })
+    if (res.errors.length > 0) {
+      throw new Error(`Could not clear "${collection}": ${res.errors[0].message}`)
+    }
   }
 }
 
