@@ -13,6 +13,9 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  // Dev server only: allow opening it through a tunnel (ngrok / Cloudflare) or from other devices
+  // on your Wi-Fi, e.g. to let someone test it. Has no effect on production builds.
+  allowedDevOrigins: ['*.ngrok-free.app', '*.ngrok-free.dev', '*.ngrok.app', '*.ngrok.io', '*.trycloudflare.com', '192.168.*.*'],
   images: {
     formats: ['image/avif', 'image/webp'],
     qualities: [75, 85],
