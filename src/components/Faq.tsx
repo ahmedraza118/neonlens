@@ -1,3 +1,4 @@
+import { getI18n } from '@/i18n/server'
 import { faqSchema } from '@/lib/jsonld'
 
 import { JsonLd } from './JsonLd'
@@ -5,8 +6,9 @@ import { JsonLd } from './JsonLd'
 type Props = { faqs: Array<{ question: string; answer: string; id?: string | null }> | null | undefined; heading?: string; withSchema?: boolean }
 
 /** Native <details> accordion — works without JavaScript and is fully crawlable. */
-export function Faq({ faqs, heading = 'Frequently asked questions', withSchema = true }: Props) {
+export function Faq({ faqs, heading, withSchema = true }: Props) {
   if (!faqs || faqs.length === 0) return null
+  heading ??= getI18n().t.common.faqHeading
   return (
     <section className="container-x py-20" aria-labelledby="faq-heading">
       <h2 id="faq-heading" className="mb-10 text-3xl font-bold sm:text-4xl">

@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next'
 
-import { getLocations, getPosts, getProjects, getServices } from '@/lib/queries'
+import { defaultLocale, type Locale, locales, withLocale } from '@/i18n/config'
+import { getLocations, getPosts, getProjects, getServices, getSlugs } from '@/lib/queries'
+import { localizedPaths } from '@/lib/seo'
 import { absoluteUrl } from '@/lib/utils'
 import type { Media } from '@/payload-types'
 
@@ -8,39 +10,74 @@ export const revalidate = 3600
 
 const img = (m: Media | number | null | undefined) => (m && typeof m === 'object' && m.url ? [absoluteUrl(m.url)] : [])
 
-/** Includes every service × city landing page and image entries for Google Images. */
+type Entry = Omit<MetadataRoute.Sitemap[number], 'url'> & { path: string | Record<Locale, string> }
+
+/**
+ * Every page in every language with its translations (hreflang + x-default → Romanian),
+ * including every service × area landing page and image entries for Google Images.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, locations, projects, posts] = await Promise.all([getServices(), getLocations(), getProjects(), getPosts()])
+  const [services, locations, projects, posts] = await Promise.all([
+    getServices(defaultLocale),
+    getLocations(defaultLocale),
+    getProjects({ locale: defaultLocale }),
+    getPosts(1000, defaultLocale),
+  ])
+  const slugs = async (collection: Parameters<typeof getSlugs>[0], id: number) => getSlugs(collection, id)
+  const [serviceSlugs, locationSlugs, projectSlugs, postSlugs] = await Promise.all([
+    Promise.all(services.map((s) => slugs('services', s.id))),
+    Promise.all(locations.map((l) => slugs('locations', l.id))),
+    Promise.all(projects.map((p) => slugs('projects', p.id))),
+    Promise.all(posts.map((p) => slugs('posts', p.id))),
+  ])
   const now = new Date()
 
-  const staticPages: MetadataRoute.Sitemap = [
-    { url: absoluteUrl('/'), changeFrequency: 'weekly', priority: 1, lastModified: now },
-    ...['/portfolio', '/services', '/pricing', '/book', '/about', '/contact', '/reviews', '/blog', '/faq', '/locations'].map((p) => ({
-      url: absoluteUrl(p),
+  const pages: Entry[] = [
+    { path: '/', changeFrequency: 'weekly', priority: 1, lastModified: now },
+    ...['/services', '/portfolio', '/pricing', '/book', '/locations', '/about', '/contact', '/reviews', '/blog', '/faq'].map((path) => ({
+      path,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
       lastModified: now,
     })),
-    { url: absoluteUrl('/privacy'), changeFrequency: 'yearly', priority: 0.2 },
-  ]
-
-  return [
-    ...staticPages,
-    ...services.map((s) => ({ url: absoluteUrl(`/services/${s.slug}`), lastModified: s.updatedAt, priority: 0.9, images: img(s.heroImage) })),
-    ...services.flatMap((s) =>
-      locations.map((l) => ({
-        url: absoluteUrl(`/services/${s.slug}/${l.slug}`),
+    { path: '/privacy', changeFrequency: 'yearly', priority: 0.2 },
+    ...services.map((s, i) => ({
+      path: localizedPaths(serviceSlugs[i], (x) => `/services/${x}`),
+      lastModified: s.updatedAt,
+      priority: 0.9,
+      images: img(s.heroImage),
+    })),
+    ...services.flatMap((s, i) =>
+      locations.map((l, j) => ({
+        path: Object.fromEntries(locales.map((lang) => [lang, `/services/${serviceSlugs[i][lang]}/${locationSlugs[j][lang]}`])) as Record<Locale, string>,
         lastModified: [s.updatedAt, l.updatedAt].sort().at(-1),
         priority: l.isPrimary ? 0.9 : 0.7,
       })),
     ),
-    ...locations.map((l) => ({ url: absoluteUrl(`/locations/${l.slug}`), lastModified: l.updatedAt, priority: 0.7, images: img(l.heroImage) })),
-    ...projects.map((p) => ({
-      url: absoluteUrl(`/portfolio/${p.slug}`),
+    ...locations.map((l, i) => ({
+      path: localizedPaths(locationSlugs[i], (x) => `/locations/${x}`),
+      lastModified: l.updatedAt,
+      priority: l.isPrimary ? 0.9 : 0.7,
+      images: img(l.heroImage),
+    })),
+    ...projects.map((p, i) => ({
+      path: localizedPaths(projectSlugs[i], (x) => `/portfolio/${x}`),
       lastModified: p.updatedAt,
       priority: 0.7,
       images: [...img(p.coverImage), ...(p.gallery ?? []).flatMap((m) => img(m))].slice(0, 1000),
     })),
-    ...posts.map((p) => ({ url: absoluteUrl(`/blog/${p.slug}`), lastModified: p.updatedAt, priority: 0.6, images: img(p.coverImage) })),
+    ...posts.map((p, i) => ({
+      path: localizedPaths(postSlugs[i], (x) => `/blog/${x}`),
+      lastModified: p.updatedAt,
+      priority: 0.6,
+      images: img(p.coverImage),
+    })),
   ]
+
+  return pages.flatMap(({ path, ...entry }) => {
+    const urlFor = (l: Locale) => absoluteUrl(withLocale(typeof path === 'string' ? path : path[l], l))
+    const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, urlFor(l)]))
+    languages['x-default'] = urlFor(defaultLocale)
+    return locales.map((l) => ({ ...entry, url: urlFor(l), alternates: { languages } }))
+  })
 }

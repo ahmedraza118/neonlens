@@ -104,7 +104,7 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('ro' | 'en') | ('ro' | 'en')[];
   globals: {
     'site-settings': SiteSetting;
     homepage: Homepage;
@@ -117,7 +117,7 @@ export interface Config {
     pricing: PricingSelect<false> | PricingSelect<true>;
     availability: AvailabilitySelect<false> | AvailabilitySelect<true>;
   };
-  locale: null;
+  locale: 'ro' | 'en';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -155,7 +155,7 @@ export interface Project {
   id: number;
   title: string;
   /**
-   * URL segment. Leave empty to generate from the title. Changing it breaks existing links.
+   * URL segment for this language. Leave empty to generate it from the title. Use the words people search for (e.g. "fotograf-nunta"). Changing it later breaks existing links.
    */
   slug?: string | null;
   service: number | Service;
@@ -201,11 +201,15 @@ export interface Project {
   deliverables?: string[] | null;
   gallery?: (number | Media)[] | null;
   video?: {
-    provider?: ('none' | 'mux' | 'youtube') | null;
+    provider?: ('none' | 'mux' | 'upload' | 'youtube') | null;
     /**
      * Mux dashboard → Assets → your video → Playback ID (public).
      */
     muxPlaybackId?: string | null;
+    /**
+     * MP4 (H.264, up to 4K) or WebM from the media library. Add a poster image to the video in the library.
+     */
+    file?: (number | null) | Media;
     /**
      * The part after "v=" in the YouTube URL.
      */
@@ -221,7 +225,7 @@ export interface Project {
   tags?: string[] | null;
   seo?: {
     /**
-     * Max ~60 characters. Put the main keyword + city first.
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
      */
     title?: string | null;
     /**
@@ -242,7 +246,7 @@ export interface Project {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Each service gets its own page plus one page per location (e.g. /services/wedding-photography/cluj-napoca).
+ * Each service gets its own page plus one page per location (e.g. /servicii/fotograf-nunta/snagov).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "services".
@@ -254,7 +258,7 @@ export interface Service {
    */
   title: string;
   /**
-   * URL segment. Leave empty to generate from the title. Changing it breaks existing links.
+   * URL segment for this language. Leave empty to generate it from the title. Use the words people search for (e.g. "fotograf-nunta"). Changing it later breaks existing links.
    */
   slug?: string | null;
   category: 'photo' | 'video' | 'hybrid';
@@ -308,11 +312,15 @@ export interface Service {
       }[]
     | null;
   video?: {
-    provider?: ('none' | 'mux' | 'youtube') | null;
+    provider?: ('none' | 'mux' | 'upload' | 'youtube') | null;
     /**
      * Mux dashboard → Assets → your video → Playback ID (public).
      */
     muxPlaybackId?: string | null;
+    /**
+     * MP4 (H.264, up to 4K) or WebM from the media library. Add a poster image to the video in the library.
+     */
+    file?: (number | null) | Media;
     /**
      * The part after "v=" in the YouTube URL.
      */
@@ -337,7 +345,7 @@ export interface Service {
   keywords?: string[] | null;
   seo?: {
     /**
-     * Max ~60 characters. Put the main keyword + city first.
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
      */
     title?: string | null;
     /**
@@ -357,16 +365,22 @@ export interface Service {
   createdAt: string;
 }
 /**
+ * Upload photos at full resolution (JPEG/PNG/WebP/AVIF/HEIC, any size) and videos (MP4 H.264 or WebM; MP4 H.265 for 4K). Originals are kept untouched; the site serves sharp, right-sized versions to each screen automatically.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
   /**
-   * Describe what is in the photo + where. E.g. "Bride and groom walking through Cluj botanical garden at sunset". Run `npm run alt-text` to generate these with AI.
+   * Describe what is in the photo + where. E.g. "Miri la apus în grădina Palatului Mogoșoaia" (switch the editor to English for the English text). Run `npm run alt-text` to generate these with AI.
    */
   alt: string;
   caption?: string | null;
+  /**
+   * Still image shown before the video loads (recommended: a frame from the video, 1920px wide).
+   */
+  poster?: (number | null) | Media;
   /**
    * Keywords used for search and filtering (AI can fill these).
    */
@@ -434,7 +448,7 @@ export interface Location {
   id: number;
   name: string;
   /**
-   * URL segment. Leave empty to generate from the title. Changing it breaks existing links.
+   * URL segment for this language. Leave empty to generate it from the title. Use the words people search for (e.g. "fotograf-nunta"). Changing it later breaks existing links.
    */
   slug?: string | null;
   /**
@@ -485,7 +499,7 @@ export interface Location {
     | null;
   seo?: {
     /**
-     * Max ~60 characters. Put the main keyword + city first.
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
      */
     title?: string | null;
     /**
@@ -534,7 +548,7 @@ export interface Post {
   id: number;
   title: string;
   /**
-   * URL segment. Leave empty to generate from the title. Changing it breaks existing links.
+   * URL segment for this language. Leave empty to generate it from the title. Use the words people search for (e.g. "fotograf-nunta"). Changing it later breaks existing links.
    */
   slug?: string | null;
   category?: ('pricing' | 'guides' | 'venues' | 'bts') | null;
@@ -568,7 +582,7 @@ export interface Post {
     | null;
   seo?: {
     /**
-     * Max ~60 characters. Put the main keyword + city first.
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
      */
     title?: string | null;
     /**
@@ -607,6 +621,10 @@ export interface Inquiry {
    * Filled when sent from the quote calculator.
    */
   quoteSummary?: string | null;
+  /**
+   * Language the client used on the website (emails are sent in it).
+   */
+  locale?: ('en' | 'ro') | null;
   sourcePage?: string | null;
   referrer?: string | null;
   utm?:
@@ -631,6 +649,10 @@ export interface Inquiry {
 export interface Booking {
   id: number;
   status?: ('pending' | 'paid' | 'cancelled' | 'completed') | null;
+  /**
+   * Language the client used on the website (emails are sent in it).
+   */
+  locale?: ('en' | 'ro') | null;
   name: string;
   email: string;
   phone?: string | null;
@@ -658,7 +680,7 @@ export interface ClientGallery {
   id: number;
   title: string;
   /**
-   * URL segment. Leave empty to generate from the title. Changing it breaks existing links.
+   * URL segment for this language. Leave empty to generate it from the title. Use the words people search for (e.g. "fotograf-nunta"). Changing it later breaks existing links.
    */
   slug?: string | null;
   clientName: string;
@@ -901,6 +923,7 @@ export interface ProjectsSelect<T extends boolean = true> {
     | {
         provider?: T;
         muxPlaybackId?: T;
+        file?: T;
         youtubeId?: T;
         title?: T;
         description?: T;
@@ -964,6 +987,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         provider?: T;
         muxPlaybackId?: T;
+        file?: T;
         youtubeId?: T;
         title?: T;
         description?: T;
@@ -1096,6 +1120,7 @@ export interface TestimonialsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  poster?: T;
   tags?: T;
   altNeedsReview?: T;
   blurDataURL?: T;
@@ -1172,6 +1197,7 @@ export interface InquiriesSelect<T extends boolean = true> {
   budget?: T;
   message?: T;
   quoteSummary?: T;
+  locale?: T;
   sourcePage?: T;
   referrer?: T;
   utm?: T;
@@ -1185,6 +1211,7 @@ export interface InquiriesSelect<T extends boolean = true> {
  */
 export interface BookingsSelect<T extends boolean = true> {
   status?: T;
+  locale?: T;
   name?: T;
   email?: T;
   phone?: T;
@@ -1438,13 +1465,64 @@ export interface Homepage {
   id: number;
   heroEyebrow?: string | null;
   /**
-   * The H1. Include what you do and where, e.g. "Wedding & brand films in Cluj-Napoca".
+   * The page H1, shown above the slides. Include what you do and where, e.g. "Fotograf și videograf de nuntă în București și Ilfov".
    */
   heroHeading: string;
   heroSubheading?: string | null;
+  /**
+   * Used for social sharing previews of the home page.
+   */
   heroImage: number | Media;
   /**
-   * Optional Mux playback ID for a muted looping showreel behind the hero.
+   * Seconds each slide stays before moving to the next.
+   */
+  heroAutoplaySeconds?: number | null;
+  /**
+   * One slide per service works best. Use 2400px+ wide photos (or a short MP4 loop) for a crisp full-screen look.
+   */
+  heroSlides?:
+    | {
+        /**
+         * Fills in any empty text, the image and the button link from this service.
+         */
+        service?: (number | null) | Service;
+        /**
+         * Small label above the title. Default: service name.
+         */
+        eyebrow?: string | null;
+        /**
+         * Default: service tagline.
+         */
+        title?: string | null;
+        /**
+         * Default: service summary.
+         */
+        text?: string | null;
+        /**
+         * Full-screen background. Default: the service hero image.
+         */
+        image?: (number | null) | Media;
+        /**
+         * Optional silent background loop (MP4, 10–20 s, 1080p–4K). The image is shown until it plays.
+         */
+        video?: (number | null) | Media;
+        /**
+         * Or: a Mux playback ID for the background loop.
+         */
+        muxPlaybackId?: string | null;
+        /**
+         * Default: "Explore <service>".
+         */
+        ctaLabel?: string | null;
+        /**
+         * Default: the service page, e.g. /services/wedding-photography
+         */
+        ctaLink?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional Mux playback ID: a muted showreel behind the first automatic slide.
    */
   heroVideoPlaybackId?: string | null;
   /**
@@ -1629,6 +1707,21 @@ export interface HomepageSelect<T extends boolean = true> {
   heroHeading?: T;
   heroSubheading?: T;
   heroImage?: T;
+  heroAutoplaySeconds?: T;
+  heroSlides?:
+    | T
+    | {
+        service?: T;
+        eyebrow?: T;
+        title?: T;
+        text?: T;
+        image?: T;
+        video?: T;
+        muxPlaybackId?: T;
+        ctaLabel?: T;
+        ctaLink?: T;
+        id?: T;
+      };
   heroVideoPlaybackId?: T;
   showreelPlaybackId?: T;
   featuredProjects?: T;

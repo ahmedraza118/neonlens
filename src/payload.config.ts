@@ -1,6 +1,8 @@
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { en } from '@payloadcms/translations/languages/en'
+import { ro } from '@payloadcms/translations/languages/ro'
 import path from 'path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
@@ -47,6 +49,22 @@ export default buildConfig({
     Users,
   ],
   globals: [SiteSettings, Homepage, Pricing, Availability],
+  // Content languages. Fields marked `localized: true` get one value per language; pick the
+  // language at the top of the editor. Romanian is the main language of the site; text not
+  // translated yet falls back to the other language.
+  localization: {
+    locales: [
+      { code: 'ro', label: 'Română' },
+      { code: 'en', label: 'English' },
+    ],
+    defaultLocale: 'ro',
+    fallback: true,
+  },
+  // Language of the admin panel itself (each editor can switch it in their account settings).
+  i18n: { supportedLanguages: { ro, en }, fallbackLanguage: 'ro' },
+  // Full-resolution photos and video files are large: allow uploads up to 2 GB (self-hosted / local).
+  // On Vercel the browser uploads straight to Blob storage instead (clientUploads below).
+  upload: { limits: { fileSize: 2 * 1024 * 1024 * 1024 } },
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
@@ -74,6 +92,9 @@ export default buildConfig({
       // No random suffix: Blob would rename stored files, but Payload keeps the original names for
       // the resized versions, so those URLs would 404. Payload already makes filenames unique.
       addRandomSuffix: false,
+      // Vercel functions reject request bodies over 4.5 MB. With client uploads the admin sends
+      // the file directly from the browser to Blob storage, so high-res photos and videos work.
+      clientUploads: true,
       // Keep the storage columns in the schema even locally (no token), so the database
       // migrations match production, where the Blob token is set.
       alwaysInsertFields: true,

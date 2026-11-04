@@ -30,7 +30,8 @@ export const ClientGalleries: CollectionConfig = {
   },
   fields: [
     { name: 'title', type: 'text', required: true },
-    slugField(),
+    // One gallery code for both languages (it is shared with the client).
+    slugField('title', { localized: false }),
     {
       type: 'row',
       fields: [

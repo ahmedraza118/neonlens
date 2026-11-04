@@ -4,10 +4,14 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import { useI18n } from '@/i18n/client'
 import { NAV } from '@/lib/site'
+
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false)
+  const { t, href } = useI18n()
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -22,7 +26,7 @@ export function MobileMenu() {
         type="button"
         aria-expanded={open}
         aria-controls="mobile-nav"
-        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
         onClick={() => setOpen((o) => !o)}
         className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface"
       >
@@ -35,28 +39,32 @@ export function MobileMenu() {
         createPortal(
           <nav
             id="mobile-nav"
-            aria-label="Mobile"
+            aria-label={t.nav.mobile}
             className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto bg-page px-4 py-6"
           >
             <ul className="space-y-1">
               {NAV.map((item) => (
                 <li key={item.href}>
                   <Link
-                    href={item.href}
+                    href={href(item.href)}
                     onClick={() => setOpen(false)}
                     className="block border-b border-line py-4 text-xl font-semibold"
                   >
-                    {item.label}
+                    {t.nav[item.key]}
                   </Link>
                 </li>
               ))}
+              <li className="flex items-center justify-between border-b border-line py-4">
+                <span className="text-sm text-muted">{t.nav.language}</span>
+                <LanguageSwitcher />
+              </li>
               <li>
                 <Link
-                  href="/book"
+                  href={href('/book')}
                   onClick={() => setOpen(false)}
                   className="btn-primary mt-6 w-full"
                 >
-                  Book a date
+                  {t.nav.book}
                 </Link>
               </li>
             </ul>

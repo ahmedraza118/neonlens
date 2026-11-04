@@ -20,7 +20,7 @@ export const Projects: CollectionConfig = {
   defaultSort: '-date',
   hooks: revalidateHooks,
   fields: [
-    { name: 'title', type: 'text', required: true },
+    { name: 'title', type: 'text', required: true, localized: true },
     slugField(),
     {
       type: 'row',
@@ -32,21 +32,22 @@ export const Projects: CollectionConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'clientType', type: 'text', admin: { description: 'e.g. "Couple", "Tech start-up"' } },
-        { name: 'venue', type: 'text' },
+        { name: 'clientType', type: 'text', localized: true, admin: { description: 'e.g. "Couple", "Tech start-up"' } },
+        { name: 'venue', type: 'text', localized: true },
         { name: 'date', type: 'date', required: true },
       ],
     },
     { name: 'featured', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar' } },
-    { name: 'excerpt', type: 'textarea', required: true },
+    { name: 'excerpt', type: 'textarea', required: true, localized: true },
     { name: 'coverImage', type: 'upload', relationTo: 'media', required: true },
-    { name: 'brief', type: 'textarea', required: true, admin: { description: 'What did the client need?' } },
-    { name: 'approach', type: 'richText', admin: { description: 'How you planned and shot it.' } },
-    { name: 'result', type: 'textarea', admin: { description: 'Outcome — deliverables, numbers, reactions.' } },
+    { name: 'brief', type: 'textarea', required: true, localized: true, admin: { description: 'What did the client need?' } },
+    { name: 'approach', type: 'richText', localized: true, admin: { description: 'How you planned and shot it.' } },
+    { name: 'result', type: 'textarea', localized: true, admin: { description: 'Outcome — deliverables, numbers, reactions.' } },
     {
       name: 'deliverables',
       type: 'text',
       hasMany: true,
+      localized: true,
       admin: { description: 'e.g. "450 edited photos", "4-minute highlight film"' },
     },
     { name: 'gallery', type: 'upload', relationTo: 'media', hasMany: true },

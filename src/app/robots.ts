@@ -9,7 +9,8 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         // Public photos live under /api/media/file — keep them crawlable for Google Images.
         allow: ['/', '/api/media/file/'],
-        disallow: ['/admin', '/api/', '/client', '/book/success', '/webhooks/'],
+        // Private galleries and booking confirmations, in both languages.
+        disallow: ['/admin', '/api/', '/galerie-client', '/en/client', '/rezervare/confirmare', '/en/book/success', '/webhooks/'],
       },
     ],
     sitemap: absoluteUrl('/sitemap.xml'),

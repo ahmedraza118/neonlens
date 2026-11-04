@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { defaultLocale, type Locale, locales, ogLocale, withLocale } from '@/i18n/config'
 import type { Media } from '@/payload-types'
 
 import { absoluteUrl } from './utils'
@@ -9,10 +10,15 @@ type SeoGroup = { title?: string | null; description?: string | null; image?: nu
 type BuildArgs = {
   title: string
   description: string
-  path: string
+  /** Internal path (English route names, no language prefix), e.g. '/about'. Pages whose slug is
+   *  translated pass one path per language: { ro: '/services/fotograf-nunta', en: '/services/wedding-photography' }. */
+  path: string | Record<Locale, string>
+  lang: Locale
   image?: Media | null
   seo?: SeoGroup
   type?: 'website' | 'article'
+  /** Use `title` as is, without the "| Business name" suffix from the layout template. */
+  absoluteTitle?: boolean
   publishedTime?: string
   noIndex?: boolean
 }
@@ -25,13 +31,22 @@ export function ogImageUrl(media: Media | null | undefined): string | undefined 
 }
 
 /** Text-only branded card for pages without a photo. */
+const pathFor = (path: BuildArgs['path'], lang: Locale) => (typeof path === 'string' ? path : path[lang])
+
+/** Canonical URL for this language plus hreflang links to every translation (x-default: Romanian). */
+export function languageAlternates(path: BuildArgs['path'], lang: Locale) {
+  const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, absoluteUrl(withLocale(pathFor(path, l), l))]))
+  languages['x-default'] = languages[defaultLocale]
+  return { canonical: absoluteUrl(withLocale(pathFor(path, lang), lang)), languages }
+}
+
 export function fallbackOgUrl(title: string, eyebrow?: string): string {
   const params = new URLSearchParams({ title })
   if (eyebrow) params.set('eyebrow', eyebrow)
   return absoluteUrl(`/og?${params.toString()}`)
 }
 
-export function buildMetadata({ title, description, path, image, seo, type = 'website', publishedTime, noIndex }: BuildArgs): Metadata {
+export function buildMetadata({ title, description, path, lang, image, seo, type = 'website', publishedTime, noIndex, absoluteTitle }: BuildArgs): Metadata {
   const seoImage = seo?.image && typeof seo.image === 'object' ? seo.image : null
   const finalTitle = seo?.title || title
   const finalDescription = seo?.description || description
@@ -39,18 +54,26 @@ export function buildMetadata({ title, description, path, image, seo, type = 'we
   const hidden = noIndex || seo?.noIndex
 
   return {
-    title: finalTitle,
+    // A custom SEO title from the CMS is the complete title: no "| Business name" is appended.
+    title: absoluteTitle || seo?.title ? { absolute: finalTitle } : finalTitle,
     description: finalDescription,
-    alternates: { canonical: absoluteUrl(path) },
+    alternates: languageAlternates(path, lang),
     robots: hidden ? { index: false, follow: false } : undefined,
     openGraph: {
       title: finalTitle,
       description: finalDescription,
-      url: absoluteUrl(path),
+      url: absoluteUrl(withLocale(pathFor(path, lang), lang)),
       type,
+      locale: ogLocale[lang],
+      alternateLocale: locales.filter((l) => l !== lang).map((l) => ogLocale[l]),
       images: [{ url: ogUrl, width: 1200, height: 630, alt: finalTitle }],
       ...(publishedTime ? { publishedTime } : {}),
     },
     twitter: { card: 'summary_large_image', title: finalTitle, description: finalDescription, images: [ogUrl] },
   }
+}
+
+/** Per-language paths for a document with translated slugs: (slugs, s => `/blog/${s}`). */
+export function localizedPaths(slugs: Record<Locale, string>, toPath: (slug: string) => string): Record<Locale, string> {
+  return Object.fromEntries(locales.map((l) => [l, toPath(slugs[l])])) as Record<Locale, string>
 }

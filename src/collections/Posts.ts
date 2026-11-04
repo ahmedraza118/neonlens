@@ -19,7 +19,7 @@ export const Posts: CollectionConfig = {
   defaultSort: '-publishedAt',
   hooks: revalidateHooks,
   fields: [
-    { name: 'title', type: 'text', required: true },
+    { name: 'title', type: 'text', required: true, localized: true },
     slugField(),
     {
       name: 'category',
@@ -40,9 +40,9 @@ export const Posts: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     { name: 'author', type: 'text', defaultValue: 'NeonLens Studio', admin: { position: 'sidebar' } },
-    { name: 'excerpt', type: 'textarea', required: true },
+    { name: 'excerpt', type: 'textarea', required: true, localized: true },
     { name: 'coverImage', type: 'upload', relationTo: 'media', required: true },
-    { name: 'content', type: 'richText', required: true },
+    { name: 'content', type: 'richText', required: true, localized: true },
     { name: 'relatedServices', type: 'relationship', relationTo: 'services', hasMany: true },
     { name: 'relatedLocation', type: 'relationship', relationTo: 'locations' },
     faqsField,

@@ -6,7 +6,7 @@ import { isGenericFilename, slugify } from '@/lib/utils'
 
 /**
  * Renames camera-default file names (IMG_4021.jpg) to a descriptive slug built from the alt
- * text, e.g. "bride-and-groom-at-sunset-cluj-napoca.jpg". Google Images uses file names.
+ * text, e.g. "miri-la-apus-palatul-mogosoaia.jpg". Google Images uses file names.
  */
 const descriptiveFilename: CollectionBeforeOperationHook = ({ args, operation, req }) => {
   if (operation !== 'create' && operation !== 'update') return args
@@ -36,7 +36,13 @@ const blurPlaceholder: NonNullable<CollectionConfig['hooks']>['beforeChange'] = 
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  admin: { group: 'Content', useAsTitle: 'alt', defaultColumns: ['filename', 'alt', 'tags'] },
+  admin: {
+    group: 'Content',
+    useAsTitle: 'alt',
+    defaultColumns: ['filename', 'alt', 'mimeType', 'tags'],
+    description:
+      'Upload photos at full resolution (JPEG/PNG/WebP/AVIF/HEIC, any size) and videos (MP4 H.264 or WebM; MP4 H.265 for 4K). Originals are kept untouched; the site serves sharp, right-sized versions to each screen automatically.',
+  },
   access: { read: anyone, create: isAdmin, update: isAdmin, delete: isAdmin },
   hooks: { beforeOperation: [descriptiveFilename], beforeChange: blurPlaceholder },
   fields: [
@@ -44,12 +50,23 @@ export const Media: CollectionConfig = {
       name: 'alt',
       type: 'text',
       required: true,
+      localized: true,
       admin: {
         description:
-          'Describe what is in the photo + where. E.g. "Bride and groom walking through Cluj botanical garden at sunset". Run `npm run alt-text` to generate these with AI.',
+          'Describe what is in the photo + where. E.g. "Miri la apus în grădina Palatului Mogoșoaia" (switch the editor to English for the English text). Run `npm run alt-text` to generate these with AI.',
       },
     },
-    { name: 'caption', type: 'text' },
+    { name: 'caption', type: 'text', localized: true },
+    {
+      name: 'poster',
+      type: 'upload',
+      relationTo: 'media',
+      filterOptions: { mimeType: { contains: 'image' } },
+      admin: {
+        condition: (data) => typeof data?.mimeType === 'string' && data.mimeType.startsWith('video/'),
+        description: 'Still image shown before the video loads (recommended: a frame from the video, 1920px wide).',
+      },
+    },
     {
       name: 'tags',
       type: 'text',
@@ -65,14 +82,16 @@ export const Media: CollectionConfig = {
     { name: 'blurDataURL', type: 'text', admin: { hidden: true } },
   ],
   upload: {
-    mimeTypes: ['image/*'],
+    // Images plus web-playable video. Large films are best streamed through Mux (video field).
+    mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'video/quicktime'],
     focalPoint: true,
     crop: true,
-    formatOptions: { format: 'webp', options: { quality: 82 } },
+    // No `formatOptions` on purpose: the original upload is stored exactly as sent (no lossy
+    // re-encode). next/image generates the responsive AVIF/WebP versions from it on demand.
     imageSizes: [
-      { name: 'thumb', width: 480, formatOptions: { format: 'webp', options: { quality: 75 } } },
-      { name: 'card', width: 960, formatOptions: { format: 'webp', options: { quality: 78 } } },
-      { name: 'large', width: 1920, formatOptions: { format: 'webp', options: { quality: 82 } } },
+      { name: 'thumb', width: 480, formatOptions: { format: 'webp', options: { quality: 80 } } },
+      { name: 'card', width: 960, formatOptions: { format: 'webp', options: { quality: 85 } } },
+      { name: 'large', width: 1920, formatOptions: { format: 'webp', options: { quality: 88 } } },
       // Social cards must be JPEG/PNG: many platforms (and next/og) can't read WebP.
       {
         name: 'og',

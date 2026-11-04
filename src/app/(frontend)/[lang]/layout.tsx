@@ -1,0 +1,86 @@
+import type { Metadata, Viewport } from 'next'
+import { Plus_Jakarta_Sans } from 'next/font/google'
+import { notFound } from 'next/navigation'
+import type { ReactNode } from 'react'
+
+import { Analytics } from '@/components/Analytics'
+import { Footer } from '@/components/Footer'
+import { Header } from '@/components/Header'
+import { JsonLd } from '@/components/JsonLd'
+import { WhatsAppButton } from '@/components/WhatsAppButton'
+import { I18nProvider } from '@/i18n/client'
+import { isLocale, locales, ogLocale, withLocale } from '@/i18n/config'
+import { setRequestLocale } from '@/i18n/server'
+import { localBusiness, website } from '@/lib/jsonld'
+import { aggregateRating, getLocations, getServices, getSettings, getTestimonials } from '@/lib/queries'
+import { fallbackOgUrl, ogImageUrl } from '@/lib/seo'
+import { absoluteUrl } from '@/lib/utils'
+
+import '../globals.css'
+
+// Plus Jakarta Sans (free, Open Font License) — one clean, readable family for everything.
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-jakarta', display: 'swap' })
+
+export const viewport: Viewport = { themeColor: '#fbfaf7', colorScheme: 'light' }
+
+type Props = { children: ReactNode; params: Promise<{ lang: string }> }
+
+/** Pre-render every page in each language. (No `dynamicParams = false`: it would also apply to
+ *  child pages, so content published after a deploy would 404 until the next build.) */
+export function generateStaticParams() {
+  return locales.map((lang) => ({ lang }))
+}
+
+export async function generateMetadata({ params }: Omit<Props, 'children'>): Promise<Metadata> {
+  const lang = setRequestLocale((await params).lang)
+  const settings = await getSettings()
+  const og = ogImageUrl(typeof settings.defaultOgImage === 'object' ? settings.defaultOgImage : null) ?? fallbackOgUrl(settings.businessName, settings.tagline)
+  return {
+    metadataBase: new URL(absoluteUrl('/')),
+    title: { default: `${settings.businessName} — ${settings.tagline}`, template: `%s | ${settings.businessName}` },
+    description: settings.description,
+    applicationName: settings.businessName,
+    openGraph: { siteName: settings.businessName, type: 'website', locale: ogLocale[lang], images: [og] },
+    twitter: { card: 'summary_large_image' },
+    alternates: { types: { 'application/rss+xml': absoluteUrl(withLocale('/blog/rss.xml', lang)) } },
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+      other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION } : undefined,
+    },
+    formatDetection: { telephone: true, address: true, email: true },
+    category: 'photography',
+    // Regional targeting hints (used by Bing and some local directories): Bucharest, Romania.
+    other: {
+      'geo.region': settings.address?.country === 'RO' ? `RO-${/ilfov/i.test(settings.address?.region ?? '') ? 'IF' : 'B'}` : (settings.address?.country ?? ''),
+      'geo.placename': settings.address?.city ?? '',
+      ...(settings.geo?.lat && settings.geo?.lng
+        ? { 'geo.position': `${settings.geo.lat};${settings.geo.lng}`, ICBM: `${settings.geo.lat}, ${settings.geo.lng}` }
+        : {}),
+    },
+  }
+}
+
+export default async function FrontendLayout({ children, params }: Props) {
+  const raw = (await params).lang
+  if (!isLocale(raw)) notFound()
+  const lang = setRequestLocale(raw)
+  const [settings, services, locations, testimonials] = await Promise.all([getSettings(), getServices(), getLocations(), getTestimonials()])
+  const rating = settings.googleRating?.value && settings.googleRating?.count
+    ? { value: settings.googleRating.value, count: settings.googleRating.count }
+    : aggregateRating(testimonials)
+
+  return (
+    <html lang={lang} className={jakarta.variable}>
+      <body>
+        <I18nProvider lang={lang}>
+          <Header businessName={settings.businessName} />
+          <main id="main">{children}</main>
+          <Footer settings={settings} services={services} locations={locations} />
+          <WhatsAppButton number={settings.whatsapp} businessName={settings.businessName} />
+        </I18nProvider>
+        <JsonLd data={[localBusiness(settings, { locations, services, rating, lang }), website(settings, lang)]} />
+        <Analytics />
+      </body>
+    </html>
+  )
+}

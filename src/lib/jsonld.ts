@@ -1,3 +1,4 @@
+import { intlLocale, type Locale, withLocale } from '@/i18n/config'
 import type { Location, Media, Post, Project, Service, SiteSetting, Testimonial } from '@/payload-types'
 
 import { absoluteUrl } from './utils'
@@ -35,10 +36,24 @@ export function imageObject(media: Media | number | null | undefined, extra: Jso
 
 export function localBusiness(
   settings: SiteSetting,
-  opts: { locations?: Location[]; services?: Service[]; rating?: { value: number; count: number } | null } = {},
+  opts: { locations?: Location[]; services?: Service[]; rating?: { value: number; count: number } | null; lang?: Locale } = {},
 ): Json {
   const social = Object.values(settings.social ?? {}).filter((v): v is string => typeof v === 'string' && v.length > 0)
   if (settings.googleBusinessProfileUrl) social.push(settings.googleBusinessProfileUrl)
+  const lang = opts.lang ?? 'ro'
+  const geo = settings.geo?.lat && settings.geo?.lng ? { latitude: settings.geo.lat, longitude: settings.geo.lng } : null
+
+  // Service area: every city/area page, plus a circle around the studio (Bucharest + Ilfov ≈ 40 km).
+  const areaServed: Json[] = [
+    ...(opts.locations ?? []).map((l) => ({
+      // A county page (e.g. "Județul Ilfov") is an administrative area; towns and Bucharest are cities.
+      '@type': l.region && l.name.includes(l.region) && l.name !== l.region ? 'AdministrativeArea' : 'City',
+      name: l.name,
+      ...(l.geo?.lat && l.geo?.lng ? { geo: { '@type': 'GeoCoordinates', latitude: l.geo.lat, longitude: l.geo.lng } } : {}),
+      ...(l.region && l.region !== l.name ? { containedInPlace: { '@type': 'AdministrativeArea', name: l.region } } : {}),
+    })),
+    ...(geo ? [{ '@type': 'GeoCircle', geoMidpoint: { '@type': 'GeoCoordinates', ...geo }, geoRadius: 40000 }] : []),
+  ]
 
   return {
     '@context': 'https://schema.org',
@@ -46,7 +61,9 @@ export function localBusiness(
     '@id': ORG_ID,
     name: settings.businessName,
     description: settings.description,
-    url: absoluteUrl('/'),
+    url: absoluteUrl(withLocale('/', lang)),
+    inLanguage: intlLocale[lang],
+    knowsLanguage: ['ro-RO', 'en'],
     email: settings.email,
     telephone: settings.phone,
     priceRange: settings.priceRange ?? undefined,
@@ -65,7 +82,10 @@ export function localBusiness(
       settings.geo?.lat && settings.geo?.lng
         ? { '@type': 'GeoCoordinates', latitude: settings.geo.lat, longitude: settings.geo.lng }
         : undefined,
-    areaServed: opts.locations?.map((l) => ({ '@type': 'City', name: l.name })),
+    areaServed: areaServed.length ? areaServed : undefined,
+    hasMap: settings.googleBusinessProfileUrl || (geo ? `https://www.google.com/maps?q=${geo.latitude},${geo.longitude}` : undefined),
+    currenciesAccepted: settings.currency,
+    paymentAccepted: 'Card, Bank transfer, Apple Pay, Google Pay',
     openingHoursSpecification: settings.openingHours?.map((o) => ({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: o.days ?? [],
@@ -82,7 +102,7 @@ export function localBusiness(
           name: 'Photography & videography services',
           itemListElement: opts.services.map((s) => ({
             '@type': 'Offer',
-            itemOffered: { '@type': 'Service', name: s.title, url: absoluteUrl(`/services/${s.slug}`) },
+            itemOffered: { '@type': 'Service', name: s.title, url: absoluteUrl(withLocale(`/services/${s.slug}`, lang)) },
             priceSpecification: { '@type': 'PriceSpecification', minPrice: s.startingPrice, priceCurrency: settings.currency },
           })),
         }
@@ -90,37 +110,41 @@ export function localBusiness(
   }
 }
 
-export function website(settings: SiteSetting): Json {
+export function website(settings: SiteSetting, lang: Locale = 'en'): Json {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': absoluteUrl('/#website'),
-    url: absoluteUrl('/'),
+    url: absoluteUrl(withLocale('/', lang)),
     name: settings.businessName,
+    inLanguage: ['en-GB', 'ro-RO'],
     publisher: { '@id': ORG_ID },
   }
 }
 
-export function serviceSchema(service: Service, settings: SiteSetting, location?: Location | null): Json {
-  const path = location ? `/services/${service.slug}/${location.slug}` : `/services/${service.slug}`
+export function serviceSchema(service: Service, settings: SiteSetting, location?: Location | null, lang: Locale = 'en'): Json {
+  const path = withLocale(location ? `/services/${service.slug}/${location.slug}` : `/services/${service.slug}`, lang)
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
     '@id': absoluteUrl(`${path}#service`),
-    name: location ? `${service.title} in ${location.name}` : service.title,
+    name: location ? `${service.title} — ${location.name}` : service.title,
+    inLanguage: intlLocale[lang],
     serviceType: service.title,
     description: service.excerpt,
     url: absoluteUrl(path),
     image: imageUrl(service.heroImage),
     provider: { '@id': ORG_ID },
-    areaServed: location ? { '@type': 'City', name: location.name } : undefined,
+    areaServed: location
+      ? { '@type': 'City', name: location.name, ...(location.region ? { containedInPlace: { '@type': 'AdministrativeArea', name: location.region } } : {}) }
+      : undefined,
     offers: (service.packages ?? []).map((p) => ({
       '@type': 'Offer',
       name: p.name,
       price: p.price,
       priceCurrency: settings.currency,
       description: p.description ?? undefined,
-      url: absoluteUrl(`/book?service=${service.slug}`),
+      url: absoluteUrl(withLocale(`/book?service=${service.slug}`, lang)),
     })),
   }
 }
@@ -167,14 +191,19 @@ export function videoSchema(
   fallback: { name: string; description: string; thumbnail?: Media | number | null; uploadDate?: string },
 ): Json | null {
   if (!video || video.provider === 'none') return null
+  const file = video.provider === 'upload' && video.file && typeof video.file === 'object' ? video.file : null
   const thumb =
     video.provider === 'mux' && video.muxPlaybackId
       ? `https://image.mux.com/${video.muxPlaybackId}/thumbnail.jpg?width=1280`
       : video.provider === 'youtube' && video.youtubeId
         ? `https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`
-        : imageUrl(fallback.thumbnail)
+        : imageUrl(file && typeof file.poster === 'object' ? file.poster : fallback.thumbnail)
   const contentUrl =
-    video.provider === 'mux' && video.muxPlaybackId ? `https://stream.mux.com/${video.muxPlaybackId}.m3u8` : undefined
+    video.provider === 'mux' && video.muxPlaybackId
+      ? `https://stream.mux.com/${video.muxPlaybackId}.m3u8`
+      : file?.url
+        ? absoluteUrl(file.url)
+        : undefined
   const embedUrl =
     video.provider === 'youtube' && video.youtubeId ? `https://www.youtube.com/embed/${video.youtubeId}` : undefined
   if (!contentUrl && !embedUrl) return null
@@ -191,17 +220,19 @@ export function videoSchema(
   }
 }
 
-export function projectSchema(project: Project): Json {
+export function projectSchema(project: Project, lang: Locale = 'en'): Json {
+  const path = withLocale(`/portfolio/${project.slug}`, lang)
   const gallery = (project.gallery ?? []).map((m) => imageObject(m)).filter(Boolean)
   return {
     '@context': 'https://schema.org',
     '@type': 'CreativeWork',
-    '@id': absoluteUrl(`/portfolio/${project.slug}#work`),
+    '@id': absoluteUrl(`${path}#work`),
+    inLanguage: intlLocale[lang],
     name: project.title,
     headline: project.title,
     abstract: project.excerpt,
     dateCreated: project.date?.slice(0, 10),
-    url: absoluteUrl(`/portfolio/${project.slug}`),
+    url: absoluteUrl(path),
     creator: { '@id': ORG_ID },
     image: [imageObject(project.coverImage), ...gallery].filter(Boolean),
     locationCreated: project.location && typeof project.location === 'object' ? { '@type': 'Place', name: project.venue || project.location.name } : undefined,
@@ -209,17 +240,18 @@ export function projectSchema(project: Project): Json {
   }
 }
 
-export function articleSchema(post: Post, settings: SiteSetting): Json {
+export function articleSchema(post: Post, settings: SiteSetting, lang: Locale = 'en'): Json {
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
+    inLanguage: intlLocale[lang],
     image: imageUrl(post.coverImage),
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
     author: { '@type': 'Organization', name: post.author || settings.businessName },
     publisher: { '@id': ORG_ID },
-    mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
+    mainEntityOfPage: absoluteUrl(withLocale(`/blog/${post.slug}`, lang)),
   }
 }

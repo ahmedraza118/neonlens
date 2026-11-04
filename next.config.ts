@@ -18,8 +18,12 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['*.ngrok-free.app', '*.ngrok-free.dev', '*.ngrok.app', '*.ngrok.io', '*.trycloudflare.com', '192.168.*.*'],
   images: {
     formats: ['image/avif', 'image/webp'],
-    qualities: [75, 85],
-    deviceSizes: [640, 828, 1080, 1280, 1600, 1920, 2560],
+    // 90 is used for full-screen heroes and gallery photos, 85 by default, 75 for small cards.
+    qualities: [75, 85, 90],
+    // Up to 4K so photos stay razor-sharp on large high-DPI (Retina / 4K) screens.
+    deviceSizes: [640, 828, 1080, 1280, 1600, 1920, 2560, 3840],
+    // Full-resolution camera originals can be large; allow optimizing sources up to 100 MB.
+    maximumResponseBody: 100_000_000,
     minimumCacheTTL: 60 * 60 * 24 * 30,
     localPatterns: [{ pathname: '/api/media/file/**' }],
     remotePatterns: [{ protocol: 'https', hostname: '*.public.blob.vercel-storage.com' }],

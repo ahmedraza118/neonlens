@@ -1,12 +1,16 @@
+import { fmt } from '@/i18n/config'
+import { getI18n } from '@/i18n/server'
+
 export function WhatsAppButton({ number, businessName }: { number?: string | null; businessName: string }) {
   if (!number) return null
-  const text = encodeURIComponent(`Hi ${businessName}! I'd like to check your availability.`)
+  const { t } = getI18n()
+  const text = encodeURIComponent(fmt(t.whatsapp.text, { name: businessName }))
   return (
     <a
       href={`https://wa.me/${number.replace(/\D/g, '')}?text=${text}`}
       target="_blank"
       rel="noopener"
-      aria-label="Chat on WhatsApp"
+      aria-label={t.whatsapp.label}
       className="fixed right-4 bottom-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/40 transition-transform hover:scale-105"
     >
       <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden>

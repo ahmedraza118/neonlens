@@ -35,6 +35,16 @@ export const Inquiries: CollectionConfig = {
     { name: 'budget', type: 'text' },
     { name: 'message', type: 'textarea' },
     { name: 'quoteSummary', type: 'textarea', admin: { description: 'Filled when sent from the quote calculator.' } },
+    {
+      name: 'locale',
+      type: 'select',
+      defaultValue: 'en',
+      options: [
+        { label: 'English', value: 'en' },
+        { label: 'Română', value: 'ro' },
+      ],
+      admin: { position: 'sidebar', description: 'Language the client used on the website (emails are sent in it).' },
+    },
     { name: 'sourcePage', type: 'text', admin: { position: 'sidebar' } },
     { name: 'referrer', type: 'text', admin: { position: 'sidebar' } },
     { name: 'utm', type: 'json', admin: { position: 'sidebar' } },

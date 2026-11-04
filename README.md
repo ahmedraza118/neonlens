@@ -7,7 +7,7 @@ It is built for three things: **ranking on Google** (local SEO), **turning visit
 
 | Area | Features |
 | --- | --- |
-| **Pages** | Home, Services, **Service × City landing pages** (`/services/wedding-photography/cluj-napoca`), Locations, Portfolio + case studies, Journal (blog + RSS), About, Reviews, FAQ, Pricing, Contact, Privacy |
+| **Pages** | Home, Services, **Service × City landing pages** (`/servicii/fotograf-nunta/snagov`), Locations, Portfolio + case studies, Journal (blog + RSS), About, Reviews, FAQ, Pricing, Contact, Privacy |
 | **SEO** | Per-page metadata + canonical URLs, editable SEO fields on every document, dynamic `sitemap.xml` with image entries, `robots.txt`, `llms.txt`, 1200×630 OG images generated for every upload plus a branded `/og` fallback card, JSON-LD (`LocalBusiness`, `Service`, `Offer`, `CreativeWork`, `ImageObject`, `VideoObject`, `Review`, `AggregateRating`, `FAQPage`, `BreadcrumbList`, `BlogPosting`, `WebSite`), Search Console verification, footer internal links to every service and city |
 | **Images** | `next/image` with AVIF/WebP, responsive sizes, blur-up placeholders, focal points, and camera filenames (`IMG_1234.jpg`) automatically renamed from the alt text |
 | **Video** | Mux (adaptive streaming) or YouTube, click-to-load so pages stay fast; optional muted showreel behind the home hero |
@@ -16,6 +16,32 @@ It is built for three things: **ranking on Google** (local SEO), **turning visit
 | **Booking + deposits** | `/book`: live availability calendar (blocked dates + paid bookings), package picker, **Stripe Checkout** deposit, webhook confirmation, confirmation emails. Without Stripe it falls back to a booking request. |
 | **Client galleries** | `/client/<code>`: password-protected proofing galleries. Clients favourite photos (with an optional limit), leave notes, submit their selection (you get notified) and download finals. Files are access-controlled, not just hidden. |
 | **AI alt text** | `npm run alt-text` uses Claude vision to write alt text, captions and tags for your library, flagged for your review |
+
+## Languages (Romanian + English)
+
+- **Romanian is the main language** (the studio targets Bucharest & Ilfov), with Romanian URLs at the root: `/servicii/fotograf-nunta`, `/zone/bucuresti`, `/portofoliu/…`. English is under `/en`: `/en/services/wedding-photography`.
+- **Translated slugs:** each service, area, project and post has a slug per language (edit it in the sidebar after switching the editor language). Opening a page with the other language's slug redirects to the right URL. Old English URLs without `/en` redirect to `/en/…`.
+- **SEO:** every page links its translation (`hreflang`, `x-default` → Romanian), and the sitemap lists both languages.
+- **Language switcher:** RO | EN in the header and the mobile menu. The choice is remembered in a cookie.
+- **Interface text** lives in `src/i18n/dictionaries/ro.ts` and `en.ts`; Romanian route names in `src/i18n/config.ts`.
+- **Content** is translated in the admin: pick **Română / English** at the top of any editor. Romanian is the default there too. Text not translated yet falls back to the other language.
+
+## Local SEO (Bucharest & Ilfov)
+
+- One page per area (`/zone/…`) and per service × area (`/servicii/fotograf-nunta/snagov`), each with unique local copy, venues and FAQs. Add or remove areas in *Locations*; keep the copy unique per area.
+- `LocalBusiness` structured data with the Bucharest address, opening hours, ratings, every area served and a ~40 km service radius; regional `geo.*` meta tags.
+- Per-page SEO title/description fields; Romanian-first titles, alt text and file names.
+- Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` / `NEXT_PUBLIC_BING_SITE_VERIFICATION`, submit `/sitemap.xml` in Google Search Console and Bing Webmaster Tools, and keep the Google Business Profile (category *Fotograf de nunți* / *Videograf*) identical to *Business & SEO settings*.
+
+## Home page carousel
+
+Admin → **Homepage → Hero carousel**. Leave *Slides* empty to get one slide per service automatically, or add slides to pick the service, photo (2400px+), an optional silent MP4 loop or Mux ID, and custom text/button. *Autoplay seconds* sets the pace. The slideshow pauses on hover/focus of its controls, has a pause button, supports swipe and arrow keys, and does not autoplay for visitors who prefer reduced motion.
+
+## Photos & video quality
+
+- **Upload originals at full resolution.** They are stored untouched (no re-compression). The site serves sharp AVIF/WebP versions sized for each screen, up to 4K, at quality 85–90.
+- **Videos:** upload MP4 (H.264; H.265 for 4K) or WebM to *Media*, and add a **poster** image to each video. Use them in a video field (*Uploaded file*) or as a carousel background. For long films, Mux gives adaptive 4K streaming.
+- **Large files on Vercel:** uploads go straight from the browser to Vercel Blob (`clientUploads`), which bypasses Vercel's 4.5 MB request limit. Self-hosted, uploads up to 2 GB are accepted.
 
 ## Quick start
 
@@ -36,7 +62,9 @@ npm run dev
 | Script | What it does |
 | --- | --- |
 | `npm run dev` / `build` / `start` | Next.js |
-| `npm run seed` | Wipes content and loads the demo data in `src/seed/data.ts` |
+| `npm run seed` | Wipes content and loads the demo data in `src/seed/data.ts` (+ Romanian from `data.ro.ts`) |
+| `npm run seed:ro` | Adds the Romanian demo translations to existing content (deletes nothing) |
+| `npm run migrate:local` | Applies a new migration to your **local** database while keeping its content (back up `neonlens.db` first) |
 | `npm run alt-text [-- --all]` | AI alt text, captions and tags for media (needs `ANTHROPIC_API_KEY`) |
 | `npm test` | Unit tests: quote maths, gallery session signing, passwords, utils |
 | `npm run lint` / `typecheck` | Code checks |
@@ -86,7 +114,7 @@ The code handles technical SEO. These steps bring the clients:
 1. **Google Business Profile.** This is the biggest lever for local leads. Use exactly the same name, address and phone as the site, choose the categories *Photographer* and *Videographer*, upload photos weekly and add the GBP URL in settings.
 2. **Ask every client for a Google review.** Set `googleReviewUrl` and the link appears in the footer and on `/reviews`. Send it with the gallery.
 3. **Submit `https://yourdomain.com/sitemap.xml`** in Google Search Console and watch the *Performance* report for the queries you're close to ranking for.
-4. **Publish a case study for every good shoot**, with venue + city in the title and alt text. These rank for long-tail searches like "wedding at Banffy Castle".
+4. **Publish a case study for every good shoot**, with venue + city in the title and alt text. These rank for long-tail searches like "nuntă la Palatul Mogoșoaia".
 5. **Write the Journal posts buyers search for:** prices ("how much does a wedding videographer cost in X"), venue guides and checklists. Link each one to the related service.
 6. **Use descriptive alt text** (run `npm run alt-text`, then review) and upload photos with real names. Google Images is real traffic for photographers.
 7. **Earn backlinks:** get featured on venue and planner "recommended vendors" pages and wedding blogs, and post reels linking back to the matching service page.

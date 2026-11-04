@@ -27,6 +27,11 @@
   }
   body {
     @apply bg-page text-fg font-sans antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Anchor jumps (#inquire) land below the sticky header. */
+  [id] {
+    scroll-margin-top: 5rem;
   }
   h1,
   h2,
@@ -73,12 +78,26 @@
 @utility card {
   @apply rounded-2xl border border-line bg-surface;
 }
+/* 16px text on phones: iOS Safari zooms into any field with smaller text on focus. */
 @utility input {
-  @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-fg placeholder:text-muted/70 focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none;
+  @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-fg sm:text-sm placeholder:text-muted/70 focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none;
 }
 @utility label {
   @apply mb-1.5 block text-sm font-medium text-fg/80;
 }
 @utility accent-text {
   @apply text-accent;
+}
+
+/* Home hero carousel: the active slide's progress bar; its end advances the slideshow. */
+@utility hero-progress {
+  animation: hero-progress var(--hero-interval, 6s) linear forwards;
+}
+@keyframes hero-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }

@@ -25,6 +25,16 @@ export const Bookings: CollectionConfig = {
         { label: 'Completed', value: 'completed' },
       ],
     },
+    {
+      name: 'locale',
+      type: 'select',
+      defaultValue: 'en',
+      options: [
+        { label: 'English', value: 'en' },
+        { label: 'Română', value: 'ro' },
+      ],
+      admin: { position: 'sidebar', description: 'Language the client used on the website (emails are sent in it).' },
+    },
     { name: 'name', type: 'text', required: true },
     { name: 'email', type: 'email', required: true },
     { name: 'phone', type: 'text' },

@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useState } from 'react'
 
+import { useI18n } from '@/i18n/client'
+import { fmt as fill } from '@/i18n/config'
 import { type AddOn, availableAddOns, calculateQuote, type Rate } from '@/lib/quote'
 import { formatMoney } from '@/lib/utils'
 
@@ -20,6 +22,7 @@ type Props = {
 }
 
 export function QuoteCalculator({ services, locations, rates, addOns, currency, spreadPercent, initialService, initialLocation }: Props) {
+  const { lang, t, href } = useI18n()
   const priced = services.filter((s) => rates.some((r) => r.serviceId === s.id))
   const [serviceSlug, setServiceSlug] = useState(priced.find((s) => s.slug === initialService)?.slug ?? priced[0]?.slug)
   const [locationSlug, setLocationSlug] = useState(locations.find((l) => l.slug === initialLocation)?.slug ?? locations[0]?.slug)
@@ -38,23 +41,24 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
         addOns: options.filter((a) => selected.includes(a.id)),
         travelFee: location?.travelFee ?? 0,
         spreadPercent,
+        labels: { baseFee: t.quote.baseFee, coverage: t.quote.coverageLine, travel: t.quote.travel },
       })
     : null
 
-  if (!rate || !service || !quote) return <p className="text-muted">Pricing is being updated — please send us an inquiry.</p>
+  if (!rate || !service || !quote) return <p className="text-muted">{t.quote.updating}</p>
 
-  const fmt = (n: number) => formatMoney(n, currency)
+  const fmt = (n: number) => formatMoney(n, currency, lang)
   const summary = [
-    `${service.title} — ${quote.hours}h${location ? ` in ${location.name}` : ''}`,
+    `${service.title} — ${quote.hours}h${location ? fill(t.quote.summaryIn, { city: location.name }) : ''}`,
     ...quote.lines.map((l) => `${l.label}: ${fmt(l.amount)}`),
-    `Estimate: ${fmt(quote.low)} – ${fmt(quote.high)}`,
+    fill(t.quote.summaryEstimate, { low: fmt(quote.low), high: fmt(quote.high) }),
   ].join('\n')
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr]">
       <div className="card space-y-8 p-6 sm:p-8">
         <fieldset>
-          <legend className="label">1. Service</legend>
+          <legend className="label">{t.quote.service}</legend>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {priced.map((s) => (
               <label key={s.id} className={`cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${s.slug === serviceSlug ? 'border-accent bg-accent/10' : 'border-line hover:border-fg/40'}`}>
@@ -79,7 +83,7 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
 
         <div>
           <label htmlFor="hours" className="label">
-            2. Coverage: <span className="text-fg">{quote.hours} hours</span>
+            {t.quote.coverage} <span className="text-fg">{fill(t.quote.hoursValue, { hours: quote.hours })}</span>
           </label>
           <input
             id="hours"
@@ -99,12 +103,12 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
 
         {locations.length > 0 && (
           <div>
-            <label htmlFor="loc" className="label">3. Location</label>
+            <label htmlFor="loc" className="label">{t.quote.location}</label>
             <select id="loc" className="input" value={locationSlug} onChange={(e) => setLocationSlug(e.target.value)}>
               {locations.map((l) => (
                 <option key={l.slug} value={l.slug}>
                   {l.name}
-                  {l.travelFee ? ` (+${fmt(l.travelFee)} travel)` : ''}
+                  {l.travelFee ? fill(t.quote.travelSuffix, { price: fmt(l.travelFee) }) : ''}
                 </option>
               ))}
             </select>
@@ -113,7 +117,7 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
 
         {options.length > 0 && (
           <fieldset>
-            <legend className="label">4. Extras</legend>
+            <legend className="label">{t.quote.extras}</legend>
             <div className="mt-2 space-y-2">
               {options.map((a) => (
                 <label key={a.id} className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-line px-4 py-3 text-sm hover:border-fg/40">
@@ -128,7 +132,7 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
                   </span>
                   <span className="text-muted">
                     {fmt(a.price)}
-                    {a.unit === 'perHour' ? '/h' : ''}
+                    {a.unit === 'perHour' ? t.quote.perHour : ''}
                   </span>
                 </label>
               ))}
@@ -139,7 +143,7 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
 
       <div className="lg:sticky lg:top-24 lg:self-start">
         <div className="card p-6 sm:p-8" aria-live="polite">
-          <p className="label">Your estimate</p>
+          <p className="label">{t.quote.estimate}</p>
           <p className="text-3xl font-bold sm:text-4xl">
             {fmt(quote.low)} <span className="text-muted">–</span> {fmt(quote.high)}
           </p>
@@ -151,13 +155,13 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
               </div>
             ))}
           </dl>
-          <p className="mt-6 text-xs text-muted">Final price depends on your exact plan. No commitment — we confirm everything personally.</p>
+          <p className="mt-6 text-xs text-muted">{t.quote.disclaimer}</p>
           <div className="mt-6 grid gap-3">
             <button type="button" className="btn-primary" onClick={() => setShowForm(true)}>
-              Send me this quote
+              {t.quote.send}
             </button>
-            <Link href={`/book?service=${service.slug}`} className="btn-ghost">
-              Book a package now
+            <Link href={href(`/book?service=${service.slug}`)} className="btn-ghost">
+              {t.quote.book}
             </Link>
           </div>
         </div>
@@ -165,7 +169,7 @@ export function QuoteCalculator({ services, locations, rates, addOns, currency, 
 
       {showForm && (
         <div className="card p-6 sm:p-8 lg:col-span-2">
-          <h2 className="mb-6 text-2xl font-bold">Where should we send it?</h2>
+          <h2 className="mb-6 text-2xl font-bold">{t.quote.where}</h2>
           <InquiryForm
             services={services}
             compact

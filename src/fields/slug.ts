@@ -10,15 +10,20 @@ const formatSlug =
     return typeof source === 'string' ? slugify(source) : value
   }
 
-/** URL slug, auto-generated from `fallback` (usually the title) when left empty. */
-export const slugField = (fallback = 'title'): Field => ({
+/**
+ * URL slug, auto-generated from `fallback` (usually the title) when left empty. Translated: each
+ * language has its own slug (/servicii/fotograf-nunta vs /en/services/wedding-photography).
+ */
+export const slugField = (fallback = 'title', { localized = true }: { localized?: boolean } = {}): Field => ({
   name: 'slug',
   type: 'text',
   index: true,
   unique: true,
+  localized,
   admin: {
     position: 'sidebar',
-    description: 'URL segment. Leave empty to generate from the title. Changing it breaks existing links.',
+    description:
+      'URL segment for this language. Leave empty to generate it from the title. Use the words people search for (e.g. "fotograf-nunta"). Changing it later breaks existing links.',
   },
   hooks: { beforeValidate: [formatSlug(fallback)] },
 })

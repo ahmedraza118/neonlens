@@ -46,8 +46,8 @@ export const Pricing: GlobalConfig = {
       name: 'addOns',
       type: 'array',
       fields: [
-        { name: 'name', type: 'text', required: true },
-        { name: 'description', type: 'text' },
+        { name: 'name', type: 'text', required: true, localized: true },
+        { name: 'description', type: 'text', localized: true },
         {
           type: 'row',
           fields: [

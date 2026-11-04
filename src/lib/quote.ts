@@ -9,7 +9,11 @@ export type QuoteInput = {
   addOns: AddOn[]
   travelFee?: number
   spreadPercent?: number
+  /** Line labels in the visitor's language; `{hours}`/`{rate}` are filled in. */
+  labels?: { baseFee: string; coverage: string; travel: string }
 }
+
+const DEFAULT_LABELS = { baseFee: 'Base fee (planning & editing)', coverage: 'Coverage — {hours} h × {rate}', travel: 'Travel' }
 
 export type QuoteResult = {
   hours: number
@@ -28,16 +32,16 @@ export function availableAddOns(addOns: AddOn[], serviceId: number): AddOn[] {
   return addOns.filter((a) => a.serviceIds.length === 0 || a.serviceIds.includes(serviceId))
 }
 
-export function calculateQuote({ rate, hours, addOns, travelFee = 0, spreadPercent = 10 }: QuoteInput): QuoteResult {
+export function calculateQuote({ rate, hours, addOns, travelFee = 0, spreadPercent = 10, labels = DEFAULT_LABELS }: QuoteInput): QuoteResult {
   const h = clampHours(rate, hours)
   const lines: QuoteResult['lines'] = [
-    { label: 'Base fee (planning & editing)', amount: rate.baseFee },
-    { label: `Coverage — ${h} h × ${rate.hourlyRate}`, amount: rate.hourlyRate * h },
+    { label: labels.baseFee, amount: rate.baseFee },
+    { label: labels.coverage.replace('{hours}', String(h)).replace('{rate}', String(rate.hourlyRate)), amount: rate.hourlyRate * h },
   ]
   for (const addOn of availableAddOns(addOns, rate.serviceId)) {
     lines.push({ label: addOn.name, amount: addOn.unit === 'perHour' ? addOn.price * h : addOn.price })
   }
-  if (travelFee > 0) lines.push({ label: 'Travel', amount: travelFee })
+  if (travelFee > 0) lines.push({ label: labels.travel, amount: travelFee })
 
   const total = lines.reduce((sum, l) => sum + l.amount, 0)
   const spread = Math.max(0, spreadPercent) / 100

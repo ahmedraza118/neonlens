@@ -10,8 +10,8 @@ export const Testimonials: CollectionConfig = {
   hooks: revalidateHooks,
   fields: [
     { name: 'name', type: 'text', required: true },
-    { name: 'role', type: 'text', admin: { description: 'e.g. "Bride", "Marketing Lead at Acme"' } },
-    { name: 'quote', type: 'textarea', required: true },
+    { name: 'role', type: 'text', localized: true, admin: { description: 'e.g. "Bride", "Marketing Lead at Acme"' } },
+    { name: 'quote', type: 'textarea', required: true, localized: true },
     { name: 'rating', type: 'number', min: 1, max: 5, defaultValue: 5, required: true },
     { name: 'date', type: 'date', required: true, defaultValue: () => new Date().toISOString() },
     { name: 'service', type: 'relationship', relationTo: 'services' },

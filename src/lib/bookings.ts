@@ -1,5 +1,8 @@
 import 'server-only'
 
+import { fmt, toLocale } from '@/i18n/config'
+import { getDictionary } from '@/i18n/dictionaries'
+
 import { notifyStudio, rowsToHtml, sendEmail } from './notify'
 import { getPayloadClient } from './payload'
 import { getSettings } from './queries'
@@ -17,20 +20,30 @@ export async function markBookingPaid(bookingId: number | string, sessionId: str
     data: { status: 'paid', paidAt: new Date().toISOString() },
   })
 
-  const settings = await getSettings()
+  const lang = toLocale(booking.locale)
+  const t = getDictionary(lang)
+  const settings = await getSettings(lang)
+  const currency = booking.currency ?? settings.currency
   const rows: Array<[string, string]> = [
     ['Service', `${booking.serviceTitle} — ${booking.packageName}`],
     ['Date', formatDate(booking.date)],
-    ['Deposit paid', formatMoney(booking.depositAmount, booking.currency ?? settings.currency)],
-    ['Balance', formatMoney(booking.packagePrice - booking.depositAmount, booking.currency ?? settings.currency)],
+    ['Deposit paid', formatMoney(booking.depositAmount, currency)],
+    ['Balance', formatMoney(booking.packagePrice - booking.depositAmount, currency)],
+  ]
+  const r = t.actions.rows
+  const clientRows: Array<[string, string]> = [
+    [r.service, `${booking.serviceTitle} — ${booking.packageName}`],
+    [r.date, formatDate(booking.date, lang)],
+    [r.depositPaid, formatMoney(booking.depositAmount, currency, lang)],
+    [r.balance, formatMoney(booking.packagePrice - booking.depositAmount, currency, lang)],
   ]
   await Promise.allSettled([
     notifyStudio(`💸 Deposit paid: ${booking.name}`, [...rows, ['Email', booking.email], ['Phone', booking.phone ?? '']], booking.email),
     sendEmail({
       to: booking.email,
-      subject: `You're booked! ${formatDate(booking.date)} with ${settings.businessName}`,
+      subject: fmt(t.actions.bookedSubject, { date: formatDate(booking.date, lang), name: settings.businessName }),
       replyTo: settings.email,
-      html: `<p style="font-family:sans-serif">Hi ${booking.name.split(' ')[0].replace(/[<>&]/g, '')}, your date is officially reserved 🎉</p>${rowsToHtml('Booking confirmation', rows)}<p style="font-family:sans-serif">We'll be in touch within 48 hours to plan the details.<br>${settings.businessName} · ${settings.phone}</p>`,
+      html: `<p style="font-family:sans-serif">${fmt(t.actions.bookedHi, { name: booking.name.split(' ')[0].replace(/[<>&]/g, '') })}</p>${rowsToHtml(t.actions.bookedTitle, clientRows)}<p style="font-family:sans-serif">${t.actions.bookedNext}<br>${settings.businessName} · ${settings.phone}</p>`,
     }),
   ])
   return updated

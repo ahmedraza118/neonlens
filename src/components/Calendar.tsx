@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react'
 
+import { useI18n } from '@/i18n/client'
+import { intlLocale } from '@/i18n/config'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -13,7 +15,6 @@ type Props = {
   maxDate: string
 }
 
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 const pad = (n: number) => String(n).padStart(2, '0')
 const iso = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`
 
@@ -22,11 +23,12 @@ export function Calendar({ value, onChange, blockedDates, blockedWeekdays, minDa
   const start = value ?? minDate
   const [cursor, setCursor] = useState(() => ({ y: Number(start.slice(0, 4)), m: Number(start.slice(5, 7)) - 1 }))
   const blocked = useMemo(() => new Set(blockedDates), [blockedDates])
+  const { lang, t } = useI18n()
 
   const first = new Date(Date.UTC(cursor.y, cursor.m, 1))
   const daysInMonth = new Date(Date.UTC(cursor.y, cursor.m + 1, 0)).getUTCDate()
   const offset = (first.getUTCDay() + 6) % 7 // Monday-first grid
-  const label = first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+  const label = first.toLocaleDateString(intlLocale[lang], { month: 'long', year: 'numeric', timeZone: 'UTC' })
 
   const canPrev = iso(cursor.y, cursor.m, 1) > minDate.slice(0, 8) + '01'
   const canNext = iso(cursor.y, cursor.m, daysInMonth) < maxDate
@@ -39,16 +41,16 @@ export function Calendar({ value, onChange, blockedDates, blockedWeekdays, minDa
   return (
     <div className="rounded-2xl border border-line bg-surface-2 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={() => move(-1)} disabled={!canPrev} className="h-9 w-9 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label="Previous month">
+        <button type="button" onClick={() => move(-1)} disabled={!canPrev} className="h-9 w-9 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label={t.calendar.prev}>
           ‹
         </button>
         <p className="font-semibold" aria-live="polite">{label}</p>
-        <button type="button" onClick={() => move(1)} disabled={!canNext} className="h-9 w-9 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label="Next month">
+        <button type="button" onClick={() => move(1)} disabled={!canNext} className="h-9 w-9 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label={t.calendar.next}>
           ›
         </button>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted">
-        {WEEKDAYS.map((d) => (
+        {t.calendar.weekdays.map((d) => (
           <span key={d} className="py-1">{d}</span>
         ))}
       </div>
@@ -69,7 +71,7 @@ export function Calendar({ value, onChange, blockedDates, blockedWeekdays, minDa
               disabled={disabled}
               onClick={() => onChange(date)}
               aria-pressed={selected}
-              aria-label={`${date}${disabled ? ' (unavailable)' : ''}`}
+              aria-label={`${date}${disabled ? t.calendar.unavailable : ''}`}
               className={cn(
                 'aspect-square rounded-lg text-sm transition',
                 selected ? 'bg-accent font-semibold text-white' : 'hover:bg-accent-soft',

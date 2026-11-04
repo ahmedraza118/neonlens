@@ -12,7 +12,9 @@ import { slugify } from '@/lib/utils'
 import type { Media } from '@/payload-types'
 
 import * as data from './data'
+import * as dataRo from './data.ro'
 import { markdownToLexical } from './lexical'
+import { applyRomanian } from './romanian'
 
 const ctx = { disableRevalidate: true }
 
@@ -42,16 +44,21 @@ function oneAtATime<T>(task: () => Promise<T>): Promise<T> {
   return run
 }
 
-async function image(payload: Payload, seed: string, alt: string, size: [number, number] = [2000, 1333], extra: Partial<Media> = {}) {
+/** Uploads a placeholder photo with English alt text and, when given, its Romanian alt text. */
+async function image(payload: Payload, seed: string, alt: string, size: [number, number] = [2000, 1333], extra: Partial<Media> = {}, altRo?: string) {
   const buffer = await download(`neonlens-${seed}`, size[0], size[1])
-  return oneAtATime(() =>
-    payload.create({
+  return oneAtATime(async () => {
+    const doc = await payload.create({
       collection: 'media',
       context: ctx,
+      locale: 'en',
       data: { alt, altNeedsReview: true, ...extra },
-      file: { data: buffer, mimetype: 'image/jpeg', name: `${slugify(alt).slice(0, 55)}-${slugify(seed)}.jpg`, size: buffer.length },
-    }),
-  )
+      // Romanian file names: Romanian is the site's main language (Google Images reads them).
+      file: { data: buffer, mimetype: 'image/jpeg', name: `${slugify(altRo ?? alt).slice(0, 55)}-${slugify(seed)}.jpg`, size: buffer.length },
+    })
+    if (altRo) await payload.update({ collection: 'media', id: doc.id, locale: 'ro', context: ctx, data: { alt: altRo } })
+    return doc
+  })
 }
 
 /** Runs async jobs with limited concurrency so we don't hammer the image service. */
@@ -75,7 +82,8 @@ async function wipe(payload: Payload) {
   for (const table of ['site_settings', 'homepage', 'pricing', 'availability']) {
     await payload.db.drizzle.run(sql.raw(`DELETE FROM "${table}"`))
   }
-  const order = ['client-media', 'client-galleries', 'projects', 'posts', 'testimonials', 'locations', 'services', 'inquiries', 'bookings', 'media'] as const
+  // Bookings point at services, so they go first.
+  const order = ['bookings', 'inquiries', 'client-media', 'client-galleries', 'projects', 'posts', 'testimonials', 'locations', 'services', 'media'] as const
   for (const collection of order) {
     const res = await payload.delete({ collection, where: { id: { exists: true } }, context: ctx, overrideAccess: true })
     if (res.errors.length > 0) {
@@ -118,13 +126,17 @@ async function seed() {
 
   // Services
   const serviceIds: Record<string, number> = {}
-  const serviceDocs = await pool(data.services, 3, async (s) => {
-    const hero = await image(payload, `svc-${s.key}`, `${s.title} by NeonLens Studio in Cluj-Napoca`)
+  const serviceDocs = await pool(data.services, 3, async (s, i) => {
+    const ro = dataRo.services[i]
+    const hero = await image(payload, `svc-${s.key}`, `${s.title} in Bucharest by NeonLens Studio`, undefined, {}, `${ro.title} în București — NeonLens Studio`)
     return payload.create({
       collection: 'services',
       context: ctx,
+      locale: 'en',
       data: {
         title: s.title,
+        slug: s.slug,
+        seo: { ...s.seo },
         category: s.category,
         order: s.order,
         tagline: s.tagline,
@@ -146,13 +158,16 @@ async function seed() {
 
   // Locations
   const locationIds: Record<string, number> = {}
-  const locationDocs = await pool(data.locations, 3, async (l) => {
-    const hero = await image(payload, `loc-${l.key}`, `Photography and videography in ${l.name}, ${l.region}`)
+  const locationDocs = await pool(data.locations, 3, async (l, i) => {
+    const ro = dataRo.locations[i]
+    const hero = await image(payload, `loc-${l.key}`, `Wedding photographer and videographer in ${l.name}`, undefined, {}, `Fotograf și videograf de nuntă în ${ro.name}`)
     return payload.create({
       collection: 'locations',
       context: ctx,
+      locale: 'en',
       data: {
         name: l.name,
+        slug: l.slug,
         region: l.region,
         isPrimary: l.isPrimary,
         travelFee: l.travelFee,
@@ -174,6 +189,7 @@ async function seed() {
     const doc = await payload.create({
       collection: 'testimonials',
       context: ctx,
+      locale: 'en',
       data: {
         name: t.name,
         role: t.role,
@@ -190,20 +206,32 @@ async function seed() {
   log(`Created ${data.testimonials.length} testimonials`)
 
   // Projects
-  const projectDocs = await pool(data.projects, 2, async (p) => {
+  const projectDocs = await pool(data.projects, 2, async (p, i) => {
+    const ro = dataRo.projects[i]
+    const roSvc = dataRo.services.find((x) => x.key === p.service)?.title ?? ''
+    const roLoc = dataRo.locations.find((x) => x.key === p.location)?.name ?? ''
     const locName = data.locations.find((l) => l.key === p.location)?.name ?? ''
     const svcName = data.services.find((s) => s.key === p.service)?.title ?? ''
-    const cover = await image(payload, `prj-${p.key}-cover`, `${p.title.split('—')[0].trim()} — ${svcName.toLowerCase()} at ${p.venue}`, [1600, 2000])
+    const cover = await image(payload, `prj-${p.key}-cover`, `${p.title.split('—')[0].trim()} — ${svcName.toLowerCase()} at ${p.venue}`, [1600, 2000], {}, `${ro.title.split('—')[0].trim()} — ${roSvc.toLowerCase()}, ${ro.venue}`)
     const gallery = await pool([0, 1, 2, 3, 4, 5], 3, (n) =>
-      image(payload, `prj-${p.key}-${n}`, `${svcName} in ${locName}: ${p.tags[n % p.tags.length]} moment at ${p.venue} (${n + 1})`, n % 3 === 1 ? [1400, 2100] : [2100, 1400]),
+      image(
+        payload,
+        `prj-${p.key}-${n}`,
+        `${svcName} in ${locName}: ${p.tags[n % p.tags.length]} moment at ${p.venue} (${n + 1})`,
+        n % 3 === 1 ? [1400, 2100] : [2100, 1400],
+        {},
+        `${roSvc} ${roLoc}: ${ro.tags[n % ro.tags.length]}, ${ro.venue} (${n + 1})`,
+      ),
     )
     return payload.create({
       collection: 'projects',
       context: ctx,
+      locale: 'en',
       draft: false,
       data: {
         _status: 'published',
         title: p.title,
+        slug: p.slug,
         service: serviceIds[p.service],
         location: locationIds[p.location],
         venue: p.venue,
@@ -226,15 +254,17 @@ async function seed() {
   log(`Created ${projectDocs.length} projects`)
 
   // Posts
-  const postDocs = await pool(data.posts, 3, async (p) => {
-    const cover = await image(payload, `post-${p.key}`, p.title.replace(/\?.*$/, ''))
+  const postDocs = await pool(data.posts, 3, async (p, i) => {
+    const cover = await image(payload, `post-${p.key}`, p.title.replace(/\?.*$/, ''), undefined, {}, dataRo.posts[i].title.replace(/\?.*$/, ''))
     return payload.create({
       collection: 'posts',
       context: ctx,
+      locale: 'en',
       draft: false,
       data: {
         _status: 'published',
         title: p.title,
+        slug: p.slug,
         category: p.category,
         publishedAt: new Date(p.publishedAt).toISOString(),
         excerpt: p.excerpt,
@@ -251,14 +281,15 @@ async function seed() {
 
   // Globals
   const [heroImage, aboutImage, ogImage] = await Promise.all([
-    image(payload, 'home-hero', 'Couple walking through Transylvanian hills at sunset, wedding photography Cluj-Napoca', [2400, 1600]),
-    image(payload, 'about', 'The NeonLens Studio team with cameras in Cluj-Napoca', [1600, 2000]),
-    image(payload, 'og-default', 'NeonLens Studio — wedding and brand photography and film', [1200, 630]),
+    image(payload, 'home-hero', 'Couple at sunset in Bucharest, wedding photography Bucharest and Ilfov', [2400, 1600], {}, 'Miri la apus în București, fotograf nuntă București și Ilfov'),
+    image(payload, 'about', 'The NeonLens Studio team with cameras in Bucharest', [1600, 2000], {}, 'Echipa NeonLens Studio cu camerele, în București'),
+    image(payload, 'og-default', 'NeonLens Studio — wedding photographer and videographer in Bucharest', [1200, 630], {}, 'NeonLens Studio — fotograf și videograf de nuntă în București'),
   ])
 
   await payload.updateGlobal({
     slug: 'site-settings',
     context: ctx,
+    locale: 'en',
     data: {
       ...data.settings,
       openingHours: data.settings.openingHours.map((o) => ({ ...o, days: [...o.days] })),
@@ -273,6 +304,7 @@ async function seed() {
   await payload.updateGlobal({
     slug: 'homepage',
     context: ctx,
+    locale: 'en',
     data: {
       ...data.homepage,
       heroImage: heroImage.id,
@@ -284,6 +316,7 @@ async function seed() {
   await payload.updateGlobal({
     slug: 'pricing',
     context: ctx,
+    locale: 'en',
     data: {
       depositPercent: data.pricing.depositPercent,
       estimateSpreadPercent: data.pricing.estimateSpreadPercent,
@@ -301,6 +334,7 @@ async function seed() {
   await payload.updateGlobal({
     slug: 'availability',
     context: ctx,
+    locale: 'en',
     data: { bookingWindowDays: 540, minNoticeDays: 7, blockedDates: blocked },
   })
   log('Updated globals')
@@ -311,6 +345,7 @@ async function seed() {
     const gallery = await payload.create({
       collection: 'client-galleries',
       context: ctx,
+      locale: 'en',
       data: {
         title: 'Ana & Mihai — Wedding proofing',
         slug: 'demo-wedding',
@@ -338,7 +373,10 @@ async function seed() {
     log('Created demo client gallery at /client/demo-wedding (password: SEED_GALLERY_PASSWORD in .env)')
   }
 
-  log('Done ✨  Run `npm run dev` and open http://localhost:3000')
+  log('Adding the Romanian translations…')
+  await applyRomanian(payload, log)
+
+  log('Done ✨  Run `npm run dev` and open http://localhost:3000 (English: /en)')
 }
 
 try {

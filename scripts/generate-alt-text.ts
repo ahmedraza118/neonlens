@@ -19,10 +19,13 @@ import { z } from 'zod'
 
 import type { Media } from '@/payload-types'
 
+// Romanian is the site's main language; English is the second version of each text.
 const ImageSeo = z.object({
-  alt: z.string().describe('Alt text, max 125 characters: what is in the photo and where.'),
-  caption: z.string().describe('One short, natural caption for display under the photo.'),
-  tags: z.array(z.string()).describe('5-8 lowercase search keywords.'),
+  altRo: z.string().describe('Romanian alt text (with diacritics), max 125 characters: what is in the photo and where.'),
+  altEn: z.string().describe('The same alt text in English.'),
+  captionRo: z.string().describe('One short, natural Romanian caption for display under the photo.'),
+  captionEn: z.string().describe('The same caption in English.'),
+  tags: z.array(z.string()).describe('5-8 lowercase search keywords, mostly Romanian as people search in Bucharest.'),
 })
 
 async function loadImage(doc: Media): Promise<Buffer> {
@@ -42,13 +45,14 @@ async function run() {
   const all = process.argv.includes('--all')
   const payload = await getPayload({ config })
   const client = new Anthropic()
-  const settings = await payload.findGlobal({ slug: 'site-settings' })
+  const settings = await payload.findGlobal({ slug: 'site-settings', locale: 'en' })
 
   const { docs } = await payload.find({
     collection: 'media',
     where: all ? undefined : { tags: { exists: false } },
     limit: 1000,
     depth: 0,
+    locale: 'en',
   })
   payload.logger.info(`Generating alt text for ${docs.length} image(s)…`)
 
@@ -61,13 +65,13 @@ async function run() {
         max_tokens: 2000,
         // Describing a photo is a simple task, so low effort keeps it fast and cheap.
         output_config: { effort: 'low', format: zodOutputFormat(ImageSeo) },
-        system: `You write image SEO metadata for ${settings.businessName}, a photography and videography studio in ${settings.address?.city}. Describe only what is visible. Use the existing description for facts you cannot see (venue, city, people's roles) but never invent names or places.`,
+        system: `You write image SEO metadata for ${settings.businessName}, a photography and videography studio in ${settings.address?.city} serving Bucharest and Ilfov county, Romania. Describe only what is visible. Use the existing description for facts you cannot see (venue, city, people's roles) but never invent names or places.`,
         messages: [
           {
             role: 'user',
             content: [
               { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: image.toString('base64') } },
-              { type: 'text', text: `Existing description: "${doc.alt}"\n\nWrite alt text, a caption and tags for this photo.` },
+              { type: 'text', text: `Existing description: "${doc.alt}"\n\nWrite Romanian and English alt text, captions and tags for this photo.` },
             ],
           },
         ],
@@ -77,20 +81,27 @@ async function run() {
         payload.logger.warn(`Skipped ${doc.filename} (stop reason: ${response.stop_reason})`)
         continue
       }
-      const { alt, caption, tags } = response.parsed_output
-      await payload.update({
-        collection: 'media',
-        id: doc.id,
-        context: { disableRevalidate: true },
-        data: {
-          alt: alt.slice(0, 160),
-          caption: all || !doc.caption ? caption : doc.caption,
-          tags: tags.map((t) => t.toLowerCase().trim()).filter(Boolean).slice(0, 10),
-          altNeedsReview: true,
-        },
-      })
+      const { altRo, altEn, captionRo, captionEn, tags } = response.parsed_output
+      const keepCaption = !all && Boolean(doc.caption)
+      for (const [locale, alt, caption] of [
+        ['ro', altRo, captionRo],
+        ['en', altEn, captionEn],
+      ] as const) {
+        await payload.update({
+          collection: 'media',
+          id: doc.id,
+          locale,
+          context: { disableRevalidate: true },
+          data: {
+            alt: alt.slice(0, 160),
+            ...(keepCaption ? {} : { caption }),
+            tags: tags.map((t) => t.toLowerCase().trim()).filter(Boolean).slice(0, 10),
+            altNeedsReview: true,
+          },
+        })
+      }
       done++
-      payload.logger.info(`✓ ${doc.filename}: ${alt}`)
+      payload.logger.info(`✓ ${doc.filename}: ${altRo}`)
     } catch (err) {
       if (err instanceof Anthropic.AuthenticationError) {
         throw new Error('No valid Anthropic credentials. Set ANTHROPIC_API_KEY in .env.')

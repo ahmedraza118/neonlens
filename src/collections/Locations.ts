@@ -18,15 +18,16 @@ export const Locations: CollectionConfig = {
   access: { read: anyone, create: isAdmin, update: isAdmin, delete: isAdmin },
   hooks: revalidateHooks,
   fields: [
-    { name: 'name', type: 'text', required: true },
+    { name: 'name', type: 'text', required: true, localized: true },
     slugField('name'),
-    { name: 'region', type: 'text', admin: { description: 'County / state.' } },
+    { name: 'region', type: 'text', localized: true, admin: { description: 'County / state.' } },
     { name: 'isPrimary', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar' } },
     { name: 'heroImage', type: 'upload', relationTo: 'media' },
     {
       name: 'intro',
       type: 'textarea',
       required: true,
+      localized: true,
       admin: { description: 'Why you love shooting here, how you know the area. Unique per city.' },
     },
     {
@@ -35,7 +36,7 @@ export const Locations: CollectionConfig = {
       admin: { description: 'Venues and photo spots you know — great for local search.' },
       fields: [
         { name: 'name', type: 'text', required: true },
-        { name: 'description', type: 'textarea' },
+        { name: 'description', type: 'textarea', localized: true },
       ],
     },
     {
@@ -44,10 +45,10 @@ export const Locations: CollectionConfig = {
       admin: { description: 'Optional extra copy for a specific service in this city.' },
       fields: [
         { name: 'service', type: 'relationship', relationTo: 'services', required: true },
-        { name: 'content', type: 'textarea', required: true },
+        { name: 'content', type: 'textarea', required: true, localized: true },
       ],
     },
-    { name: 'nearbyAreas', type: 'text', hasMany: true },
+    { name: 'nearbyAreas', type: 'text', hasMany: true, localized: true },
     {
       name: 'geo',
       type: 'group',

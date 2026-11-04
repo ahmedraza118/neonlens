@@ -17,8 +17,8 @@ export const SiteSettings: GlobalConfig = {
           description: 'Keep name, address and phone (NAP) identical to your Google Business Profile.',
           fields: [
             { name: 'businessName', type: 'text', required: true },
-            { name: 'tagline', type: 'text', required: true },
-            { name: 'description', type: 'textarea', required: true },
+            { name: 'tagline', type: 'text', required: true, localized: true },
+            { name: 'description', type: 'textarea', required: true, localized: true },
             { name: 'email', type: 'email', required: true },
             { name: 'phone', type: 'text', required: true, admin: { description: 'International format: +40 712 345 678' } },
             { name: 'whatsapp', type: 'text', admin: { description: 'Digits only with country code, e.g. 40712345678' } },
@@ -69,11 +69,11 @@ export const SiteSettings: GlobalConfig = {
               name: 'about',
               type: 'group',
               fields: [
-                { name: 'heading', type: 'text' },
-                { name: 'body', type: 'textarea' },
+                { name: 'heading', type: 'text', localized: true },
+                { name: 'body', type: 'textarea', localized: true },
                 { name: 'image', type: 'upload', relationTo: 'media' },
                 { name: 'founderName', type: 'text' },
-                { name: 'founderRole', type: 'text' },
+                { name: 'founderRole', type: 'text', localized: true },
               ],
             },
             {
@@ -81,8 +81,8 @@ export const SiteSettings: GlobalConfig = {
               type: 'array',
               maxRows: 4,
               fields: [
-                { name: 'value', type: 'text', required: true },
-                { name: 'label', type: 'text', required: true },
+                { name: 'value', type: 'text', required: true, localized: true },
+                { name: 'label', type: 'text', required: true, localized: true },
               ],
             },
           ],
@@ -130,8 +130,8 @@ export const SiteSettings: GlobalConfig = {
               name: 'generalFaqs',
               type: 'array',
               fields: [
-                { name: 'question', type: 'text', required: true },
-                { name: 'answer', type: 'textarea', required: true },
+                { name: 'question', type: 'text', required: true, localized: true },
+                { name: 'answer', type: 'textarea', required: true, localized: true },
               ],
             },
           ],

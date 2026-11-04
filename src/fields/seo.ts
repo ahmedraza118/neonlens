@@ -9,12 +9,14 @@ export const seoField: Field = {
     {
       name: 'title',
       type: 'text',
-      admin: { description: 'Max ~60 characters. Put the main keyword + city first.' },
+      localized: true,
+      admin: { description: 'The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".' },
       maxLength: 70,
     },
     {
       name: 'description',
       type: 'textarea',
+      localized: true,
       admin: { description: '140–160 characters. Shown in Google results — write it like an ad.' },
       maxLength: 170,
     },
