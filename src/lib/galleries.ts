@@ -2,10 +2,11 @@ import 'server-only'
 
 import { cookies } from 'next/headers'
 
-import { CLIENT_COOKIE, decodeClientSession } from './client-session'
+import { CLIENT_COOKIE, decodeClientSession, type GalleryEntry, validGalleryIds } from './client-session'
 import { getPayloadClient } from './payload'
 
-export async function unlockedGalleryIds(): Promise<string[]> {
+/** The raw (signed) cookie entries; use getUnlockedGallery to check access. */
+export async function sessionEntries(): Promise<GalleryEntry[]> {
   const jar = await cookies()
   return decodeClientSession(jar.get(CLIENT_COOKIE)?.value)
 }
@@ -20,10 +21,10 @@ export function isExpired(gallery: { expiresAt?: string | null }): boolean {
   return Boolean(gallery.expiresAt && new Date(gallery.expiresAt) < new Date())
 }
 
-/** Returns the gallery only when the visitor has unlocked it (or null). */
+/** Returns the gallery only when the visitor has unlocked it with its current password and it has not expired. */
 export async function getUnlockedGallery(slug: string) {
   const gallery = await findGalleryBySlug(slug)
   if (!gallery) return null
-  const ids = await unlockedGalleryIds()
-  return ids.includes(String(gallery.id)) ? gallery : null
+  const valid = validGalleryIds(await sessionEntries(), [gallery])
+  return valid.includes(String(gallery.id)) ? gallery : null
 }

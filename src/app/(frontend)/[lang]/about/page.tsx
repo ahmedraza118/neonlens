@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const settings = await getSettings()
   return buildMetadata({
     title: fmt(t.about.metaTitle, { name: settings.businessName }),
+    absoluteTitle: true, // already contains the brand
     lang,
     description: settings.about?.body?.slice(0, 155) || settings.description,
     path: '/about',

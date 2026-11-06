@@ -5,6 +5,7 @@ import { useActionState, useState } from 'react'
 import { type BookingState, createBooking } from '@/actions/booking'
 import { useI18n } from '@/i18n/client'
 import { fmt as fill } from '@/i18n/config'
+import { track } from '@/lib/consent'
 import { depositFor } from '@/lib/quote'
 import { formatDate, formatMoney } from '@/lib/utils'
 
@@ -24,6 +25,12 @@ type Props = {
 export function BookingForm({ services, rules, depositPercent, currency, onlinePayments, initialService, initialPackage }: Props) {
   const [state, action, pending] = useActionState<BookingState, FormData>(createBooking, { message: '' })
   const { lang, t, href } = useI18n()
+  // Defaults = what was submitted, so a server-side error never clears the visitor's details.
+  const v = (field: string) => state.values?.[field] ?? ''
+  const invalid = (field: string) => ({
+    'aria-invalid': Boolean(state.errors?.[field]),
+    'aria-describedby': state.errors?.[field] ? `b-${field}-error` : undefined,
+  })
   const [serviceSlug, setServiceSlug] = useState(services.find((s) => s.slug === initialService)?.slug ?? services[0]?.slug ?? '')
   const service = services.find((s) => s.slug === serviceSlug)
   const [pkgId, setPkgId] = useState(
@@ -36,10 +43,14 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
   const pkg = service?.packages.find((p) => p.id === pkgId)
   const deposit = pkg ? depositFor(pkg.price, depositPercent) : 0
   const fmt = (n: number) => formatMoney(n, currency, lang)
-  const err = (f: string) => state.errors?.[f] && <p className="mt-1 text-xs text-accent">{state.errors[f]}</p>
+  const err = (f: string) => state.errors?.[f] && <p id={`b-${f}-error`} className="mt-1 text-xs text-accent">{state.errors[f]}</p>
 
   return (
-    <form action={action} className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+    <form
+      action={action}
+      onSubmit={() => track('begin_checkout', { service: serviceSlug, package: pkg?.name, value: deposit, currency })}
+      className="grid gap-8 lg:grid-cols-[1.4fr_1fr]"
+    >
       <input type="hidden" name="lang" value={lang} />
       <div className="space-y-8">
         <fieldset className="card p-6">
@@ -62,11 +73,15 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
           <p className="label mt-6">{t.book.step2}</p>
           <div className="grid gap-3 sm:grid-cols-3">
             {service?.packages.map((p) => (
-              <label key={p.id} className={`cursor-pointer rounded-xl border p-4 text-sm transition ${p.id === pkgId ? 'border-accent bg-accent/10' : 'border-line hover:border-fg/40'}`}>
+              // Compact rows on phones (name + hours left, price right), cards from sm up.
+              <label key={p.id} className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent has-[:focus-visible]:ring-offset-2 sm:block sm:p-4 ${p.id === pkgId ? 'border-accent bg-accent/10' : 'border-line hover:border-fg/40'}`}>
                 <input type="radio" name="packageId" value={p.id} checked={p.id === pkgId} onChange={() => setPkgId(p.id)} className="sr-only" />
-                <span className="block font-semibold">{p.name}</span>
-                <span className="mt-1 block font-display text-xl font-bold">{fmt(p.price)}</span>
-                {p.hours && <span className="text-xs text-muted">{fill(t.common.hours, { hours: p.hours })}</span>}
+                <span className="min-w-0">
+                  <span className="block font-semibold">{p.name}</span>
+                  {p.hours && <span className="block text-xs text-muted sm:hidden">{fill(t.common.hours, { hours: p.hours })}</span>}
+                </span>
+                <span className="shrink-0 font-display text-lg font-bold sm:mt-1 sm:block sm:text-xl">{fmt(p.price)}</span>
+                {p.hours && <span className="hidden text-xs text-muted sm:block">{fill(t.common.hours, { hours: p.hours })}</span>}
               </label>
             ))}
           </div>
@@ -85,25 +100,25 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
           <p className="label sm:col-span-2">{t.book.step4}</p>
           <div>
             <label htmlFor="b-name" className="label">{t.book.name}</label>
-            <input id="b-name" name="name" required autoComplete="name" className="input" />
+            <input id="b-name" name="name" required autoComplete="name" defaultValue={v('name')} className="input" {...invalid('name')} />
             {err('name')}
           </div>
           <div>
             <label htmlFor="b-email" className="label">{t.book.email}</label>
-            <input id="b-email" name="email" type="email" required autoComplete="email" className="input" />
+            <input id="b-email" name="email" type="email" required autoComplete="email" defaultValue={v('email')} className="input" {...invalid('email')} />
             {err('email')}
           </div>
           <div>
             <label htmlFor="b-phone" className="label">{t.book.phone}</label>
-            <input id="b-phone" name="phone" type="tel" autoComplete="tel" className="input" />
+            <input id="b-phone" name="phone" type="tel" autoComplete="tel" defaultValue={v('phone')} className="input" />
           </div>
           <div>
             <label htmlFor="b-location" className="label">{t.book.venue}</label>
-            <input id="b-location" name="location" className="input" />
+            <input id="b-location" name="location" defaultValue={v('location')} className="input" />
           </div>
           <div className="sm:col-span-2">
             <label htmlFor="b-notes" className="label">{t.book.notes}</label>
-            <textarea id="b-notes" name="notes" rows={3} className="input" />
+            <textarea id="b-notes" name="notes" rows={3} defaultValue={v('notes')} className="input" />
           </div>
         </fieldset>
       </div>
@@ -122,7 +137,7 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
             <p className="text-3xl font-bold">{fmt(deposit)}</p>
           </div>
           <label className="mt-6 flex gap-3 text-xs text-muted">
-            <input type="checkbox" name="terms" className="mt-0.5 h-4 w-4 accent-[var(--color-accent)]" />
+            <input type="checkbox" name="terms" required className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent)]" />
             <span>
               {t.book.terms.split('{link}')[0]}
               <a href={href('/privacy')} className="underline">{t.book.privacy}</a>
@@ -130,7 +145,8 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
             </span>
           </label>
           {err('terms')}
-          <button type="submit" disabled={pending || !date || !pkg} className="btn-primary mt-6 w-full">
+          {!date && <p className="mt-6 text-center text-sm text-muted">{t.book.pickDateHint}</p>}
+          <button type="submit" disabled={pending || !date || !pkg} className={`btn-primary w-full ${date ? 'mt-6' : 'mt-3'}`}>
             {pending ? t.book.redirecting : onlinePayments ? fill(t.book.pay, { amount: fmt(deposit) }) : t.book.request}
           </button>
           {state.message && <p role="alert" className="mt-3 text-sm text-accent">{state.message}</p>}

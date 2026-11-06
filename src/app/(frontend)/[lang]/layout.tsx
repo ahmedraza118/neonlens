@@ -9,10 +9,11 @@ import { Header } from '@/components/Header'
 import { JsonLd } from '@/components/JsonLd'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { I18nProvider } from '@/i18n/client'
+import { getDictionary } from '@/i18n/dictionaries'
 import { isLocale, locales, ogLocale, withLocale } from '@/i18n/config'
 import { setRequestLocale } from '@/i18n/server'
 import { localBusiness, website } from '@/lib/jsonld'
-import { aggregateRating, getLocations, getServices, getSettings, getTestimonials } from '@/lib/queries'
+import { getLocations, getServices, getSettings } from '@/lib/queries'
 import { fallbackOgUrl, ogImageUrl } from '@/lib/seo'
 import { absoluteUrl } from '@/lib/utils'
 
@@ -21,7 +22,8 @@ import '../globals.css'
 // Plus Jakarta Sans (free, Open Font License) — one clean, readable family for everything.
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-jakarta', display: 'swap' })
 
-export const viewport: Viewport = { themeColor: '#fbfaf7', colorScheme: 'light' }
+// viewport-fit=cover lets fixed elements use env(safe-area-inset-*) on notched iPhones.
+export const viewport: Viewport = { themeColor: '#fbfaf7', colorScheme: 'light', viewportFit: 'cover' }
 
 type Props = { children: ReactNode; params: Promise<{ lang: string }> }
 
@@ -64,22 +66,24 @@ export default async function FrontendLayout({ children, params }: Props) {
   const raw = (await params).lang
   if (!isLocale(raw)) notFound()
   const lang = setRequestLocale(raw)
-  const [settings, services, locations, testimonials] = await Promise.all([getSettings(), getServices(), getLocations(), getTestimonials()])
+  const [settings, services, locations] = await Promise.all([getSettings(), getServices(), getLocations()])
+  // Structured-data stars only from the real Google rating entered in Business & SEO settings.
+  // Ratings computed from the site's own testimonials count as self-serving reviews for Google.
   const rating = settings.googleRating?.value && settings.googleRating?.count
     ? { value: settings.googleRating.value, count: settings.googleRating.count }
-    : aggregateRating(testimonials)
+    : null
 
   return (
     <html lang={lang} className={jakarta.variable}>
       <body>
-        <I18nProvider lang={lang}>
-          <Header businessName={settings.businessName} />
+        <I18nProvider lang={lang} dict={getDictionary(lang)}>
+          <Header businessName={settings.businessName} phone={settings.phone} />
           <main id="main">{children}</main>
           <Footer settings={settings} services={services} locations={locations} />
           <WhatsAppButton number={settings.whatsapp} businessName={settings.businessName} />
-        </I18nProvider>
         <JsonLd data={[localBusiness(settings, { locations, services, rating, lang }), website(settings, lang)]} />
-        <Analytics />
+          <Analytics />
+        </I18nProvider>
       </body>
     </html>
   )

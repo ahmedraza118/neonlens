@@ -12,6 +12,7 @@ import { fmt, toLocale } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
 import { getLocation, getLocations, getProjects, getServices, getSettings, getSlugs, populated } from '@/lib/queries'
 import { buildMetadata, localizedPaths } from '@/lib/seo'
+import { hasAreaPage } from '@/lib/areas'
 import { formatMoney } from '@/lib/utils'
 
 export const revalidate = 3600
@@ -73,9 +74,14 @@ export default async function LocationPage({ params }: Props) {
         <SectionHeading eyebrow={t.locations.offerEyebrow} title={fmt(t.locations.offerTitle, { city: location.name })} />
         <div className="grid gap-4 sm:grid-cols-2">
           {services.map((s) => (
-            <Link key={s.id} href={href(`/services/${s.slug}/${location.slug}`)} className="card flex items-center justify-between p-6 transition hover:border-accent/50">
+            // The area landing page where one exists, else the main service page (which covers Bucharest).
+            <Link
+              key={s.id}
+              href={href(hasAreaPage(location, s.id) ? `/services/${s.slug}/${location.slug}` : `/services/${s.slug}`)}
+              className="card flex items-center justify-between p-6 transition hover:border-accent/50"
+            >
               <span>
-                <span className="block text-lg font-bold">{fmt(t.common.in, { service: s.title, city: location.name })}</span>
+                <span className="block text-lg font-bold">{hasAreaPage(location, s.id) || location.isPrimary ? fmt(t.common.in, { service: s.title, city: location.name }) : s.title}</span>
                 <span className="text-sm text-muted">{t.common.from} {formatMoney(s.startingPrice, settings.currency, lang)}</span>
               </span>
               <span aria-hidden className="text-accent">→</span>

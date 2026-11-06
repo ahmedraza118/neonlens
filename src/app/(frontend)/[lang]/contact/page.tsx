@@ -37,16 +37,16 @@ export default async function ContactPage({ params }: Props) {
           <ul className="mt-10 space-y-4 text-sm">
             <li>
               <span className="label">{t.contact.email}</span>
-              <a href={`mailto:${settings.email}`} className="text-lg hover:text-accent">{settings.email}</a>
+              <a href={`mailto:${settings.email}`} className="inline-block py-1 text-lg hover:text-accent">{settings.email}</a>
             </li>
             <li>
               <span className="label">{t.contact.phone}</span>
-              <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-lg hover:text-accent">{settings.phone}</a>
+              <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="inline-block py-1 text-lg hover:text-accent">{settings.phone}</a>
             </li>
             {settings.whatsapp && (
               <li>
                 <span className="label">{t.contact.whatsapp}</span>
-                <a href={`https://wa.me/${settings.whatsapp}`} target="_blank" rel="noopener" className="text-lg hover:text-accent">{t.contact.message}</a>
+                <a href={`https://wa.me/${settings.whatsapp}`} target="_blank" rel="noopener" className="inline-block py-1 text-lg hover:text-accent">{t.contact.message}</a>
               </li>
             )}
             <li>

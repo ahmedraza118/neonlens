@@ -47,8 +47,9 @@ export function Media({ media, alt, fill, sizes, quality, ...rest }: Props) {
     placeholder: media.blurDataURL ? ('blur' as const) : ('empty' as const),
     blurDataURL: media.blurDataURL ?? undefined,
     sizes: sizes ?? (fill ? '100vw' : undefined),
-    style: media.focalX != null && media.focalY != null ? { objectPosition: `${media.focalX}% ${media.focalY}%` } : undefined,
     ...rest,
+    // Merge (not replace) so a caller's style keeps the focal point set in the CMS.
+    style: { ...(media.focalX != null && media.focalY != null ? { objectPosition: `${media.focalX}% ${media.focalY}%` } : {}), ...rest.style },
   }
   const altText = alt ?? media.alt
   if (fill) return <Image {...common} alt={altText} fill />

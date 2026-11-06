@@ -28,7 +28,8 @@ It is built for three things: **ranking on Google** (local SEO), **turning visit
 
 ## Local SEO (Bucharest & Ilfov)
 
-- One page per area (`/zone/…`) and per service × area (`/servicii/fotograf-nunta/snagov`), each with unique local copy, venues and FAQs. Add or remove areas in *Locations*; keep the copy unique per area.
+- One page per area (`/zone/…`). A **service × area page** (`/servicii/fotograf-nunta/snagov`) exists only when that area has its own text for that service (*Locations → Service notes*). This avoids thin copy-paste "doorway" pages. Bucharest has none on purpose: the main service page is the Bucharest page, so there is one strong page per search.
+- Structured-data star ratings come only from the real Google rating you enter in *Business & SEO settings*, never from site testimonials (Google treats those as self-serving).
 - `LocalBusiness` structured data with the Bucharest address, opening hours, ratings, every area served and a ~40 km service radius; regional `geo.*` meta tags.
 - Per-page SEO title/description fields; Romanian-first titles, alt text and file names.
 - Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` / `NEXT_PUBLIC_BING_SITE_VERIFICATION`, submit `/sitemap.xml` in Google Search Console and Bing Webmaster Tools, and keep the Google Business Profile (category *Fotograf de nunți* / *Videograf*) identical to *Business & SEO settings*.
@@ -80,7 +81,24 @@ Everything in `src/seed/data.ts` is **placeholder**: business details, prices, p
 4. **Pricing & quote calculator** and **Availability**: your rates and blocked dates.
 5. Delete the demo client gallery and demo testimonials.
 
+## Analytics, consent & lead tracking
+
+- Set `NEXT_PUBLIC_GA_ID` for Google Analytics 4. It runs with **Consent Mode v2**: nothing is stored until the visitor accepts the cookie banner (RO/EN, "Accept" and "Refuz" equally visible). A "Cookie settings" link appears in the footer.
+- Lead events sent automatically: `generate_lead` (inquiry/quote form sent), `begin_checkout` (booking), `click_call`, `click_whatsapp`, `click_email`. In GA4 → Admin → Events, mark them as **key events** to see which pages and campaigns bring clients.
+
+## Security notes
+
+- **Client galleries:** passwords must be 10+ characters. Changing a gallery's password, or its expiry date passing, immediately locks out everyone who used the old one. Private files get random names, are never cached, and full-resolution originals are only sent once *Allow downloads* is on.
+- **Bookings:** a date is held for 60 minutes while a client pays, and released if they cancel in Stripe. If two payments still land on the same day, you get an urgent "DOUBLE BOOKING" alert.
+- **Stripe webhook events:** `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`.
+
 ## Deploying (Vercel + Turso + Vercel Blob)
+
+> **Database migrations change production data.** Before deploying a release that contains new files in `src/migrations`:
+> 1. Back up / branch the Turso database (`turso db create neonlens-backup --from-db neonlens`) and rehearse the migration on the copy.
+> 2. Set `DATABASE_URL` / `DATABASE_AUTH_TOKEN` for the **Production** environment only. Preview deployments skip migrations unless `MIGRATE_PREVIEW=1` is set (give previews their own database).
+> 3. Deploy at a quiet time. Migrations run before the build; until the new version is live, the old one may error on changed tables.
+
 
 Serverless hosts have no persistent disk, so the database and uploads must live elsewhere:
 

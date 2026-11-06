@@ -17,6 +17,8 @@ type BuildArgs = {
   image?: Media | null
   seo?: SeoGroup
   type?: 'website' | 'article'
+  /** Hide from search results but still follow the links (filtered/duplicate views). */
+  noIndexFollow?: boolean
   /** Use `title` as is, without the "| Business name" suffix from the layout template. */
   absoluteTitle?: boolean
   publishedTime?: string
@@ -31,6 +33,14 @@ export function ogImageUrl(media: Media | null | undefined): string | undefined 
 }
 
 /** Text-only branded card for pages without a photo. */
+/** Google shows ~155–160 characters; longer texts (e.g. the business description) are cut at a word. */
+export function clampDescription(text: string, max = 158): string {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length <= max) return clean
+  const cut = clean.slice(0, max - 1)
+  return `${cut.slice(0, cut.lastIndexOf(' ') > 100 ? cut.lastIndexOf(' ') : cut.length).replace(/[,;:—–-]+$/, '')}…`
+}
+
 const pathFor = (path: BuildArgs['path'], lang: Locale) => (typeof path === 'string' ? path : path[lang])
 
 /** Canonical URL for this language plus hreflang links to every translation (x-default: Romanian). */
@@ -46,10 +56,10 @@ export function fallbackOgUrl(title: string, eyebrow?: string): string {
   return absoluteUrl(`/og?${params.toString()}`)
 }
 
-export function buildMetadata({ title, description, path, lang, image, seo, type = 'website', publishedTime, noIndex, absoluteTitle }: BuildArgs): Metadata {
+export function buildMetadata({ title, description, path, lang, image, seo, type = 'website', publishedTime, noIndex, absoluteTitle, noIndexFollow }: BuildArgs): Metadata {
   const seoImage = seo?.image && typeof seo.image === 'object' ? seo.image : null
   const finalTitle = seo?.title || title
-  const finalDescription = seo?.description || description
+  const finalDescription = clampDescription(seo?.description || description)
   const ogUrl = ogImageUrl(seoImage ?? image) ?? fallbackOgUrl(finalTitle)
   const hidden = noIndex || seo?.noIndex
 
@@ -57,8 +67,9 @@ export function buildMetadata({ title, description, path, lang, image, seo, type
     // A custom SEO title from the CMS is the complete title: no "| Business name" is appended.
     title: absoluteTitle || seo?.title ? { absolute: finalTitle } : finalTitle,
     description: finalDescription,
-    alternates: languageAlternates(path, lang),
-    robots: hidden ? { index: false, follow: false } : undefined,
+    // `types` repeats the RSS link here: a page's `alternates` replaces the layout's.
+    alternates: { ...languageAlternates(path, lang), types: { 'application/rss+xml': absoluteUrl(withLocale('/blog/rss.xml', lang)) } },
+    robots: hidden ? { index: false, follow: false } : noIndexFollow ? { index: false, follow: true } : undefined,
     openGraph: {
       title: finalTitle,
       description: finalDescription,

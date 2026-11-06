@@ -6,7 +6,8 @@ import { InquirySection } from '@/components/InquirySection'
 import { JsonLd } from '@/components/JsonLd'
 import { PageHero } from '@/components/PageHero'
 import { Paragraphs } from '@/components/Paragraphs'
-import { ServiceBody, serviceLocationNote } from '@/components/ServiceBody'
+import { ServiceBody } from '@/components/ServiceBody'
+import { hasAreaPage, placeName, serviceLocationNote } from '@/lib/areas'
 import { fmt, toLocale } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
 import { serviceSchema } from '@/lib/jsonld'
@@ -18,26 +19,25 @@ export const revalidate = 3600
 
 type Props = { params: Promise<{ lang: string; slug: string; location: string }> }
 
-/** One landing page per service × city, e.g. /servicii/fotograf-nunta/snagov. */
+/** Service × area landing pages, e.g. /servicii/fotograf-nunta/snagov — only where hasAreaPage(). */
 type StaticProps = { params: { lang: string } }
 
 export async function generateStaticParams({ params }: StaticProps) {
   const lang = toLocale(params.lang)
   const [services, locations] = await Promise.all([getServices(lang), getLocations(lang)])
-  return services.flatMap((s) => locations.map((l) => ({ slug: s.slug!, location: l.slug! })))
+  return services.flatMap((s) => locations.filter((l) => hasAreaPage(l, s.id)).map((l) => ({ slug: s.slug!, location: l.slug! })))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, t } = await localeFromParams(params)
   const { slug, location: locationSlug } = await params
   const [service, location, settings] = await Promise.all([getService(slug), getLocation(locationSlug), getSettings()])
-  if (!service || !location) return {}
+  if (!service || !location || !hasAreaPage(location, service.id)) return {}
   return buildMetadata({
     title: fmt(t.common.in, { service: service.title, city: location.name }),
     description: fmt(t.services.localMetaDescription, {
-      tagline: service.tagline,
       service: service.title,
-      place: location.region ? `${location.name}, ${location.region}` : location.name,
+      place: placeName(location),
       price: formatMoney(service.startingPrice, settings.currency, lang),
     }),
     path: await (async () => {
@@ -54,6 +54,9 @@ export default async function ServiceLocationPage({ params }: Props) {
   const { slug, location: locationSlug } = await params
   const [service, location, settings, locations] = await Promise.all([getService(slug), getLocation(locationSlug), getSettings(), getLocations()])
   if (!service || !location) notFound()
+  // Bucharest is covered by the main service page itself (one strong page per search).
+  if (location.isPrimary) permanentRedirect(href(`/services/${service.slug}`))
+  if (!hasAreaPage(location, service.id)) notFound()
   if (service.slug !== slug || location.slug !== locationSlug) permanentRedirect(href(`/services/${service.slug}/${location.slug}`))
 
   const note = serviceLocationNote(location, service.id)
@@ -67,7 +70,7 @@ export default async function ServiceLocationPage({ params }: Props) {
           { name: service.title, path: `/services/${service.slug}` },
           { name: location.name, path: `/services/${service.slug}/${location.slug}` },
         ]}
-        eyebrow={location.region ? `${location.name}, ${location.region}` : location.name}
+        eyebrow={placeName(location)}
         title={
           <>
             {t.common.in.split('{city}')[0].replace('{service}', service.title)}
@@ -110,13 +113,13 @@ export default async function ServiceLocationPage({ params }: Props) {
             <p className="eyebrow mb-4">{fmt(t.services.alsoIn, { city: location.name })}</p>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href={href(`/locations/${location.slug}`)} className="text-muted hover:text-fg">{fmt(t.services.allIn, { city: location.name })}</Link>
+                <Link href={href(`/locations/${location.slug}`)} className="inline-block py-1 text-muted hover:text-fg">{fmt(t.services.allIn, { city: location.name })}</Link>
               </li>
               {locations
-                .filter((l) => l.id !== location.id)
+                .filter((l) => l.id !== location.id && hasAreaPage(l, service.id))
                 .map((l) => (
                   <li key={l.id}>
-                    <Link href={href(`/services/${service.slug}/${l.slug}`)} className="text-muted hover:text-fg">
+                    <Link href={href(`/services/${service.slug}/${l.slug}`)} className="inline-block py-1 text-muted hover:text-fg">
                       {fmt(t.common.in, { service: service.title, city: l.name })}
                     </Link>
                   </li>

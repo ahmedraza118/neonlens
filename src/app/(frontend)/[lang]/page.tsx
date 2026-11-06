@@ -23,7 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [settings, home] = await Promise.all([getSettings(), getHomepage()])
   return buildMetadata({
     // Keyword-first H1 text ("Fotograf și videograf de nuntă în București și Ilfov") + brand.
-    title: home.heroHeading ? `${home.heroHeading} | ${settings.businessName}` : `${settings.businessName} — ${settings.tagline}`,
+    // Keyword-first; the brand is added only while the title stays short enough for Google (~65).
+    title: home.heroHeading
+      ? `${home.heroHeading} | ${settings.businessName}`.length <= 70
+        ? `${home.heroHeading} | ${settings.businessName}`
+        : home.heroHeading
+      : `${settings.businessName} — ${settings.tagline}`,
     absoluteTitle: true,
     description: settings.description,
     path: '/',

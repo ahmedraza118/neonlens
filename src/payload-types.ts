@@ -686,7 +686,7 @@ export interface ClientGallery {
   clientName: string;
   clientEmail?: string | null;
   /**
-   * Type a new password to set/replace it. It is stored hashed and this field clears on save.
+   * Type a new password to set/replace it (at least 10 characters, e.g. three random words: "lalea-munte-cafea"). Stored hashed; this field clears on save. Changing it logs out everyone who used the old one.
    */
   newPassword?: string | null;
   passwordHash?: string | null;

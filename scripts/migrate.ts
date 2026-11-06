@@ -25,6 +25,12 @@ async function run() {
         'Variables only reach new deployments: add them first, then redeploy.',
     )
   }
+  // Preview deployments must never change the production database. Give previews their own
+  // database (Turso branch) and set MIGRATE_PREVIEW=1 to migrate it.
+  if (process.env.VERCEL_ENV === 'preview' && process.env.MIGRATE_PREVIEW !== '1') {
+    console.log('→ Preview deployment: skipping database migrations (set MIGRATE_PREVIEW=1 to run them).')
+    return
+  }
   console.log(`→ Connecting to database at ${url.replace(/\?.*$/, '').replace(/\/\/[^@]*@/, '//') || '(default local file)'}`)
 
   const payload = await getPayload({ config })

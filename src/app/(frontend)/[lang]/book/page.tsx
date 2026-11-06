@@ -5,6 +5,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
 import { getAvailabilityRules } from '@/lib/availability'
+import { releasePendingBooking } from '@/lib/bookings'
 import { getPricing, getServices, getSettings } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 
@@ -25,6 +26,8 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
 export default async function BookPage({ params: routeParams, searchParams }: Props) {
   const { t } = await localeFromParams(routeParams)
   const params = await searchParams
+  // Back from Stripe with "cancel": free the date this client was holding before showing the calendar.
+  if (params.cancelled) await releasePendingBooking(params.cancelled)
   const [settings, pricing, services, rules] = await Promise.all([getSettings(), getPricing(), getServices(), getAvailabilityRules()])
   const bookable = services
     .filter((s) => s.packages && s.packages.length > 0)

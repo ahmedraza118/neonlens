@@ -175,6 +175,8 @@ async function seed() {
         intro: l.intro,
         heroImage: hero.id,
         venues: l.venues.map((v) => ({ ...v })),
+        // Unique copy per service × area: these create the area landing pages (see lib/areas.ts).
+        serviceNotes: l.serviceNotes.map((n) => ({ service: serviceIds[n.service], content: n.content })),
         nearbyAreas: [...l.nearbyAreas],
         faqs: l.faqs.map((f) => ({ ...f })),
       },
@@ -370,7 +372,7 @@ async function seed() {
         }),
       )
     })
-    log('Created demo client gallery at /client/demo-wedding (password: SEED_GALLERY_PASSWORD in .env)')
+    log('Created demo client gallery at /galerie-client/demo-wedding (EN: /en/client/demo-wedding) (password: SEED_GALLERY_PASSWORD in .env)')
   }
 
   log('Adding the Romanian translations…')

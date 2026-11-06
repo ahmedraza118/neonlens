@@ -34,6 +34,17 @@ export function imageObject(media: Media | number | null | undefined, extra: Jso
   }
 }
 
+/** A served area: a county ("Județul Ilfov") is an AdministrativeArea, Bucharest and towns are cities. */
+function placeSchema(l: Location, withGeo: boolean): Json {
+  const county = Boolean(l.region && l.name !== l.region && l.name.includes(l.region))
+  return {
+    '@type': county ? 'AdministrativeArea' : 'City',
+    name: l.name,
+    ...(withGeo && l.geo?.lat && l.geo?.lng ? { geo: { '@type': 'GeoCoordinates', latitude: l.geo.lat, longitude: l.geo.lng } } : {}),
+    ...(l.region && l.region !== l.name && !county ? { containedInPlace: { '@type': 'AdministrativeArea', name: l.region } } : {}),
+  }
+}
+
 export function localBusiness(
   settings: SiteSetting,
   opts: { locations?: Location[]; services?: Service[]; rating?: { value: number; count: number } | null; lang?: Locale } = {},
@@ -45,13 +56,7 @@ export function localBusiness(
 
   // Service area: every city/area page, plus a circle around the studio (Bucharest + Ilfov ≈ 40 km).
   const areaServed: Json[] = [
-    ...(opts.locations ?? []).map((l) => ({
-      // A county page (e.g. "Județul Ilfov") is an administrative area; towns and Bucharest are cities.
-      '@type': l.region && l.name.includes(l.region) && l.name !== l.region ? 'AdministrativeArea' : 'City',
-      name: l.name,
-      ...(l.geo?.lat && l.geo?.lng ? { geo: { '@type': 'GeoCoordinates', latitude: l.geo.lat, longitude: l.geo.lng } } : {}),
-      ...(l.region && l.region !== l.name ? { containedInPlace: { '@type': 'AdministrativeArea', name: l.region } } : {}),
-    })),
+    ...(opts.locations ?? []).map((l) => placeSchema(l, true)),
     ...(geo ? [{ '@type': 'GeoCircle', geoMidpoint: { '@type': 'GeoCoordinates', ...geo }, geoRadius: 40000 }] : []),
   ]
 
@@ -135,9 +140,7 @@ export function serviceSchema(service: Service, settings: SiteSetting, location?
     url: absoluteUrl(path),
     image: imageUrl(service.heroImage),
     provider: { '@id': ORG_ID },
-    areaServed: location
-      ? { '@type': 'City', name: location.name, ...(location.region ? { containedInPlace: { '@type': 'AdministrativeArea', name: location.region } } : {}) }
-      : undefined,
+    areaServed: location ? placeSchema(location, false) : undefined,
     offers: (service.packages ?? []).map((p) => ({
       '@type': 'Offer',
       name: p.name,
@@ -236,7 +239,6 @@ export function projectSchema(project: Project, lang: Locale = 'en'): Json {
     creator: { '@id': ORG_ID },
     image: [imageObject(project.coverImage), ...gallery].filter(Boolean),
     locationCreated: project.location && typeof project.location === 'object' ? { '@type': 'Place', name: project.venue || project.location.name } : undefined,
-    review: project.testimonial && typeof project.testimonial === 'object' ? reviewSchema(project.testimonial) : undefined,
   }
 }
 

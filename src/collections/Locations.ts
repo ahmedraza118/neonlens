@@ -35,7 +35,7 @@ export const Locations: CollectionConfig = {
       type: 'array',
       admin: { description: 'Venues and photo spots you know — great for local search.' },
       fields: [
-        { name: 'name', type: 'text', required: true },
+        { name: 'name', type: 'text', required: true, localized: true },
         { name: 'description', type: 'textarea', localized: true },
       ],
     },

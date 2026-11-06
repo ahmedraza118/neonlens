@@ -19,11 +19,11 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
             <li key={c.path} className="flex items-center gap-1.5">
               {i > 0 && <span aria-hidden>/</span>}
               {i === all.length - 1 ? (
-                <span aria-current="page" className="text-fg/80">
+                <span aria-current="page" className="inline-block max-w-[55vw] truncate align-bottom text-fg/80 sm:max-w-none">
                   {c.name}
                 </span>
               ) : (
-                <Link href={c.path} className="hover:text-fg">
+                <Link href={c.path} className="-my-1 inline-block py-1 hover:text-fg">
                   {c.name}
                 </Link>
               )}

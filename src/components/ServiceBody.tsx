@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import { fmt } from '@/i18n/config'
 import { getI18n } from '@/i18n/server'
-import { getProjects, getTestimonials, populated } from '@/lib/queries'
+import { getProjects, getTestimonials } from '@/lib/queries'
 import { formatMoney } from '@/lib/utils'
 import type { Location, Service, SiteSetting } from '@/payload-types'
 
@@ -74,7 +74,7 @@ export async function ServiceBody({ service, settings, location }: { service: Se
             <div className="grid gap-6 lg:grid-cols-3">
               {service.packages.map((p) => (
                 <div key={p.id} className={`card relative flex flex-col p-8 ${p.popular ? 'border-accent ring-1 ring-accent' : ''}`}>
-                  {p.popular && <span className="absolute -top-3 left-8 rounded-full bg-accent px-3 py-1 text-xs font-semibold">{t.services.mostBooked}</span>}
+                  {p.popular && <span className="absolute -top-3 left-8 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">{t.services.mostBooked}</span>}
                   <h3 className="text-xl font-bold">{p.name}</h3>
                   <p className="mt-3 font-display text-4xl font-bold">{formatMoney(p.price, settings.currency, lang)}</p>
                   {p.hours && <p className="text-sm text-muted">{fmt(t.common.hoursLong, { hours: p.hours })}</p>}
@@ -128,7 +128,4 @@ export async function ServiceBody({ service, settings, location }: { service: Se
   )
 }
 
-export function serviceLocationNote(location: Location | null | undefined, serviceId: number): string | null {
-  const note = location?.serviceNotes?.find((n) => populated<Service>(n.service)?.id === serviceId || n.service === serviceId)
-  return note?.content ?? null
-}
+export { serviceLocationNote } from '@/lib/areas'

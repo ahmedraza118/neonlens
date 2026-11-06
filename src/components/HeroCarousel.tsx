@@ -65,6 +65,13 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
 
   const go = useCallback((next: number) => setIndex(((next % count) + count) % count), [count])
 
+  // Only download slides that have been shown, plus the next one: the stacked, invisible slides
+  // would otherwise all load at once and compete with the first (LCP) image.
+  const [seen, setSeen] = useState<Set<number>>(() => new Set([0, 1]))
+  if (!seen.has(index) || !seen.has((index + 1) % Math.max(count, 1))) {
+    setSeen(new Set([...seen, index, (index + 1) % Math.max(count, 1)]))
+  }
+
   // Play the active slide's background video, pause the others (saves battery and data).
   const videos = useRef<Array<HTMLVideoElement | null>>([])
   useEffect(() => {
@@ -84,6 +91,14 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
       aria-label={t.hero.carousel}
       className="relative isolate flex min-h-[78svh] items-end overflow-hidden rounded-2xl bg-neutral-900 text-white sm:min-h-[70svh] sm:rounded-3xl"
       style={{ '--hero-interval': `${intervalSeconds}s` } as CSSProperties}
+      // Pause while the pointer or keyboard focus is anywhere in the hero, so a focused button never
+      // disappears under the visitor (the slide it belongs to would become inert).
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onFocus={() => setHovering(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovering(false)
+      }}
       onKeyDown={(e) => {
         if (e.key === 'ArrowRight') go(index + 1)
         if (e.key === 'ArrowLeft') go(index - 1)
@@ -117,13 +132,12 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
                 transition: active ? `transform ${intervalSeconds + 1.5}s ease-out` : `transform 0s linear ${FADE_MS}ms`,
               }}
             >
-              {slide.image && (
+              {slide.image && seen.has(i) && (
                 <Media
                   media={slide.image}
                   fill
                   priority={i === 0}
-                  loading={i === 0 ? undefined : i === 1 ? 'eager' : 'lazy'}
-                  quality={90}
+                  quality={i === 0 ? 90 : 85}
                   sizes="(min-width: 1152px) 1152px, 100vw"
                   className="object-cover"
                 />
@@ -201,16 +215,10 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
 
         {count > 1 && (
           <div
-            className="mt-6 flex items-center justify-between gap-3 sm:absolute sm:top-8 sm:right-8 sm:mt-0 sm:justify-end"
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
-            onFocus={() => setHovering(true)}
-            onBlur={(e) => {
-              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovering(false)
-            }}
+            className="mt-6 flex items-center justify-between gap-2 sm:absolute sm:top-8 sm:right-8 sm:mt-0 sm:justify-end sm:gap-3"
           >
             {/* One short progress bar per service; the active one fills up. */}
-            <ol aria-label={t.hero.services} className="flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-2.5 backdrop-blur-md">
+            <ol aria-label={t.hero.services} className="flex min-w-0 items-center gap-0.5 rounded-full bg-black/30 px-2 py-2.5 backdrop-blur-md sm:gap-1.5 sm:px-3">
               {slides.map((slide, i) => {
                 const active = i === index
                 return (
@@ -220,9 +228,9 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
                       onClick={() => go(i)}
                       aria-current={active ? 'true' : undefined}
                       aria-label={`${fmt(t.hero.slideOf, { n: i + 1, total: count })}: ${slide.eyebrow}`}
-                      className="group block py-1.5"
+                      className="group -my-2 block px-1 py-3.5 sm:px-1"
                     >
-                      <span className={cn('relative block h-1 overflow-hidden rounded-full bg-white/35 transition-all duration-500', active ? 'w-10 sm:w-12' : 'w-4 group-hover:bg-white/60')}>
+                      <span className={cn('relative block h-1 overflow-hidden rounded-full bg-white/35 transition-all duration-500', active ? 'w-7 sm:w-12' : 'w-3 group-hover:bg-white/60 sm:w-4')}>
                         {active && (
                           <span
                             key={index}
@@ -237,7 +245,7 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
                 )
               })}
             </ol>
-            <div className="flex items-center gap-1.5 rounded-full bg-black/30 p-1 backdrop-blur-md">
+            <div className="flex shrink-0 items-center gap-0.5 rounded-full bg-black/30 p-1 backdrop-blur-md sm:gap-1.5">
               <button type="button" onClick={() => go(index - 1)} aria-label={t.hero.prev} className="grid h-9 w-9 place-items-center rounded-full transition hover:bg-white/15">
                 <span aria-hidden>←</span>
               </button>

@@ -6,7 +6,8 @@ import { getStripe } from '@/lib/stripe'
 
 /**
  * Stripe → Developers → Webhooks → add endpoint https://yourdomain.com/webhooks/stripe
- * with events checkout.session.completed and checkout.session.expired.
+ * with events checkout.session.completed, checkout.session.expired,
+ * checkout.session.async_payment_succeeded and checkout.session.async_payment_failed.
  */
 export async function POST(req: Request) {
   const stripe = getStripe()
@@ -17,16 +18,21 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(await req.text(), req.headers.get('stripe-signature') ?? '', secret)
   } catch (err) {
-    return new Response(`Invalid signature: ${(err as Error).message}`, { status: 400 })
+    console.warn('[stripe] webhook signature check failed', (err as Error).message)
+    return new Response('Invalid signature', { status: 400 })
   }
 
   const session = event.data.object as Stripe.Checkout.Session
   const bookingId = session.metadata?.bookingId
   if (!bookingId) return Response.json({ received: true })
 
-  if (event.type === 'checkout.session.completed' && session.payment_status === 'paid') {
+  // "completed" may still be unpaid for delayed methods (bank transfer); those report later via async_payment_*.
+  const paid =
+    (event.type === 'checkout.session.completed' && session.payment_status === 'paid') ||
+    event.type === 'checkout.session.async_payment_succeeded'
+  if (paid) {
     await markBookingPaid(bookingId, session.id)
-  } else if (event.type === 'checkout.session.expired') {
+  } else if (event.type === 'checkout.session.expired' || event.type === 'checkout.session.async_payment_failed') {
     const payload = await getPayloadClient()
     const booking = await payload.findByID({ collection: 'bookings', id: bookingId }).catch(() => null)
     if (booking?.status === 'pending') {

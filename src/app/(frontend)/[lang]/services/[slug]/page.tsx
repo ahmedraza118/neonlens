@@ -12,6 +12,7 @@ import { localeFromParams } from '@/i18n/server'
 import { serviceSchema, videoSchema } from '@/lib/jsonld'
 import { getLocations, getService, getServices, getSettings, getSlugs, populated } from '@/lib/queries'
 import { buildMetadata, localizedPaths } from '@/lib/seo'
+import { hasAreaPage } from '@/lib/areas'
 import { formatMoney } from '@/lib/utils'
 
 export const revalidate = 3600
@@ -53,7 +54,7 @@ export default async function ServicePage({ params }: Props) {
       <PageHero
         crumbs={[{ name: t.nav.services, path: '/services' }, { name: service.title, path: `/services/${service.slug}` }]}
         eyebrow={service.tagline}
-        title={service.title}
+        title={fmt(t.services.h1, { service: service.title, area: t.common.area })}
         subtitle={<>{t.common.fromCap} <span className="font-semibold text-fg">{formatMoney(service.startingPrice, settings.currency, lang)}</span></>}
         image={service.heroImage}
       >
@@ -66,10 +67,14 @@ export default async function ServicePage({ params }: Props) {
         <aside className="card h-fit p-6">
           <p className="eyebrow mb-4">{t.services.availableIn}</p>
           <ul className="space-y-2">
+            {/* Area landing page where one exists, otherwise the area's overview page. */}
             {locations.map((l) => (
               <li key={l.id}>
-                <Link href={href(`/services/${service.slug}/${l.slug}`)} className="flex justify-between text-sm text-muted hover:text-fg">
-                  {fmt(t.common.in, { service: service.title, city: l.name })} <span aria-hidden>→</span>
+                <Link
+                  href={href(hasAreaPage(l, service.id) ? `/services/${service.slug}/${l.slug}` : `/locations/${l.slug}`)}
+                  className="flex justify-between gap-3 py-1 text-sm text-muted hover:text-fg"
+                >
+                  {hasAreaPage(l, service.id) ? fmt(t.common.in, { service: service.title, city: l.name }) : l.name} <span aria-hidden>→</span>
                 </Link>
               </li>
             ))}

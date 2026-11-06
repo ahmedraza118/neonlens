@@ -12,6 +12,12 @@ import { defaultLocale, isLocale, isTranslatedInternalSegment, LOCALE_COOKIE, pa
  */
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
+  // One URL per page: /SERVICII or /Servicii → /servicii (all our URLs are lowercase).
+  if (pathname !== pathname.toLowerCase()) {
+    const url = req.nextUrl.clone()
+    url.pathname = pathname.toLowerCase()
+    return NextResponse.redirect(url, 308)
+  }
   const first = pathname.split('/')[1] ?? ''
   const redirect = (to: string) => {
     const url = req.nextUrl.clone()

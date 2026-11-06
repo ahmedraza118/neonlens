@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { decodeClientSession, encodeClientSession, galleryIdsFromCookieHeader } from '@/lib/client-session'
+import { decodeClientSession, encodeClientSession, galleryEntriesFromCookieHeader, passwordVersion, validGalleryIds } from '@/lib/client-session'
 import { hashPassword, verifyPassword } from '@/lib/password'
 import { calculateQuote, depositFor, type Rate } from '@/lib/quote'
 import { isGenericFilename, slugify } from '@/lib/utils'
@@ -45,12 +45,24 @@ describe('calculateQuote', () => {
 })
 
 describe('client gallery session', () => {
-  it('round-trips gallery ids and rejects tampering', () => {
-    const token = encodeClientSession([3, 7])
-    expect(decodeClientSession(token)).toEqual(['3', '7'])
+  it('round-trips gallery entries and rejects tampering', () => {
+    const entries = [
+      { id: '3', v: passwordVersion('hash-a') },
+      { id: '7', v: passwordVersion('hash-b') },
+    ]
+    const token = encodeClientSession(entries)
+    expect(decodeClientSession(token)).toEqual(entries)
     const [body] = token.split('.')
     expect(decodeClientSession(`${body}.forged`)).toEqual([])
-    expect(galleryIdsFromCookieHeader(`a=1; nl_client=${encodeURIComponent(token)}`)).toEqual(['3', '7'])
+    expect(galleryEntriesFromCookieHeader(`a=1; nl_client=${encodeURIComponent(token)}`)).toEqual(entries)
+  })
+
+  it('stops granting access after a password change or expiry', () => {
+    const entries = [{ id: '3', v: passwordVersion('old-hash') }]
+    expect(validGalleryIds(entries, [{ id: 3, passwordHash: 'old-hash' }])).toEqual(['3'])
+    expect(validGalleryIds(entries, [{ id: 3, passwordHash: 'new-hash' }])).toEqual([])
+    expect(validGalleryIds(entries, [{ id: 3, passwordHash: 'old-hash', expiresAt: '2020-01-01T00:00:00Z' }])).toEqual([])
+    expect(validGalleryIds(entries, [{ id: 4, passwordHash: 'old-hash' }])).toEqual([])
   })
 })
 
@@ -71,5 +83,29 @@ describe('utils', () => {
     expect(isGenericFilename('IMG_4021.jpg')).toBe(true)
     expect(isGenericFilename('DSC00042.JPG')).toBe(true)
     expect(isGenericFilename('bride-at-sunset.jpg')).toBe(false)
+  })
+})
+
+describe('i18n routing', () => {
+  it('maps internal paths to public Romanian and English URLs and back', async () => {
+    const { parsePublicPath, withLocale } = await import('@/i18n/config')
+    expect(withLocale('/services/fotograf-nunta/snagov', 'ro')).toBe('/servicii/fotograf-nunta/snagov')
+    expect(withLocale('/book/success?session_id=1', 'ro')).toBe('/rezervare/confirmare?session_id=1')
+    expect(withLocale('/services/wedding-photography', 'en')).toBe('/en/services/wedding-photography')
+    expect(withLocale('/', 'en')).toBe('/en')
+    expect(parsePublicPath('/zone/bucuresti')).toEqual({ lang: 'ro', path: '/locations/bucuresti' })
+    expect(parsePublicPath('/en/about')).toEqual({ lang: 'en', path: '/about' })
+    expect(parsePublicPath('/')).toEqual({ lang: 'ro', path: '/' })
+  })
+})
+
+describe('seo', () => {
+  it('clamps long meta descriptions at a word boundary', async () => {
+    const { clampDescription } = await import('@/lib/seo')
+    const long = 'Fotograf și videograf de nuntă în București și Ilfov. '.repeat(6)
+    const out = clampDescription(long)
+    expect(out.length).toBeLessThanOrEqual(158)
+    expect(out.endsWith('…')).toBe(true)
+    expect(clampDescription('Scurt.')).toBe('Scurt.')
   })
 })

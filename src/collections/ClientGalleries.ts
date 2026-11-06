@@ -43,7 +43,12 @@ export const ClientGalleries: CollectionConfig = {
       name: 'newPassword',
       type: 'text',
       label: 'Set password',
-      admin: { description: 'Type a new password to set/replace it. It is stored hashed and this field clears on save.' },
+      admin: {
+        description:
+          'Type a new password to set/replace it (at least 10 characters, e.g. three random words: "lalea-munte-cafea"). Stored hashed; this field clears on save. Changing it logs out everyone who used the old one.',
+      },
+      // Long passwords are what really stops guessing (rate limiting is per server instance).
+      validate: (value: unknown) => !value || (typeof value === 'string' && value.length >= 10) || 'Use at least 10 characters.',
     },
     { name: 'passwordHash', type: 'text', admin: { hidden: true } },
     {

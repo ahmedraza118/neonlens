@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 
 import { defaultLocale, type Locale, locales, withLocale } from '@/i18n/config'
 import { getLocations, getPosts, getProjects, getServices, getSlugs } from '@/lib/queries'
+import { hasAreaPage } from '@/lib/areas'
 import { localizedPaths } from '@/lib/seo'
 import { absoluteUrl } from '@/lib/utils'
 import type { Media } from '@/payload-types'
@@ -30,15 +31,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     Promise.all(projects.map((p) => slugs('projects', p.id))),
     Promise.all(posts.map((p) => slugs('posts', p.id))),
   ])
-  const now = new Date()
 
   const pages: Entry[] = [
-    { path: '/', changeFrequency: 'weekly', priority: 1, lastModified: now },
+    // No lastModified on fixed pages: a date that is always "now" teaches Google to ignore it.
+    { path: '/', changeFrequency: 'weekly', priority: 1 },
     ...['/services', '/portfolio', '/pricing', '/book', '/locations', '/about', '/contact', '/reviews', '/blog', '/faq'].map((path) => ({
       path,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
-      lastModified: now,
     })),
     { path: '/privacy', changeFrequency: 'yearly', priority: 0.2 },
     ...services.map((s, i) => ({
@@ -47,12 +47,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
       images: img(s.heroImage),
     })),
+    // Only the service × area pages that exist (see hasAreaPage).
     ...services.flatMap((s, i) =>
-      locations.map((l, j) => ({
+      locations.flatMap((l, j) => (hasAreaPage(l, s.id) ? [{
         path: Object.fromEntries(locales.map((lang) => [lang, `/services/${serviceSlugs[i][lang]}/${locationSlugs[j][lang]}`])) as Record<Locale, string>,
         lastModified: [s.updatedAt, l.updatedAt].sort().at(-1),
-        priority: l.isPrimary ? 0.9 : 0.7,
-      })),
+        priority: 0.8,
+      }] : [])),
     ),
     ...locations.map((l, i) => ({
       path: localizedPaths(locationSlugs[i], (x) => `/locations/${x}`),

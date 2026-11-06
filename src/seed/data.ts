@@ -8,7 +8,7 @@ export const settings = {
   businessName: 'NeonLens Studio',
   tagline: 'Wedding & brand photographer and videographer in Bucharest',
   description:
-    'NeonLens is a photo and video studio in Bucharest creating cinematic wedding photography, wedding films and brand content across Bucharest, Ilfov County and the lakes and palaces around the capital.',
+    'NeonLens is an English-speaking photo and video studio in Bucharest creating cinematic wedding photography, wedding films, christening and event coverage and brand content across Bucharest, Ilfov County and the lakes and palaces around the capital. We work in English and Romanian.',
   email: 'hello@neonlens.studio',
   phone: '+40 712 345 678',
   whatsapp: '40712345678',
@@ -33,7 +33,7 @@ export const settings = {
 
 Today we are a small crew of four with a studio in Sector 1, a few minutes from Piața Victoriei. We know this city by heart — how long Kiseleff takes on a Saturday afternoon, when the light is softest in Herăstrău, which side of Lake Snagov catches the sunset. We plan every shoot like a production — shot lists, light studies, backup gear — and then on the day we get out of the way and let real moments happen.
 
-We work with couples getting married in Bucharest and Ilfov who want honest, cinematic images, and with Bucharest brands who need content that actually stops the scroll.`,
+We work with couples getting married in Bucharest and Ilfov who want honest, cinematic images, and with Bucharest brands who need content that actually stops the scroll. The whole crew works in English and Romanian, so expats, international couples with guests from abroad and multinational teams in Pipera can brief us, plan with us and relax on the day without anything getting lost in translation.`,
     founderName: 'Andrei & Ioana',
     founderRole: 'Founders',
   },
@@ -46,7 +46,7 @@ We work with couples getting married in Bucharest and Ilfov who want honest, cin
   googleBusinessProfileUrl: '',
   googleReviewUrl: '',
   generalFaqs: [
-    { question: 'How far in advance should we book?', answer: 'Saturdays in peak wedding season (May–September) in Bucharest and Ilfov book 12–18 months ahead. Brand and event shoots usually need 2–4 weeks. Check your date with the inquiry form — we reply within 24 hours.' },
+    { question: 'How far in advance should we book?', answer: 'Saturdays in peak wedding season (May–September) in Bucharest and Ilfov book 12–18 months ahead. Brand and event shoots usually need 2–4 weeks. Check your date with the inquiry form — we reply within 24 hours, in English or Romanian, whichever you prefer.' },
     { question: 'How much is the deposit and how do I pay it?', answer: 'A 30% deposit reserves your date. You can pay it online by card, Apple Pay or Google Pay when you book; the balance is due 14 days before the shoot.' },
     { question: 'Do you charge travel fees in Bucharest and Ilfov?', answer: 'No. We cover all of Bucharest and Ilfov County — Snagov, Corbeanca, Mogoșoaia, Otopeni, Voluntari, Pipera and everywhere in between — at no travel fee. For venues more than about 40 km from the city, a small fee is shown in the quote calculator.' },
     { question: 'When will we receive our photos and film?', answer: 'You get a sneak peek within 72 hours, the full photo gallery within 4–6 weeks and the edited film within 8–10 weeks.' },
@@ -57,7 +57,7 @@ We work with couples getting married in Bucharest and Ilfov who want honest, cin
 
 export const homepage = {
   heroEyebrow: 'Photo & film · Bucharest & Ilfov',
-  heroHeading: 'Wedding & brand photographer and videographer in Bucharest',
+  heroHeading: 'English-speaking wedding & event photographer and videographer in Bucharest',
   heroSubheading:
     'We are NeonLens — a photo and video crew based in Bucharest, creating honest, cinematic images for couples and brands across the capital, Ilfov County and the lakes around Snagov.',
   process: [
@@ -262,6 +262,47 @@ Drop your products off at the studio in Sector 1 or send them by courier. Everyt
     faqs: [],
     keywords: ['product photography Bucharest', 'fotografie produs București', 'e-commerce photography Bucharest', 'packshot studio Bucharest'],
   },
+  {
+    key: 'christening',
+    slug: 'christening-photographer',
+    title: 'Christening Photography & Video',
+    seo: {
+      title: 'Christening Photographer Bucharest & Ilfov | NeonLens',
+      description: 'Christening photographer and videographer in Bucharest and Ilfov: the full Orthodox ritual, no flash in church, family portraits and the party. From €450.',
+    },
+    category: 'hybrid',
+    order: 6,
+    tagline: 'Christening photos and video in Bucharest and Ilfov, from church to party',
+    excerpt: 'Discreet christening photography and video in Bucharest and Ilfov — the Orthodox ritual, the godparents, the family and the celebration afterwards.',
+    intro: `A christening is short, emotional and impossible to repeat. In twenty minutes the priest, the godparents, the baby and a church full of relatives all play their part — and most parents remember very little of it afterwards. Our job is to make sure you can relive every moment.
+
+We photograph and film christenings in churches and monasteries across Bucharest and Ilfov, quietly and without flash during the service, following the priest's guidance on where we can stand. Then we follow you to the restaurant for relaxed family portraits, the godparents' speech, the cake and the party.
+
+English-speaking families, mixed couples and godparents flying in from abroad are very welcome: we work in English and Romanian and can explain each step of the Orthodox ritual to guests who see it for the first time.`,
+    highlights: [
+      { title: 'No flash in church', description: 'Fast lenses and quiet shutters, so the service stays calm and the priest is comfortable.' },
+      { title: 'Every moment of the ritual', description: 'The renunciation, the immersion, the anointing with holy chrism, the first communion and the tonsure.' },
+      { title: 'Family portraits', description: 'Parents, godparents and grandparents, photographed calmly before or after the service.' },
+    ],
+    process: [
+      { title: 'Short call', description: 'We note the church, the restaurant, the guest list and the moments that matter to you.' },
+      { title: 'Coordination with the parish', description: 'We confirm photography rules and timing with the church in advance.' },
+      { title: 'Christening day', description: 'Discreet coverage of the service, then portraits and the celebration.' },
+      { title: 'Gallery & film', description: 'Sneak peek in 72 hours, full gallery in 2–3 weeks, film in 4–6 weeks.' },
+    ],
+    startingPrice: 450,
+    packages: [
+      { name: 'Photo', price: 450, hours: 3, description: 'The church service and family portraits.', includes: ['1 photographer', '3 hours coverage', '200+ edited photos', 'Online gallery'] },
+      { name: 'Photo + video', price: 850, hours: 5, popular: true, description: 'Church service and party, in photos and a short film.', includes: ['1 photographer', '1 filmmaker', '5 hours coverage', '250+ edited photos', '3–4 min highlight film'] },
+      { name: 'Full day', price: 1300, hours: 8, description: 'From getting ready at home to the cake at the party.', includes: ['1 photographer', '1 filmmaker', '8 hours coverage', '400+ edited photos', 'Highlight film', 'Full ceremony video'] },
+    ],
+    faqs: [
+      { question: 'How do you handle the timing between the church and the restaurant?', answer: 'We arrive at the church 20–30 minutes early for details and family photos, cover the service, then drive ahead to the restaurant to photograph the setting before guests arrive. In Bucharest and Ilfov we plan the route around Sunday traffic, which is usually light.' },
+      { question: 'Which moments of the Orthodox christening do you capture?', answer: 'All of them: the renunciation at the church door, the blessing of the water, the triple immersion, the anointing with holy chrism, the white garment and candle, the tonsure, the first communion and the godparents receiving the baby. If you celebrate the first birthday on the same day, we also cover the traditional tăierea moțului.' },
+      { question: 'When will we receive the photos and the film?', answer: 'You get a sneak peek within 72 hours, the full online gallery within 2–3 weeks and the edited film within 4–6 weeks.' },
+    ],
+    keywords: ['christening photographer Bucharest', 'fotograf botez București', 'baptism photography Bucharest', 'christening video Bucharest'],
+  },
 ] as const
 
 export const locations = [
@@ -286,6 +327,7 @@ We cover weddings, engagement sessions, corporate events and brand shoots everyw
       { name: 'Dimitrie Brândză Botanical Garden', description: 'Greenhouses and quiet alleys in Cotroceni; a photo permit is required.' },
     ],
     nearbyAreas: ['Sector 1', 'Dorobanți', 'Floreasca', 'Cotroceni', 'Băneasa', 'Herăstrău'],
+    serviceNotes: [],
     faqs: [
       { question: 'Is there a travel fee within Bucharest?', answer: 'No — every sector of Bucharest is included, and so is the whole of Ilfov County.' },
       { question: 'Where can we do a quick portrait session between the church and the restaurant?', answer: 'It depends on your route: Cișmigiu and the Athenaeum work well in the centre, Herăstrău and Casa Doina in the north. We plan a 20–30 minute stop that avoids rush-hour traffic.' },
@@ -311,6 +353,32 @@ The light out here is also different — open fields and lakes give long, soft s
       { name: 'Therme București, Balotești', description: 'Tropical glasshouse and palm gardens — unusual for brand shoots and creative sessions (with permission).' },
     ],
     nearbyAreas: ['Buftea', 'Chitila', 'Pantelimon', 'Popești-Leordeni', 'Bragadiru', 'Măgurele'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Ilfov is where most Bucharest weddings actually happen — in large ballrooms, in palace gardens such as Știrbey Palace in Buftea, or near monasteries like Cernica and Căldărușani. The common thread is distance: the church may be in the city and the venue 30 km away, so we plan the timeline around the ring road, the A3 and the DN1, and send one photographer ahead when needed.
+
+For portraits we choose spots on the way rather than adding extra driving: the park at Știrbey Palace, the shores of Lake Buftea or Lake Cernica, or the fields around the venue at golden hour. Ballrooms in Ilfov are often huge and dark in the evening, so we light the dance floor with off-camera flashes for clean, vibrant party photos.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `Filming a wedding in Ilfov means long distances and big rooms. We work with two filmmakers so the bride's and the groom's preparations — often in different parts of Bucharest — are both covered, then regroup at the church or the venue. Large ballrooms need extra audio work: we take sound straight from the band or DJ desk and place a backup recorder next to the speeches.
+
+Outside the airport zone, much of Ilfov allows drone flights with proper registration, so aerials of venues around Buftea, Cernica or Gruiu are usually possible. We check the exact site and file the request about two weeks ahead; if a flight is not allowed, we plan strong cinematic ground shots instead.`,
+      },
+      {
+        service: 'event-photo',
+        content: `Beyond Bucharest's office districts, Ilfov hosts a lot of corporate life: team-building days at lakeside resorts, summer parties in garden venues, openings of logistics and industrial sites along the A1 and the ring road, and conferences in hotels around the city. We cover all of them with no travel fee.
+
+Outdoor company events depend on weather and light, so we agree a rain plan with your organiser and schedule group photos before the midday sun gets harsh. On industrial sites we follow the safety rules — helmets, vests, restricted areas — and coordinate in advance with the site manager. Same-day selects are sent over mobile data, even from remote venues.`,
+      },
+      {
+        service: 'christening',
+        content: `Many Bucharest families celebrate a christening in Ilfov: a service at a monastery such as Cernica or Căldărușani, or at their local parish in Popești-Leordeni, Bragadiru or Chitila, followed by lunch at a restaurant with a garden where children can play. We photograph the ritual, the godparents, the family and the party.
+
+Monastery churches are often dim and busy on Sundays, so we agree the timing with the parish office and photograph without flash during the service. If the restaurant is a long drive from the church, we plan the route so the baby can rest, and use the break for relaxed portraits of the parents and godparents in the garden.`,
+      },
+    ],
     faqs: [
       { question: 'Do you charge travel fees anywhere in Ilfov?', answer: 'No. Every locality in Ilfov County is covered at no extra cost. A small fee applies only to venues more than about 40 km from Bucharest.' },
       { question: 'How do you handle the drive from Bucharest to the venue?', answer: 'We check the route and the traffic for your date and time, build buffers into the timeline, and if needed one of us goes ahead to the venue to photograph details before you arrive.' },
@@ -336,6 +404,26 @@ We know the jetties, the access roads that get busy on Friday afternoons and the
       { name: 'Snagov Forest reserve', description: 'Old oak and ash forest along the shore — soft green light for summer portraits.' },
     ],
     nearbyAreas: ['Ciolpani', 'Gruiu', 'Periș', 'Tâncăbești', 'Ghermănești'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `A Snagov wedding usually means getting ready in Bucharest, a 40-minute drive north on the DN1 and a ceremony on a pontoon or a lawn by the water. We send one photographer ahead to cover the venue, the décor and the arriving guests while the other stays with you, so nothing is lost on the road.
+
+The best portraits happen on the jetties and along the reed beds in the hour before sunset, when the lake turns copper. If your venue is on the eastern shore, a short boat ride lets us face the light. In September we often suggest a short morning session in the mist the day after the wedding — a set of images very few couples have.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `Lake Snagov is one of the few places near Bucharest where a wedding film can really breathe: aerials over the water, boat entrances, long gimbal walks through Snagov Forest. Drone flights here still need registration and, depending on the exact spot, approval from the aviation authorities — we file the request about two weeks before your date.
+
+On the day we mic the officiant and the couple for the pontoon ceremony, because wind off the lake ruins on-camera audio. Evening footage is planned around the sunset over the western shore, and for the party we bring extra lights, as many lakeside tents go dark once the sun is down.`,
+      },
+      {
+        service: 'christening',
+        content: `Many Bucharest families combine a christening at a church in Snagov or Ciolpani with lunch at a lakeside restaurant. We photograph the service inside the church, then the family by the water before guests sit down — a short walk to the jetty gives the softest light of the day.
+
+Summer Sundays on the DN1 can be busy with people heading to the lake, so we usually meet at the church 30 minutes before the service. For video, the godparents holding the baby by the water makes a beautiful closing shot; with the full-day package we stay for the cake and the party at the restaurant.`,
+      },
+    ],
     faqs: [
       { question: 'Can we film our wedding on Lake Snagov with a drone?', answer: 'In most of the Snagov area, yes, with the right permits — we request them in advance and check the rules at your venue.' },
       { question: 'When is the best time for portraits in Snagov?', answer: 'The hour before sunset from June to August, or early morning in September when there is mist on the lake.' },
@@ -360,6 +448,26 @@ On busy Saturdays the road through Otopeni and Balotești fills up, so we plan t
       { name: 'Tamași and Ostratu village lanes', description: 'Country roads, fields and sunsets for relaxed engagement sessions.' },
     ],
     nearbyAreas: ['Tamași', 'Ostratu', 'Petrești', 'Balotești', 'Săftica'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Garden weddings in Corbeanca are usually intimate and relaxed: a ceremony on the lawn, long tables under the trees, dancing until late. The drive from northern Bucharest takes about 30 minutes, but on Saturday afternoons the road through Otopeni and Balotești can double that, so preparations in the city often need to start earlier than couples expect.
+
+We love the open fields around Tamași and Ostratu for portraits — tall grass and wide skies at golden hour — and the shaded edge of Corbeanca Forest in the hottest months, when midday light is harsh. Many venues here are private gardens, so we check in advance where the sun sets relative to the tables and plan the toasts accordingly.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `Corbeanca suits a natural, documentary-style film: small guest lists, real conversations, heartfelt speeches in the garden. With fewer people, the film relies on clean sound more than spectacle — lavalier mics on the couple and a recorder on every speaker, so each word from your friends survives the evening breeze.
+
+Corbeanca is far enough from the airport that drone flights are usually possible with a registered flight, and the fields and forest look stunning from above at sunset. We scout private gardens ahead for power and a quiet corner for short interviews, and plan a golden-hour walk along the village lanes that often becomes the opening sequence of the film.`,
+      },
+      {
+        service: 'christening',
+        content: `In Corbeanca, christenings are often small family celebrations: the service at the village church, then lunch in a garden or at home. We photograph the ritual — the immersion, the anointing with holy chrism, the godparents' candles — without flash and from discreet angles the priest is comfortable with.
+
+Afterwards, the relaxed garden setting is perfect for natural family portraits and playful photos of the baby with cousins and grandparents. Corbeanca is around 30 minutes from Bucharest with no travel fee, and on Sunday mornings the roads are clear, so we can easily cover an early service and stay on for lunch.`,
+      },
+    ],
     faqs: [
       { question: 'Do you photograph small weddings in Corbeanca?', answer: 'Yes — intimate garden weddings with 30–80 guests are some of our favourites. The Essential package is often enough.' },
       { question: 'Can we do an engagement session in Corbeanca?', answer: 'Absolutely. The fields and forest edge are lovely in the last hour before sunset, and we can combine them with a stop at Lake Snagov.' },
@@ -385,6 +493,26 @@ Photography inside the complex may require an access fee, which we arrange in ad
       { name: 'Elchingen Villa', description: 'Romantic villa in the palace park, a quieter corner for portraits.' },
     ],
     nearbyAreas: ['Chitila', 'Buftea', 'Bucureștii Noi', 'Străulești', 'Otopeni'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `The Brâncoveanu palace gives you one of the most elegant portrait sessions near Bucharest: the arches of the loggia, carved stone balustrades and a lake shore lined with old trees. The complex charges an access fee for professional photography and has fixed visiting hours, so we book your slot ahead and plan portraits for the quieter moments — usually late afternoon on weekdays or just before closing at weekends.
+
+Mogoșoaia is only 15–20 minutes from north-west Bucharest via Bucureștii Noi, which makes it easy to fit a portrait session between a church in the city and a venue elsewhere in Ilfov. In May the wisteria on the façade is spectacular; in October the reflections in the lake are at their best.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `For a wedding film, Mogoșoaia offers rich textures — stone, arches, light falling through the loggia — that look cinematic with almost no effort. Filming inside the complex needs the palace's approval and fee, which we arrange; gimbals and tripods are fine, while the drone needs a registered flight and, this close to the city, a permit we request well in advance.
+
+We usually plan a 30–40 minute filming window with the couple in the gardens, timed for the low sun behind the palace. If the ceremony takes place on site, we mic the officiant and record ambient sound in the courtyard, which echoes beautifully and gives the film a real sense of place.`,
+      },
+      {
+        service: 'christening',
+        content: `If your family has arranged the christening at Saint George Church in the palace grounds, built in 1688, you get a truly special setting: a small painted interior and soft daylight from narrow windows. We photograph without flash, follow the priest's guidance and capture the immersion, the anointing and the first communion up close.
+
+After the service, a short walk through the palace gardens gives you family portraits with a backdrop few christenings have. Visiting hours and fees apply to the complex, so we confirm the details with you and the parish beforehand. Mogoșoaia is 15–20 minutes from Bucharest and pairs easily with a restaurant in the north of the city.`,
+      },
+    ],
     faqs: [
       { question: 'Do we need a permit to shoot at Mogoșoaia Palace?', answer: 'For wedding photography and filming, the complex usually charges an access fee. We check the current rules and arrange it before your date.' },
       { question: 'When is Mogoșoaia least crowded?', answer: 'Weekday mornings and the last hour before closing. On Saturdays we plan a short, efficient portrait session around the busiest times.' },
@@ -409,6 +537,26 @@ Traffic on Pipera's main roads is heavy at rush hour, so we schedule office shoo
       { name: 'Romexpo', description: 'Bucharest’s main exhibition centre, a short drive away, for trade fairs and conferences.' },
     ],
     nearbyAreas: ['Pipera', 'Ștefăneștii de Jos', 'Afumați', 'Dobroești', 'Tunari'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Many couples who live in the new residential areas of Voluntari and Pipera get ready at home and have their civil ceremony at Voluntari town hall, then head into Bucharest or north into Ilfov for the church and the party. We plan the day so the photographer reaches your home with enough time for details and family portraits before the civil ceremony.
+
+For portraits, Băneasa Forest is ten minutes away and gives soft, green light even in midsummer. Pipera's main roads are congested on weekday evenings and Saturday mornings, so for a Friday civil ceremony we add generous buffers. The modern buildings nearby also make a clean, editorial backdrop for a few portraits right next to where you live.`,
+      },
+      {
+        service: 'event-photo',
+        content: `Pipera is Bucharest's business hub, and much of our corporate work happens here: town-hall meetings, product launches, team days and office parties. We know the building rules — access badges, parking, registering equipment at reception — and sort them out in advance with your office manager.
+
+For internal events and conferences we usually send one photographer with unobtrusive lighting and deliver same-day selects for your intranet or LinkedIn. Headshot days take place in a meeting room: a portable studio, consistent light and up to 40 people per hour, scheduled between 10:00 and 16:00 to avoid rush hour on Pipera's main roads.`,
+      },
+      {
+        service: 'christening',
+        content: `Voluntari is full of young families, and christenings here usually take place at the local parish churches, followed by lunch at a restaurant in Pipera or in the north of Bucharest. We photograph the service — the immersion, the anointing with holy chrism, the moment the godparents take the baby — and then the family gathering at the restaurant.
+
+Because the church and the restaurant are often only a few minutes apart, a 3-hour photo package frequently covers everything. Sunday traffic is light, so we can also add a short family session at home before the service, while the baby is still rested and in a good mood.`,
+      },
+    ],
     faqs: [
       { question: 'Can you film a company video in our Pipera office?', answer: 'Yes. We bring a lean crew with lighting and audio, work around your team’s schedule and can deliver matching photos from the same day.' },
       { question: 'Do you organise headshot days for companies in Voluntari?', answer: 'Yes — we set up a portable studio in a meeting room and photograph up to 40 people per hour.' },
@@ -433,6 +581,20 @@ Drone flights are not possible near the airport, so here we focus on ground-leve
       { name: 'Therme București, Balotești', description: 'Glasshouse gardens ten minutes away, for creative brand content (with permission).' },
     ],
     nearbyAreas: ['Tunari', 'Balotești', 'Corbeanca', 'Băneasa'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Weddings near Otopeni are often chosen by couples with guests flying in from abroad: relatives land in the morning, check in at a hotel near the airport and are at the party by evening. If you like, we photograph the arrivals, then the ceremony and the party in one of the large ballrooms around the airport, which are bright, spacious and easy to light.
+
+For portraits we usually take a short drive to Băneasa Forest or to the quieter lanes towards Corbeanca, 10–15 minutes away. Drone flights are not possible near the airport, so we focus on strong ground-level images — and a plane taking off at sunset can make a striking, playful backdrop for a couple portrait.`,
+      },
+      {
+        service: 'event-photo',
+        content: `The hotels and conference centres around Henri Coandă Airport host many corporate events: international meetings, product launches, award galas and company parties with guests flying in for a single day. We are used to tight schedules — check-in in the morning, sessions in the afternoon, gala dinner in the evening — and plan our coverage around each block.
+
+Conference rooms near the airport often have mixed lighting and low ceilings, so we bring bounce flashes and fast lenses to keep skin tones natural. Same-day selects can be ready before attendees head back to their flights, which international companies value because the content goes out while everyone is still talking about the event.`,
+      },
+    ],
     faqs: [
       { question: 'Many of our guests fly in — is Otopeni a good choice?', answer: 'Very. Venues near the airport make logistics easy, and we can photograph family arrivals as part of your wedding story.' },
       { question: 'Can you use a drone in Otopeni?', answer: 'No — the area around the airport is restricted airspace. We plan cinematic ground shots instead, or add aerials at a second location further from the airport.' },
@@ -690,6 +852,7 @@ export const pricing = {
     { service: 'brand-video', baseFee: 450, hourlyRate: 150, minHours: 2, maxHours: 16 },
     { service: 'event-photo', baseFee: 100, hourlyRate: 90, minHours: 2, maxHours: 12 },
     { service: 'product-photo', baseFee: 100, hourlyRate: 100, minHours: 2, maxHours: 8 },
+    { service: 'christening', baseFee: 150, hourlyRate: 100, minHours: 2, maxHours: 10 },
   ],
   addOns: [
     { name: 'Second photographer', price: 50, unit: 'perHour', services: ['wedding-photo', 'event-photo'] },

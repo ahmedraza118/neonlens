@@ -63,7 +63,7 @@ function Switcher({ className }: { className?: string }) {
           aria-current={l === lang ? 'true' : undefined}
           title={localeNames[l]}
           className={cn(
-            'rounded-full px-2.5 py-1 uppercase transition-colors',
+            'rounded-full px-3 py-2 uppercase transition-colors sm:px-2.5 sm:py-1',
             l === lang ? 'bg-fg text-white' : 'text-muted hover:text-fg',
           )}
         >

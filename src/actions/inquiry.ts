@@ -9,7 +9,12 @@ import { notifyStudio, rowsToHtml, sendEmail } from '@/lib/notify'
 import { getPayloadClient } from '@/lib/payload'
 import { getSettings } from '@/lib/queries'
 
-export type InquiryState = { ok: boolean; message: string; errors?: Partial<Record<string, string>> }
+/** `values` echoes what was submitted so the form can show it again after an error. */
+export type InquiryState = { ok: boolean; message: string; errors?: Partial<Record<string, string>>; values?: Record<string, string> }
+
+const ECHO_FIELDS = ['name', 'email', 'phone', 'service', 'eventDate', 'location', 'budget', 'message']
+const echo = (formData: FormData) =>
+  Object.fromEntries(ECHO_FIELDS.map((k) => [k, String(formData.get(k) ?? '').slice(0, 5000)]))
 
 const schemaFor = (t: ReturnType<typeof getDictionary>) => z.object({
   name: z.string().trim().min(2, t.actions.nameRequired).max(120),
@@ -30,9 +35,10 @@ export async function submitInquiry(_prev: InquiryState, formData: FormData): Pr
   const t = getDictionary(locale)
   // Spam traps: a hidden field humans never fill, and a minimum time on page.
   if (formData.get('company_website')) return { ok: true, message: t.actions.thanksSpam }
+  // Bots post without running the page's script: a missing timestamp counts as too fast.
   const startedAt = Number(formData.get('startedAt') || 0)
-  if (startedAt && Date.now() - startedAt < 2500) {
-    return { ok: false, message: t.actions.tooQuick }
+  if (!startedAt || Date.now() - startedAt < 2500) {
+    return { ok: false, message: t.actions.tooQuick, values: echo(formData) }
   }
 
   const raw = Object.fromEntries(
@@ -42,7 +48,7 @@ export async function submitInquiry(_prev: InquiryState, formData: FormData): Pr
   if (!parsed.success) {
     const errors: Record<string, string> = {}
     for (const issue of parsed.error.issues) errors[String(issue.path[0])] ??= issue.message
-    return { ok: false, message: t.actions.fixFields, errors }
+    return { ok: false, message: t.actions.fixFields, errors, values: echo(formData) }
   }
   const data = parsed.data
 
@@ -78,14 +84,14 @@ export async function submitInquiry(_prev: InquiryState, formData: FormData): Pr
     ['Language', locale.toUpperCase()],
   ]
   const r = t.actions.rows
+  // The copy sent to the visitor never repeats their free text (message/quote): otherwise the form
+  // could be used to send any text "from" the studio's address to any inbox.
   const clientRows: Array<[string, string | undefined]> = [
     [r.phone, data.phone],
     [r.service, data.service],
     [r.date, data.eventDate],
     [r.location, data.location],
     [r.budget, data.budget],
-    [r.message, data.message],
-    [r.quote, data.quoteSummary],
   ]
 
   await Promise.allSettled([

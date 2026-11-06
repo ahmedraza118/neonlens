@@ -25,7 +25,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     path: '/portfolio',
     lang,
     // Filtered views are variations of the same page; keep them out of the index.
-    noIndex: Boolean(service),
+    noIndexFollow: Boolean(service),
   })
 }
 

@@ -1,6 +1,8 @@
 import Link from 'next/link'
 
 import { fmt } from '@/i18n/config'
+import { hasAreaPage } from '@/lib/areas'
+import { ConsentSettingsButton } from './ConsentBanner'
 import { getI18n } from '@/i18n/server'
 import type { Location, Service, SiteSetting } from '@/payload-types'
 
@@ -10,7 +12,11 @@ import type { Location, Service, SiteSetting } from '@/payload-types'
  */
 export function Footer({ settings, services, locations }: { settings: SiteSetting; services: Service[]; locations: Location[] }) {
   const social = Object.entries(settings.social ?? {}).filter(([k, v]) => k !== 'id' && typeof v === 'string' && v)
-  const primary = locations.find((l) => l.isPrimary) ?? locations[0]
+  // Links to the existing service × area landing pages (one per area, the first service that has one).
+  const popular = locations
+    .map((l) => ({ l, s: services.find((s) => hasAreaPage(l, s.id)) }))
+    .filter((x): x is { l: Location; s: Service } => Boolean(x.s))
+    .slice(0, 6)
   const { t, href } = getI18n()
   return (
     <footer className="border-t border-line bg-surface">
@@ -21,7 +27,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
           <address className="mt-6 space-y-1 text-sm not-italic text-muted">
             {settings.address?.street && <p>{settings.address.street}</p>}
             <p>
-              {[settings.address?.postalCode, settings.address?.city, settings.address?.region].filter(Boolean).join(', ')}
+              {[settings.address?.postalCode, settings.address?.city, settings.address?.region !== settings.address?.city && settings.address?.region].filter(Boolean).join(', ')}
             </p>
             <p>
               <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="hover:text-fg">
@@ -65,14 +71,14 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
               </li>
             ))}
           </ul>
-          {primary && services[0] && (
-            <p className="mt-4 text-xs text-muted/70">
+          {popular.length > 0 && (
+            <p className="mt-4 text-xs text-muted">
               {t.footer.popular}{' '}
-              {services.slice(0, 3).map((s, i) => (
-                <span key={s.id}>
+              {popular.map(({ s, l }, i) => (
+                <span key={`${s.id}-${l.id}`}>
                   {i > 0 && ' · '}
-                  <Link href={href(`/services/${s.slug}/${primary.slug}`)} className="hover:text-fg">
-                    {fmt(t.common.in, { service: s.title, city: primary.name })}
+                  <Link href={href(`/services/${s.slug}/${l.slug}`)} className="hover:text-fg">
+                    {fmt(t.common.in, { service: s.title, city: l.name })}
                   </Link>
                 </span>
               ))}
@@ -104,7 +110,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
             <ul className="mt-6 flex flex-wrap gap-3 text-sm">
               {social.map(([name, url]) => (
                 <li key={name}>
-                  <a href={url as string} rel="noopener me" target="_blank" className="capitalize text-muted hover:text-accent">
+                  <a href={url as string} rel="noopener me" target="_blank" className="inline-block py-1.5 capitalize text-muted hover:text-accent">
                     {name}
                   </a>
                 </li>
@@ -118,11 +124,14 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
         <p>
           {fmt(t.footer.copyright, { year: new Date().getFullYear(), name: settings.businessName })}
         </p>
-        {settings.googleReviewUrl && (
-          <a href={settings.googleReviewUrl} target="_blank" rel="noopener" className="hover:text-fg">
-            {t.footer.review}
-          </a>
-        )}
+        <div className="flex flex-wrap gap-x-5 gap-y-2">
+          {settings.googleReviewUrl && (
+            <a href={settings.googleReviewUrl} target="_blank" rel="noopener" className="hover:text-fg">
+              {t.footer.review}
+            </a>
+          )}
+          {process.env.NEXT_PUBLIC_GA_ID && <ConsentSettingsButton label={t.consent.settings} />}
+        </div>
       </div>
     </footer>
   )

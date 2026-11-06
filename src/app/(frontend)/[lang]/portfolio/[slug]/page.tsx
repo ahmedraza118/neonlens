@@ -29,14 +29,13 @@ export async function generateStaticParams({ params }: StaticProps) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { lang, t } = await localeFromParams(params)
+  const { lang } = await localeFromParams(params)
   const { slug } = await params
   const project = await getProject(slug)
   if (!project) return {}
-  const service = populated<Service>(project.service)
-  const location = populated<Location>(project.location)
   return buildMetadata({
-    title: [project.title, service && location ? fmt(t.common.in, { service: service.title, city: location.name }) : service?.title].filter(Boolean).join(' — '),
+    // The project title alone (service and area are already in it and in the description): under ~60 characters.
+    title: project.title,
     description: project.excerpt,
     path: localizedPaths(await getSlugs('projects', project.id), (s) => `/portfolio/${s}`),
     lang,
@@ -86,7 +85,7 @@ export default async function ProjectPage({ params }: Props) {
                 <div key={k} className="flex justify-between gap-4 p-4 text-sm">
                   <dt className="text-muted">{k}</dt>
                   <dd className="text-right font-medium">
-                    {k === t.portfolio.service && service ? <Link href={href(`/services/${service.slug}`)} className="hover:text-accent">{v}</Link> : v}
+                    {k === t.portfolio.service && service ? <Link href={href(`/services/${service.slug}`)} className="inline-block py-1 hover:text-accent">{v}</Link> : v}
                   </dd>
                 </div>
               ))}

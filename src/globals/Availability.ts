@@ -29,7 +29,8 @@ export const Availability: GlobalConfig = {
       type: 'array',
       fields: [
         { name: 'date', type: 'date', required: true, admin: { date: { pickerAppearance: 'dayOnly' } } },
-        { name: 'reason', type: 'text' },
+        // Admin-only: the availability global is public (the calendar reads it), notes may name clients.
+        { name: 'reason', type: 'text', access: { read: ({ req }) => Boolean(req.user) } },
       ],
     },
   ],

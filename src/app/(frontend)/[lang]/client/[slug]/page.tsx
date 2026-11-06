@@ -4,7 +4,7 @@ import { lockGalleries } from '@/actions/gallery'
 import { VideoPlayer } from '@/components/VideoPlayer'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { findGalleryBySlug, getUnlockedGallery, isExpired } from '@/lib/galleries'
+import { getUnlockedGallery, isExpired } from '@/lib/galleries'
 import { getPayloadClient } from '@/lib/payload'
 import { formatDate } from '@/lib/utils'
 
@@ -25,10 +25,10 @@ export default async function ClientGalleryPage({ params }: Props) {
   const gallery = await getUnlockedGallery(slug)
 
   if (!gallery || isExpired(gallery)) {
-    const exists = await findGalleryBySlug(slug)
+    // Same generic heading whether or not the code exists: nothing about the client leaks before login.
     return (
       <section className="container-x py-24 text-center">
-        <h1 className="text-4xl font-bold">{exists ? exists.title : t.client.private}</h1>
+        <h1 className="text-4xl font-bold">{t.client.private}</h1>
         <p className="mt-3 text-muted">{gallery && isExpired(gallery) ? t.client.expired : t.client.enterPassword}</p>
         {!gallery && <UnlockForm slug={slug} />}
       </section>
@@ -73,8 +73,10 @@ export default async function ClientGalleryPage({ params }: Props) {
           id: p.id,
           thumb: p.sizes?.thumb?.url ?? p.url!,
           preview: p.sizes?.preview?.url ?? p.url!,
-          original: p.url!,
-          filename: p.filename ?? `photo-${p.id}.jpg`,
+          // Full-resolution originals only once downloads are enabled (e.g. after the final payment).
+          original: gallery.allowDownloads ? p.url! : '',
+          // Shown and used for downloads without the random storage suffix (see ClientMedia).
+          filename: (p.filename ?? `photo-${p.id}.jpg`).replace(/-[0-9a-f]{24}(?=\.[a-z0-9]+$)/i, ''),
           width: p.width ?? 3,
           height: p.height ?? 2,
         }))}

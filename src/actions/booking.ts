@@ -5,7 +5,8 @@ import { z } from 'zod'
 
 import { fmt, toLocale, withLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
-import { getAvailabilityRules, isDateBookable } from '@/lib/availability'
+import { CHECKOUT_HOLD_MINUTES, getAvailabilityRules, isDateBookable } from '@/lib/availability'
+import { releaseToken } from '@/lib/bookings'
 import { notifyStudio } from '@/lib/notify'
 import { getPayloadClient } from '@/lib/payload'
 import { getPricing, getService, getSettings } from '@/lib/queries'
@@ -13,7 +14,11 @@ import { depositFor } from '@/lib/quote'
 import { getStripe, toStripeAmount } from '@/lib/stripe'
 import { absoluteUrl, formatDate, formatMoney } from '@/lib/utils'
 
-export type BookingState = { message: string; errors?: Partial<Record<string, string>> }
+/** `values` echoes the visitor's details so the form can show them again after an error. */
+export type BookingState = { message: string; errors?: Partial<Record<string, string>>; values?: Record<string, string> }
+
+const echo = (formData: FormData) =>
+  Object.fromEntries(['name', 'email', 'phone', 'location', 'notes'].map((k) => [k, String(formData.get(k) ?? '').slice(0, 3000)]))
 
 const schemaFor = (t: ReturnType<typeof getDictionary>) => z.object({
   service: z.string().min(1, t.actions.chooseService),
@@ -36,15 +41,15 @@ export async function createBooking(_prev: BookingState, formData: FormData): Pr
   if (!parsed.success) {
     const errors: Record<string, string> = {}
     for (const issue of parsed.error.issues) errors[String(issue.path[0])] ??= issue.message
-    return { message: t.actions.checkFields, errors }
+    return { message: t.actions.checkFields, errors, values: echo(formData) }
   }
   const data = parsed.data
 
   // Never trust prices or dates from the browser — re-derive everything server-side.
   const [service, pricing, settings, rules] = await Promise.all([getService(data.service, locale), getPricing(), getSettings(locale), getAvailabilityRules()])
   const pkg = service?.packages?.find((p) => p.id === data.packageId)
-  if (!service || !pkg) return { message: t.actions.packageGone, errors: { packageId: t.actions.choosePackage } }
-  if (!isDateBookable(rules, data.date)) return { message: t.actions.dateTaken, errors: { date: t.actions.pickAnother } }
+  if (!service || !pkg) return { message: t.actions.packageGone, errors: { packageId: t.actions.choosePackage }, values: echo(formData) }
+  if (!isDateBookable(rules, data.date)) return { message: t.actions.dateTaken, errors: { date: t.actions.pickAnother }, values: echo(formData) }
 
   const deposit = depositFor(pkg.price, pricing.depositPercent)
   const payload = await getPayloadClient()
@@ -104,8 +109,9 @@ export async function createBooking(_prev: BookingState, formData: FormData): Pr
       },
     ],
     success_url: absoluteUrl(withLocale('/book/success?session_id={CHECKOUT_SESSION_ID}', locale)),
-    cancel_url: absoluteUrl(withLocale(`/book?service=${service.slug}&package=${encodeURIComponent(pkg.id ?? '')}&cancelled=1`, locale)),
-    expires_at: Math.floor(Date.now() / 1000) + 60 * 60, // hold the slot for 1 hour
+    cancel_url: absoluteUrl(withLocale(`/book?service=${service.slug}&package=${encodeURIComponent(pkg.id ?? '')}&cancelled=${releaseToken(booking.id)}`, locale)),
+    // The date is held while the client pays (see CHECKOUT_HOLD_MINUTES); then Stripe expires the session.
+    expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_HOLD_MINUTES * 60,
   })
 
   await payload.update({ collection: 'bookings', id: booking.id, data: { stripeSessionId: session.id } })

@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { useI18n } from '@/i18n/client'
@@ -12,17 +13,42 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 export function MobileMenu() {
   const [open, setOpen] = useState(false)
   const { t, href } = useI18n()
+  const pathname = usePathname()
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const navRef = useRef<HTMLElement>(null)
+
+  // Close when the page changes (e.g. browser back button).
+  const [lastPath, setLastPath] = useState(pathname)
+  if (pathname !== lastPath) {
+    setLastPath(pathname)
+    setOpen(false)
+  }
 
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
+    if (!open) return
+    // While open: no page scroll, the page behind is inert (keyboard and screen readers stay in
+    // the menu), focus starts on the first link, Escape closes and focus returns to the toggle.
+    const background = [document.getElementById('main'), document.querySelector('footer')].filter(Boolean) as HTMLElement[]
+    document.body.style.overflow = 'hidden'
+    background.forEach((el) => el.setAttribute('inert', ''))
+    navRef.current?.querySelector<HTMLElement>('a')?.focus()
+    const toggle = toggleRef.current
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
     return () => {
       document.body.style.overflow = ''
+      background.forEach((el) => el.removeAttribute('inert'))
+      window.removeEventListener('keydown', onKey)
+      toggle?.focus()
     }
   }, [open])
 
   return (
     <div className="lg:hidden">
       <button
+        ref={toggleRef}
         type="button"
         aria-expanded={open}
         aria-controls="mobile-nav"
@@ -38,6 +64,7 @@ export function MobileMenu() {
       {open &&
         createPortal(
           <nav
+            ref={navRef}
             id="mobile-nav"
             aria-label={t.nav.mobile}
             className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto bg-page px-4 py-6"

@@ -10,7 +10,7 @@ export const settings = {
   businessName: 'NeonLens Studio',
   tagline: 'Fotograf și videograf de nuntă și brand în București',
   description:
-    'NeonLens este un studio foto-video din București: fotografie de nuntă cinematică, filme de nuntă și conținut pentru branduri în București, județul Ilfov și în jurul lacurilor și palatelor din apropierea Capitalei.',
+    'NeonLens este un studio foto-video din București: fotografie de nuntă cinematică, filme de nuntă, foto și video de botez, evenimente și conținut pentru branduri în București, județul Ilfov și în jurul lacurilor și palatelor din apropierea Capitalei. Lucrăm în română și engleză.',
   email: 'hello@neonlens.studio',
   phone: '+40 712 345 678',
   whatsapp: '40712345678',
@@ -34,7 +34,7 @@ export const settings = {
 
 Astăzi suntem o echipă mică, de patru oameni, cu studioul în Sectorul 1, la câteva minute de Piața Victoriei. Cunoaștem orașul pe de rost — cât durează drumul pe Kiseleff sâmbătă după-amiaza, când e lumina cea mai blândă în Herăstrău, pe ce mal al lacului Snagov apune soarele. Pregătim fiecare ședință ca pe o producție — listă de cadre, studiu de lumină, echipament de rezervă — iar în ziua cea mare ne dăm la o parte și lăsăm momentele reale să se întâmple.
 
-Lucrăm cu cupluri care se căsătoresc în București și Ilfov și își doresc imagini sincere și cinematice, și cu branduri bucureștene care au nevoie de conținut care chiar oprește scroll-ul.`,
+Lucrăm cu cupluri care se căsătoresc în București și Ilfov și își doresc imagini sincere și cinematice, și cu branduri bucureștene care au nevoie de conținut care chiar oprește scroll-ul. Toată echipa lucrează în română și engleză, așa că ne înțelegem la fel de ușor cu bunicii, cu invitații veniți din străinătate și cu echipele multinaționalelor din Pipera.`,
     founderName: 'Andrei & Ioana',
     founderRole: 'Fondatori',
   },
@@ -47,7 +47,7 @@ Lucrăm cu cupluri care se căsătoresc în București și Ilfov și își dores
   googleBusinessProfileUrl: '',
   googleReviewUrl: '',
   generalFaqs: [
-    { question: 'Cu cât timp înainte ar trebui să vă rezervăm?', answer: 'Sâmbetele din sezonul de nunți (mai–septembrie) în București și Ilfov se rezervă cu 12–18 luni înainte. Ședințele de brand și evenimentele corporate au nevoie de obicei de 2–4 săptămâni. Verificați data prin formularul de contact — vă răspundem în maximum 24 de ore.' },
+    { question: 'Cu cât timp înainte ar trebui să vă rezervăm?', answer: 'Sâmbetele din sezonul de nunți (mai–septembrie) în București și Ilfov se rezervă cu 12–18 luni înainte. Ședințele de brand și evenimentele corporate au nevoie de obicei de 2–4 săptămâni. Verificați data prin formularul de contact — vă răspundem în maximum 24 de ore, în română sau în engleză, cum vă e mai comod.' },
     { question: 'Cât este avansul și cum îl pot plăti?', answer: 'Un avans de 30% vă rezervă data. Îl puteți plăti online cu cardul, Apple Pay sau Google Pay la rezervare; restul se achită cu 14 zile înainte de ședință.' },
     { question: 'Percepeți taxă de deplasare în București și Ilfov?', answer: 'Nu. Acoperim tot Bucureștiul și tot județul Ilfov — Snagov, Corbeanca, Mogoșoaia, Otopeni, Voluntari, Pipera și tot ce e între ele — fără taxă de deplasare. Pentru locațiile aflate la peste 40 km de oraș se aplică o taxă mică, afișată în calculatorul de ofertă.' },
     { question: 'Când primim fotografiile și filmul?', answer: 'Primiți un preview în 72 de ore, galeria foto completă în 4–6 săptămâni și filmul editat în 8–10 săptămâni.' },
@@ -263,6 +263,47 @@ Aduceți produsele la studio, în Sectorul 1, sau trimiteți-le prin curier. Tot
     faqs: [],
     keywords: ['fotografie produs București', 'fotograf produs București', 'fotografie e-commerce București', 'studio packshot București'],
   },
+  {
+    key: 'christening',
+    slug: 'fotograf-botez',
+    title: 'Fotograf și video botez',
+    seo: {
+      title: 'Fotograf botez București și Ilfov | NeonLens',
+      description: 'Fotograf și video de botez în București și Ilfov: tot ritualul botezului, fără bliț în biserică, portrete de familie și petrecerea. Pachete de la 450 €.',
+    },
+    category: 'hybrid',
+    order: 6,
+    tagline: 'Foto și video de botez în București și Ilfov, de la biserică la petrecere',
+    excerpt: 'Fotograf de botez în București și Ilfov, discret și atent: ritualul ortodox, nașii, familia și petrecerea de după — în fotografii și film.',
+    intro: `Botezul e scurt, emoționant și nu se mai repetă. În douăzeci de minute, preotul, nașii, bebelușul și o biserică plină de rude își joacă fiecare rolul — iar cei mai mulți părinți își amintesc foarte puțin după aceea. Treaba noastră este să puteți retrăi fiecare clipă.
+
+Fotografiem și filmăm botezuri în biserici și mănăstiri din București și Ilfov, discret și fără bliț în timpul slujbei, respectând indicațiile preotului despre unde putem sta. Apoi vă însoțim la restaurant pentru portrete de familie relaxate, urările nașilor, tortul și petrecerea.
+
+Familiile mixte și nașii veniți din străinătate sunt bineveniți: lucrăm în română și engleză și le putem explica invitaților care văd pentru prima dată un botez ortodox ce se întâmplă la fiecare pas.`,
+    highlights: [
+      { title: 'Fără bliț în biserică', description: 'Obiective luminoase și declanșare silențioasă, ca slujba să rămână liniștită, iar preotul să se simtă confortabil.' },
+      { title: 'Fiecare moment al ritualului', description: 'Lepădările, cufundarea în cristelniță, ungerea cu Sfântul Mir, prima împărtășanie și tunderea.' },
+      { title: 'Portrete de familie', description: 'Părinți, nași și bunici, fotografiați pe îndelete înainte sau după slujbă.' },
+    ],
+    process: [
+      { title: 'Un apel scurt', description: 'Notăm biserica, restaurantul, invitații și momentele la care țineți.' },
+      { title: 'Coordonare cu parohia', description: 'Confirmăm din timp cu biserica regulile pentru fotografiere și ora slujbei.' },
+      { title: 'Ziua botezului', description: 'Fotografiem discret slujba, apoi portretele și petrecerea.' },
+      { title: 'Galerie și film', description: 'Preview în 72 de ore, galeria completă în 2–3 săptămâni, filmul în 4–6 săptămâni.' },
+    ],
+    startingPrice: 450,
+    packages: [
+      { name: 'Foto', price: 450, hours: 3, description: 'Slujba de botez și portretele de familie.', includes: ['1 fotograf', '3 ore de fotografiere', '200+ fotografii editate', 'Galerie online'] },
+      { name: 'Foto + video', price: 850, hours: 5, popular: true, description: 'Slujba și petrecerea, în fotografii și un film scurt.', includes: ['1 fotograf', '1 videograf', '5 ore', '250+ fotografii editate', 'Film highlight de 3–4 min'] },
+      { name: 'Zi completă', price: 1300, hours: 8, description: 'De la pregătirile de acasă până la tortul de la petrecere.', includes: ['1 fotograf', '1 videograf', '8 ore', '400+ fotografii editate', 'Film highlight', 'Filmarea completă a slujbei'] },
+    ],
+    faqs: [
+      { question: 'Cum se împarte timpul între biserică și restaurant?', answer: 'Ajungem la biserică cu 20–30 de minute înainte, pentru detalii și fotografii cu familia, fotografiem slujba, apoi plecăm înainte spre restaurant ca să surprindem decorul înainte să sosească invitații. În București și Ilfov planificăm traseul ținând cont de traficul de duminică, de obicei lejer.' },
+      { question: 'Ce momente ale botezului ortodox surprindeți?', answer: 'Pe toate: lepădările de la intrarea în biserică, sfințirea apei, cufundarea de trei ori în cristelniță, ungerea cu mir, îmbrăcarea în haina albă și lumânarea, tunderea, prima împărtășanie și momentul în care nașii primesc copilul. Dacă sărbătoriți în aceeași zi și împlinirea unui an, fotografiem și tăierea moțului.' },
+      { question: 'Când primim fotografiile și filmul?', answer: 'Primiți un preview în 72 de ore, galeria online completă în 2–3 săptămâni și filmul editat în 4–6 săptămâni.' },
+    ],
+    keywords: ['fotograf botez București', 'fotograf botez Ilfov', 'filmare botez București', 'foto video botez București'],
+  },
 ] as const
 
 export const locations = [
@@ -287,6 +328,7 @@ Ca fotograf de nuntă în București acoperim nunți, ședințe de logodnă, eve
       { name: 'Grădina Botanică „Dimitrie Brândză”', description: 'Sere și alei liniștite în Cotroceni; este necesară o autorizație foto.' },
     ],
     nearbyAreas: ['Sectorul 1', 'Dorobanți', 'Floreasca', 'Cotroceni', 'Băneasa', 'Herăstrău'],
+    serviceNotes: [],
     faqs: [
       { question: 'Există taxă de deplasare în București?', answer: 'Nu — toate sectoarele Bucureștiului sunt incluse, la fel și întregul județ Ilfov.' },
       { question: 'Unde putem face o ședință scurtă de portrete între biserică și restaurant?', answer: 'Depinde de traseu: în centru merg foarte bine Cișmigiul și Ateneul, în nord Herăstrăul și zona Casa Doina. Planificăm o oprire de 20–30 de minute care să evite orele de vârf.' },
@@ -312,6 +354,32 @@ Pentru că județul e atât de aproape, o nuntă în Ilfov este de obicei un ame
       { name: 'Therme București, Balotești', description: 'Seră tropicală și grădini cu palmieri — un decor neobișnuit pentru filmări de brand și ședințe creative (cu acord).' },
     ],
     nearbyAreas: ['Buftea', 'Chitila', 'Pantelimon', 'Popești-Leordeni', 'Bragadiru', 'Măgurele'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Majoritatea nunților bucureștenilor au loc, de fapt, în Ilfov — în saloane mari, în grădini de palat precum cea a Palatului Știrbey din Buftea sau în apropierea mănăstirilor Cernica și Căldărușani. Numitorul comun este distanța: biserica poate fi în oraș, iar locația la 30 de km, așa că ne construim programul în jurul centurii, al A3 și al DN1 și, la nevoie, trimitem un fotograf înainte.
+
+Pentru portrete alegem locuri aflate în drum, fără ocoluri inutile: parcul Palatului Știrbey, malul lacului Buftea sau al lacului Cernica ori câmpurile din jurul locației, la ora de aur. Saloanele din Ilfov sunt adesea uriașe și întunecate seara, așa că luminăm ringul de dans cu blițuri externe, pentru fotografii de petrecere clare și pline de culoare.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `Filmarea unei nunți în Ilfov înseamnă distanțe lungi și săli mari. Lucrăm cu doi videografi, ca să acoperim atât pregătirile miresei, cât și pe ale mirelui — de multe ori în zone diferite ale Bucureștiului — și ne reunim la biserică sau la locație. Saloanele mari cer atenție în plus la sunet: îl preluăm direct din pupitrul formației sau al DJ-ului și punem un recorder de rezervă lângă cei care țin discursuri.
+
+În afara zonei aeroportului, în mare parte din Ilfov se poate zbura cu drona, cu înregistrarea zborului în regulă, așa că filmările aeriene ale locațiilor din jurul Buftei, Cernicăi sau Gruiului sunt de obicei posibile. Verificăm locul exact și depunem cererea cu circa două săptămâni înainte; dacă zborul nu e permis, planificăm cadre cinematice de la sol.`,
+      },
+      {
+        service: 'event-photo',
+        content: `Dincolo de zonele de birouri ale Bucureștiului, în Ilfov se întâmplă multe evenimente corporate: team building-uri în complexuri de lângă lacuri, petreceri de vară în grădini de evenimente, inaugurări de depozite și fabrici de-a lungul A1 și al centurii, conferințe în hotelurile din jurul orașului. Le acoperim pe toate fără taxă de deplasare.
+
+Evenimentele de firmă în aer liber depind de vreme și de lumină, așa că stabilim cu organizatorul un plan pentru ploaie și facem pozele de grup înainte ca soarele de prânz să devină prea dur. Pe șantiere și în spații industriale respectăm regulile de siguranță — cască, vestă, zone restricționate — și ne coordonăm din timp cu responsabilul de sit. Selecția din aceeași zi o trimitem prin date mobile, chiar și din locații izolate.`,
+      },
+      {
+        service: 'christening',
+        content: `Multe familii din București aleg să facă botezul în Ilfov: slujba la o mănăstire precum Cernica sau Căldărușani ori la parohia de acasă, din Popești-Leordeni, Bragadiru sau Chitila, apoi masa la un restaurant cu grădină, unde copiii se pot juca. Fotografiem ritualul botezului, nașii, familia și petrecerea.
+
+Bisericile mănăstirilor sunt adesea întunecoase și aglomerate duminica, așa că stabilim ora cu parohia și fotografiem fără bliț în timpul slujbei. Dacă restaurantul e mai departe de biserică, planificăm drumul astfel încât bebelușul să se poată odihni, iar pauza o folosim pentru portrete relaxate cu părinții și nașii, în grădină.`,
+      },
+    ],
     faqs: [
       { question: 'Percepeți taxă de deplasare undeva în Ilfov?', answer: 'Nu. Toate localitățile din județul Ilfov sunt acoperite fără cost suplimentar. O taxă mică se aplică doar locațiilor aflate la peste 40 km de București.' },
       { question: 'Cum gestionați drumul din București până la locație?', answer: 'Verificăm traseul și traficul pentru data și ora voastră, includem rezerve de timp în program și, la nevoie, unul dintre noi pleacă înainte la locație ca să fotografieze detaliile înainte să ajungeți.' },
@@ -337,6 +405,26 @@ Pentru filmare nuntă la Snagov cunoaștem pontoanele, drumurile de acces care s
       { name: 'Rezervația Pădurea Snagov', description: 'Pădure veche de stejar și frasin de-a lungul malului — lumină verde și blândă pentru portretele de vară.' },
     ],
     nearbyAreas: ['Ciolpani', 'Gruiu', 'Periș', 'Tâncăbești', 'Ghermănești'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `O nuntă la Snagov înseamnă de obicei pregătiri în București, 40 de minute de drum spre nord pe DN1 și o cununie pe ponton sau pe gazon, chiar lângă apă. Trimitem un fotograf înainte, ca să surprindă locația, decorul și sosirea invitaților, în timp ce celălalt rămâne cu voi — așa nu se pierde nimic pe drum.
+
+Cele mai frumoase portrete le facem pe pontoane și printre stufăriș, în ultima oră dinaintea apusului, când lacul capătă reflexe de aramă. Dacă locația voastră e pe malul estic, o scurtă plimbare cu barca ne pune cu fața spre lumină. În septembrie vă propunem adesea o ședință scurtă, dimineața, în ceața de pe lac, a doua zi după nuntă — imagini pe care foarte puține cupluri le au.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `Lacul Snagov este unul dintre puținele locuri din jurul Bucureștiului în care un film de nuntă chiar are loc să respire: cadre aeriene deasupra apei, intrarea mirilor cu barca, plimbări lungi filmate cu gimbalul prin Pădurea Snagov. Pentru filmare nuntă Snagov cu drona e nevoie de înregistrarea zborului și, în funcție de locul exact, de aviz de la autoritățile aeronautice — depunem cererea cu aproximativ două săptămâni înainte.
+
+În ziua nunții punem microfoane pe oficiant și pe miri pentru ceremonia de pe ponton, pentru că vântul dinspre lac strică sunetul înregistrat de cameră. Cadrele de seară le gândim în funcție de apusul de pe malul vestic, iar pentru petrecere venim cu lumini suplimentare, fiindcă multe corturi de pe malul lacului rămân în întuneric după ce apune soarele.`,
+      },
+      {
+        service: 'christening',
+        content: `Multe familii din București îmbină botezul la o biserică din Snagov sau Ciolpani cu masa la un restaurant pe malul lacului. Fotografiem slujba în biserică, apoi familia lângă apă, înainte ca invitații să se așeze la masă — câțiva pași până la ponton vă aduc cea mai blândă lumină a zilei.
+
+Duminicile de vară, DN1 poate fi aglomerat cu bucureștenii care pleacă spre lac, așa că ne vedem de obicei la biserică cu 30 de minute înainte de slujbă. Pentru film, nașii ținând bebelușul în brațe pe malul apei sunt un cadru final superb; cu pachetul de zi completă rămânem și la tort și la petrecerea de la restaurant.`,
+      },
+    ],
     faqs: [
       { question: 'Putem filma nunta pe lacul Snagov cu drona?', answer: 'În cea mai mare parte a zonei Snagov, da, cu avizele necesare — le solicităm din timp și verificăm regulile locației voastre.' },
       { question: 'Care este cel mai bun moment pentru portrete la Snagov?', answer: 'Ultima oră dinaintea apusului, din iunie până în august, sau dimineața devreme în septembrie, când e ceață pe lac.' },
@@ -361,6 +449,26 @@ Ce ne place cel mai mult aici este spațiul: câmpuri care strălucesc la apus, 
       { name: 'Ulițele din Tamași și Ostratu', description: 'Drumuri de țară, câmpuri și apusuri pentru ședințe de logodnă relaxate.' },
     ],
     nearbyAreas: ['Tamași', 'Ostratu', 'Petrești', 'Balotești', 'Săftica'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Nunțile în grădină din Corbeanca sunt de obicei restrânse și relaxate: cununie pe gazon, mese lungi sub copaci și dans până târziu. Drumul din nordul Bucureștiului durează cam 30 de minute, dar sâmbătă după-amiaza traseul prin Otopeni și Balotești poate dura de două ori mai mult, așa că pregătirile din oraș trebuie să înceapă adesea mai devreme decât s-ar aștepta mirii.
+
+Pentru portrete ne plac mult câmpurile din jurul satelor Tamași și Ostratu — iarbă înaltă și cer larg la ora de aur — iar în lunile caniculare, marginea umbrită a Pădurii Corbeanca, unde lumina de la prânz nu mai e atât de dură. Multe locații de aici sunt grădini private, așa că verificăm din timp unde apune soarele față de mese și planificăm toasturile în consecință.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `Corbeanca se potrivește unui film natural, documentar: puțini invitați, conversații reale, discursuri sincere în grădină. Cu mai puțini oameni, filmul se sprijină mai mult pe sunet curat decât pe spectacol — microfoane lavalieră pe miri și un recorder pentru fiecare vorbitor, ca nicio vorbă a prietenilor voștri să nu se piardă în briza de seară.
+
+Corbeanca e suficient de departe de aeroport încât, de obicei, putem zbura cu drona, cu zborul înregistrat, iar câmpurile și pădurea arată spectaculos de sus la apus. Verificăm din timp grădinile private — prize, un colț liniștit pentru scurte interviuri — și planificăm o plimbare la ora de aur pe ulițele satului, care devine adesea secvența de deschidere a filmului.`,
+      },
+      {
+        service: 'christening',
+        content: `În Corbeanca, botezurile sunt de multe ori sărbători mici, în familie: slujba la biserica din sat, apoi masa în grădină sau acasă. Fotografiem ritualul botezului — cufundarea în cristelniță, ungerea cu mir, lumânările nașilor — fără bliț și din unghiuri discrete, cu care preotul e de acord.
+
+După slujbă, grădina e locul perfect pentru portrete de familie naturale și fotografii jucăușe cu bebelușul, verișorii și bunicii. Corbeanca e la circa 30 de minute de București, fără taxă de deplasare, iar duminica dimineața drumurile sunt libere, așa că putem acoperi ușor o slujbă de dimineață și rămâne și la masă.`,
+      },
+    ],
     faqs: [
       { question: 'Fotografiați și nunți mici în Corbeanca?', answer: 'Da — nunțile restrânse în grădină, cu 30–80 de invitați, sunt printre preferatele noastre. De multe ori, pachetul Essential este suficient.' },
       { question: 'Putem face o ședință de logodnă în Corbeanca?', answer: 'Sigur. Câmpurile și marginea pădurii arată minunat în ultima oră dinaintea apusului și le putem combina cu o oprire la lacul Snagov.' },
@@ -381,11 +489,31 @@ Palatul arată complet diferit de la un anotimp la altul — glicină și verde 
 Fotografierea în incinta complexului poate presupune o taxă de acces, de care ne ocupăm din timp. Nu se aplică taxă de deplasare.`,
     venues: [
       { name: 'Palatul Mogoșoaia', description: 'Palat în stil brâncovenesc, cu loggia arcuită și curte interioară — unul dintre cele mai elegante decoruri din jurul Bucureștiului.' },
-      { name: 'Grădinile și lacul Mogoșoaia', description: 'Grădini, aleea de pe malul lacului și copaci bătrâni pentru portrete naturale.' },
+      { name: 'Grădinile și lacul de la Mogoșoaia', description: 'Grădini, aleea de pe malul lacului și copaci bătrâni pentru portrete naturale.' },
       { name: 'Biserica Sfântul Gheorghe', description: 'Biserica brâncovenească din 1688, aflată în incinta palatului.' },
       { name: 'Vila Elchingen', description: 'Vila romantică din parcul palatului, un colț mai liniștit pentru portrete.' },
     ],
     nearbyAreas: ['Chitila', 'Buftea', 'Bucureștii Noi', 'Străulești', 'Otopeni'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Palatul brâncovenesc vă oferă una dintre cele mai elegante ședințe de portrete din jurul Bucureștiului: arcadele loggiei, balustradele din piatră sculptată și malul lacului mărginit de copaci bătrâni. Complexul percepe o taxă de acces pentru fotografia profesională și are program de vizitare fix, așa că rezervăm din timp intervalul și programăm portretele în momentele mai liniștite — de obicei după-amiaza târziu, în zilele lucrătoare, sau chiar înainte de închidere, în weekend.
+
+Mogoșoaia este la doar 15–20 de minute de nord-vestul Bucureștiului, prin Bucureștii Noi, așa că o ședință de portrete se potrivește ușor între o biserică din oraș și o locație din altă parte a Ilfovului. În mai, glicina de pe fațadă e spectaculoasă; în octombrie, reflexiile din lac sunt la apogeu.`,
+      },
+      {
+        service: 'wedding-film',
+        content: `Pentru un film de nuntă, Mogoșoaia oferă texturi bogate — piatră, arcade, lumina care cade prin loggia — care arată cinematic aproape fără efort. Filmarea în incinta complexului necesită acordul palatului și plata taxei, de care ne ocupăm noi; gimbalul și trepiedul nu sunt o problemă, în schimb drona are nevoie de un zbor înregistrat și, atât de aproape de oraș, de un aviz pe care îl cerem cu mult timp înainte.
+
+De obicei rezervăm 30–40 de minute de filmare cu mirii în grădini, la ora la care soarele coboară în spatele palatului. Dacă ceremonia are loc chiar acolo, punem microfon pe oficiant și înregistrăm sunetul ambiental din curte, care are un ecou superb și dă filmului un adevărat sentiment al locului.`,
+      },
+      {
+        service: 'christening',
+        content: `Dacă familia voastră a stabilit botezul la Biserica Sfântul Gheorghe din incinta palatului, ridicată în 1688, aveți un cadru cu adevărat deosebit: un interior mic, pictat, și lumină blândă care intră prin ferestrele înguste. Fotografiem fără bliț, respectăm indicațiile preotului și surprindem de aproape cufundarea, ungerea cu mir și prima împărtășanie.
+
+După slujbă, o scurtă plimbare prin grădinile palatului vă aduce portrete de familie cu un decor pe care puține botezuri îl au. Complexul are program de vizitare și taxe, așa că lămurim detaliile cu voi și cu parohia dinainte. Mogoșoaia e la 15–20 de minute de București și se combină ușor cu un restaurant din nordul orașului.`,
+      },
+    ],
     faqs: [
       { question: 'Avem nevoie de autorizație pentru fotografii la Palatul Mogoșoaia?', answer: 'Pentru fotografie și filmare de nuntă, complexul percepe de obicei o taxă de acces. Verificăm regulile în vigoare și ne ocupăm de ea înainte de data voastră.' },
       { question: 'Când este Mogoșoaia cel mai puțin aglomerată?', answer: 'Dimineața, în zilele lucrătoare, și în ultima oră înainte de închidere. Sâmbăta planificăm o ședință scurtă și eficientă, în afara orelor de vârf.' },
@@ -410,6 +538,26 @@ Traficul pe arterele principale din Pipera este intens la orele de vârf, așa c
       { name: 'Romexpo', description: 'Principalul centru expozițional al Bucureștiului, la câteva minute, pentru târguri și conferințe.' },
     ],
     nearbyAreas: ['Pipera', 'Ștefăneștii de Jos', 'Afumați', 'Dobroești', 'Tunari'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Multe cupluri care locuiesc în noile cartiere din Voluntari și Pipera se pregătesc acasă și au cununia civilă la primăria Voluntari, apoi pleacă spre București sau spre nordul Ilfovului, la biserică și la petrecere. Planificăm ziua astfel încât fotograful să ajungă la voi acasă cu suficient timp pentru detalii și portrete de familie înainte de cununia civilă.
+
+Pentru portrete, Pădurea Băneasa e la zece minute și oferă o lumină verde și blândă chiar și în miezul verii. Arterele principale din Pipera sunt aglomerate în serile din timpul săptămânii și sâmbăta dimineața, așa că pentru o cununie civilă de vineri lăsăm rezerve generoase de timp. Clădirile moderne din jur sunt, în plus, un decor curat, editorial, pentru câteva portrete chiar lângă casa voastră.`,
+      },
+      {
+        service: 'event-photo',
+        content: `Pipera este centrul de business al Bucureștiului, iar o mare parte din proiectele noastre corporate au loc aici: ședințe generale, lansări de produs, zile de echipă și petreceri de birou. Cunoaștem regulile clădirilor — ecusoane de acces, parcare, înregistrarea echipamentului la recepție — și le rezolvăm din timp cu office managerul vostru.
+
+Ca fotograf evenimente corporate în Pipera, pentru evenimentele interne și conferințe venim de obicei cu un fotograf și lumină discretă și livrăm o selecție chiar în aceeași zi, pentru intranet sau LinkedIn. Zilele de portrete se organizează într-o sală de ședințe: studio portabil, lumină constantă și până la 40 de persoane pe oră, programate între 10:00 și 16:00, ca să evităm orele de vârf.`,
+      },
+      {
+        service: 'christening',
+        content: `Voluntari e plin de familii tinere, iar botezurile de aici au loc de obicei la bisericile parohiale din oraș, urmate de masa la un restaurant din Pipera sau din nordul Bucureștiului. Fotografiem slujba — cufundarea în cristelniță, ungerea cu mir, momentul în care nașii primesc copilul — și apoi întâlnirea cu familia la restaurant.
+
+Pentru că biserica și restaurantul sunt adesea la doar câteva minute distanță, pachetul foto de 3 ore acoperă de multe ori totul. Duminica traficul e lejer, așa că putem adăuga și o scurtă ședință de familie acasă, înainte de slujbă, cât bebelușul e încă odihnit și bine dispus.`,
+      },
+    ],
     faqs: [
       { question: 'Puteți filma un video de prezentare a firmei la biroul nostru din Pipera?', answer: 'Da. Venim cu o echipă suplă, cu lumini și sunet, ne adaptăm programului echipei voastre și putem livra și fotografii din aceeași zi.' },
       { question: 'Organizați zile de portrete pentru firme din Voluntari?', answer: 'Da — amenajăm un studio portabil într-o sală de ședințe și fotografiem până la 40 de persoane pe oră.' },
@@ -430,10 +578,24 @@ Hotelurile și centrele de conferințe din jurul aeroportului găzduiesc și eve
 Lângă aeroport nu se poate zbura cu drona, așa că aici ne concentrăm pe cadre cinematice de la sol. Deplasarea este mereu inclusă.`,
     venues: [
       { name: 'Aeroportul Internațional Henri Coandă', description: 'Momentele sosirii pentru invitați și pentru cuplurile care vin acasă să se căsătorească.' },
-      { name: 'Hotelurile de conferințe de lângă aeroport', description: 'Saloane și săli de evenimente pentru evenimente corporate și nunți mari.' },
+      { name: 'Hoteluri de conferințe lângă aeroport', description: 'Saloane și săli de evenimente pentru evenimente corporate și nunți mari.' },
       { name: 'Therme București, Balotești', description: 'Grădini sub cupolă de sticlă, la zece minute, pentru conținut de brand creativ (cu acord).' },
     ],
     nearbyAreas: ['Tunari', 'Balotești', 'Corbeanca', 'Băneasa'],
+    serviceNotes: [
+      {
+        service: 'wedding-photo',
+        content: `Nunțile de lângă Otopeni sunt alese adesea de cuplurile cu invitați din străinătate: rudele aterizează dimineața, se cazează la un hotel de lângă aeroport și ajung la petrecere seara. Dacă vă doriți, fotografiem sosirile, apoi ceremonia și petrecerea într-unul dintre saloanele mari din jurul aeroportului, care sunt luminoase, spațioase și ușor de iluminat.
+
+Pentru portrete facem de obicei un drum scurt până în Pădurea Băneasa sau pe ulițele mai liniștite spre Corbeanca, la 10–15 minute. Lângă aeroport nu se poate zbura cu drona, așa că ne concentrăm pe imagini puternice de la sol — iar un avion care decolează la apus poate deveni un fundal spectaculos și jucăuș pentru un portret de cuplu.`,
+      },
+      {
+        service: 'event-photo',
+        content: `Hotelurile și centrele de conferințe din jurul Aeroportului Henri Coandă găzduiesc multe evenimente corporate: întâlniri internaționale, lansări de produs, gale de premiere și petreceri de firmă cu invitați care vin doar pentru o zi. Suntem obișnuiți cu programe strânse — check-in dimineața, sesiuni după-amiaza, cină festivă seara — și ne organizăm acoperirea pe fiecare bloc în parte.
+
+Sălile de conferințe de lângă aeroport au adesea lumină mixtă și tavane joase, așa că venim cu blițuri pentru lumină reflectată și obiective luminoase, ca tonurile pielii să rămână naturale. Selecția din aceeași zi poate fi gata înainte ca participanții să plece spre avion, lucru apreciat de companiile internaționale: conținutul apare cât toată lumea încă vorbește despre eveniment.`,
+      },
+    ],
     faqs: [
       { question: 'Mulți dintre invitații noștri vin cu avionul — Otopeni e o alegere bună?', answer: 'Foarte bună. Locațiile de lângă aeroport simplifică logistica, iar sosirea familiei poate deveni chiar parte din povestea nunții voastre.' },
       { question: 'Puteți folosi drona în Otopeni?', answer: 'Nu — zona din jurul aeroportului este spațiu aerian restricționat. Planificăm în schimb cadre cinematice de la sol sau adăugăm filmări aeriene într-o a doua locație, mai departe de aeroport.' },
@@ -691,6 +853,7 @@ export const pricing = {
     { service: 'brand-video', baseFee: 450, hourlyRate: 150, minHours: 2, maxHours: 16 },
     { service: 'event-photo', baseFee: 100, hourlyRate: 90, minHours: 2, maxHours: 12 },
     { service: 'product-photo', baseFee: 100, hourlyRate: 100, minHours: 2, maxHours: 8 },
+    { service: 'christening', baseFee: 150, hourlyRate: 100, minHours: 2, maxHours: 10 },
   ],
   addOns: [
     { name: 'Al doilea fotograf', price: 50, unit: 'perHour', services: ['wedding-photo', 'event-photo'] },

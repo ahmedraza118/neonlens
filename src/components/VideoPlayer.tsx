@@ -38,7 +38,7 @@ export function VideoPlayer({ provider, muxPlaybackId, youtubeId, file, title, p
     (provider === 'mux'
       ? `https://image.mux.com/${muxPlaybackId}/thumbnail.webp?width=1920`
       : provider === 'youtube'
-        ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`
+        ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` // maxresdefault does not exist for every video
         : (asDoc(upload?.poster)?.url ?? undefined))
 
   return (
@@ -65,9 +65,7 @@ export function VideoPlayer({ provider, muxPlaybackId, youtubeId, file, title, p
             allowFullScreen
           />
         ) : (
-          <video className="h-full w-full bg-black object-contain" src={upload!.url!} poster={poster} controls autoPlay playsInline preload="auto">
-            <track kind="captions" />
-          </video>
+          <video className="h-full w-full bg-black object-contain" src={upload!.url!} poster={poster} controls autoPlay playsInline preload="auto" />
         )
       ) : (
         <button type="button" onClick={() => setActive(true)} className="group absolute inset-0" aria-label={fmt(t.common.playVideo, { title })}>

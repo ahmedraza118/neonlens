@@ -54,7 +54,7 @@ export function Calendar({ value, onChange, blockedDates, blockedWeekdays, minDa
           <span key={d} className="py-1">{d}</span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1" role="grid">
+      <div className="grid grid-cols-7 gap-1">
         {Array.from({ length: offset }).map((_, i) => (
           <span key={`e${i}`} />
         ))}
@@ -71,7 +71,7 @@ export function Calendar({ value, onChange, blockedDates, blockedWeekdays, minDa
               disabled={disabled}
               onClick={() => onChange(date)}
               aria-pressed={selected}
-              aria-label={`${date}${disabled ? t.calendar.unavailable : ''}`}
+              aria-label={`${new Date(`${date}T12:00:00Z`).toLocaleDateString(intlLocale[lang], { dateStyle: 'full', timeZone: 'UTC' })}${disabled ? t.calendar.unavailable : ''}`}
               className={cn(
                 'aspect-square rounded-lg text-sm transition',
                 selected ? 'bg-accent font-semibold text-white' : 'hover:bg-accent-soft',

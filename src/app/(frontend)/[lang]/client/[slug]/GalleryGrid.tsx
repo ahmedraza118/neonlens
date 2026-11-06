@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element -- private images are served through Payload access control with the
    visitor's cookie, which the next/image optimizer cannot forward, so plain <img> is required here. */
 
-import { useCallback, useEffect, useState, useTransition } from 'react'
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 
 import { submitSelection, toggleFavourite } from '@/actions/gallery'
 import { useI18n } from '@/i18n/client'
@@ -46,12 +46,40 @@ export function GalleryGrid({ slug, photos, initialFavourites, canSelect, allowD
   }
 
   const step = useCallback((d: number) => setOpen((o) => (o === null ? o : (o + d + visible.length) % visible.length)), [visible.length])
+  // Lightbox: focus moves in (close button), stays inside (Tab cycles), the page behind does not
+  // scroll, and focus returns to the photo that opened it.
+  const dialogRef = useRef<HTMLDivElement>(null)
+  // The photo button that opened the lightbox (Safari does not focus buttons on click).
+  const openerRef = useRef<HTMLElement | null>(null)
+  const isOpen = open !== null
+  useEffect(() => {
+    if (!isOpen) return
+    const opener = openerRef.current ?? (document.activeElement as HTMLElement | null)
+    dialogRef.current?.querySelector<HTMLElement>('[data-autofocus]')?.focus()
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+      opener?.focus()
+    }
+  }, [isOpen])
   useEffect(() => {
     if (open === null) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(null)
       if (e.key === 'ArrowRight') step(1)
       if (e.key === 'ArrowLeft') step(-1)
+      if (e.key === 'Tab' && dialogRef.current) {
+        const items = [...dialogRef.current.querySelectorAll<HTMLElement>('button, a[href]')]
+        const first = items[0]
+        const last = items[items.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last?.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first?.focus()
+        }
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -80,7 +108,13 @@ export function GalleryGrid({ slug, photos, initialFavourites, canSelect, allowD
             const fav = favourites.includes(p.id)
             return (
               <li key={p.id} className="group relative mb-3 break-inside-avoid overflow-hidden rounded-lg bg-surface">
-                <button type="button" onClick={() => setOpen(i)} className="block w-full" aria-label={fmt(t.client.openPhoto, { name: p.filename })}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    openerRef.current = e.currentTarget
+                    setOpen(i)
+                  }}
+                  className="block w-full" aria-label={fmt(t.client.openPhoto, { name: p.filename })}>
                   <img src={p.thumb} alt={p.filename} width={p.width} height={p.height} loading="lazy" decoding="async" className="h-auto w-full" style={{ aspectRatio: `${p.width} / ${p.height}` }} />
                 </button>
                 {!submitted && (
@@ -89,12 +123,12 @@ export function GalleryGrid({ slug, photos, initialFavourites, canSelect, allowD
                     onClick={() => toggle(p.id)}
                     aria-pressed={fav}
                     aria-label={fav ? t.client.removeFav : t.client.addFav}
-                    className={cn('absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full text-lg backdrop-blur transition', fav ? 'bg-accent text-white' : 'bg-black/50 text-white/80 opacity-100 sm:opacity-0 sm:group-hover:opacity-100')}
+                    className={cn('absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full text-lg backdrop-blur transition', fav ? 'bg-accent text-white' : 'bg-black/50 text-white/80 opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100')}
                   >
                     ♥
                   </button>
                 )}
-                {submitted && fav && <span className="absolute top-2 right-2 rounded-full bg-accent px-2 text-xs">♥</span>}
+                {submitted && fav && <span className="absolute top-2 right-2 rounded-full bg-accent px-2 text-xs text-white">♥</span>}
               </li>
             )
           })}
@@ -124,23 +158,23 @@ export function GalleryGrid({ slug, photos, initialFavourites, canSelect, allowD
       )}
 
       {current && (
-        <div role="dialog" aria-modal="true" aria-label={current.filename} className="fixed inset-0 z-50 flex flex-col bg-black/95">
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={current.filename} className="fixed inset-0 z-50 flex flex-col bg-black/95 text-white">
           <div className="flex flex-wrap items-center justify-between gap-2 p-3 text-sm sm:p-4">
-            <span className="text-muted">
+            <span className="text-white/70">
               {open! + 1} / {visible.length}
             </span>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {!submitted && (
-                <button type="button" onClick={() => toggle(current.id)} className={cn('rounded-full px-4 py-2', favourites.includes(current.id) ? 'bg-accent' : 'border border-line')}>
+                <button type="button" onClick={() => toggle(current.id)} className={cn('rounded-full px-4 py-2', favourites.includes(current.id) ? 'bg-accent' : 'border border-white/30 hover:bg-white/10')}>
                   ♥ {favourites.includes(current.id) ? t.client.favourited : t.client.favourite}
                 </button>
               )}
               {allowDownloads && (
-                <a href={current.original} download={current.filename} className="rounded-full border border-line px-4 py-2">
+                <a href={current.original} download={current.filename} className="rounded-full border border-white/30 px-4 py-2 hover:bg-white/10">
                   {t.client.download}
                 </a>
               )}
-              <button type="button" onClick={() => setOpen(null)} className="rounded-full border border-line px-4 py-2" aria-label={t.client.close}>
+              <button type="button" data-autofocus onClick={() => setOpen(null)} className="rounded-full border border-white/30 px-4 py-2 hover:bg-white/10" aria-label={t.client.close}>
                 ✕
               </button>
             </div>

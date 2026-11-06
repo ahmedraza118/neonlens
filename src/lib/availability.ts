@@ -5,9 +5,15 @@ import { getAvailability } from './queries'
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
+/** Calendar day in Bucharest (the studio's time zone), e.g. a date picked in the admin at local midnight. */
+const bucharestDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest', year: 'numeric', month: '2-digit', day: '2-digit' })
+
 export function toISODate(d: Date | string): string {
-  return new Date(d).toISOString().slice(0, 10)
+  return bucharestDay.format(new Date(d))
 }
+
+/** How long an unpaid checkout holds its date (matches the Stripe session expiry in actions/booking.ts). */
+export const CHECKOUT_HOLD_MINUTES = 60
 
 export type AvailabilityRules = {
   blockedDates: string[]
@@ -19,10 +25,14 @@ export type AvailabilityRules = {
 /** Everything the booking calendar needs to grey out dates. */
 export async function getAvailabilityRules(): Promise<AvailabilityRules> {
   const [availability, payload] = await Promise.all([getAvailability(), getPayloadClient()])
+  // Paid bookings, plus checkouts still in progress (so two clients cannot pay for the same day).
+  const holdSince = new Date(Date.now() - CHECKOUT_HOLD_MINUTES * 60 * 1000).toISOString()
   const paid = await payload.find({
     collection: 'bookings',
-    where: { status: { in: ['paid', 'completed'] } },
-    limit: 1000,
+    where: {
+      or: [{ status: { in: ['paid', 'completed'] } }, { and: [{ status: { equals: 'pending' } }, { createdAt: { greater_than: holdSince } }] }],
+    },
+    limit: 2000,
     depth: 0,
     select: { date: true },
   })

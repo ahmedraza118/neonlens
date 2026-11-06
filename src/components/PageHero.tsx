@@ -27,7 +27,7 @@ export function PageHero({ crumbs, eyebrow, title, subtitle, image, children }: 
           {children && <div className="mt-8 flex flex-wrap gap-3">{children}</div>}
         </div>
         {image && typeof image === 'object' && (
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-2">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-surface-2 lg:aspect-[4/3]">
             <Media media={image} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
           </div>
         )}
