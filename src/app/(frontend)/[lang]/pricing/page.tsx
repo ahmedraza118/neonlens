@@ -7,7 +7,7 @@ import { QuoteCalculator } from '@/components/QuoteCalculator'
 import { SectionHeading } from '@/components/SectionHeading'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { getLocations, getPricing, getServices, getSettings, populated } from '@/lib/queries'
+import { getLocation, getLocations, getPricing, getService, getServices, getSettings, populated } from '@/lib/queries'
 import type { AddOn, Rate } from '@/lib/quote'
 import { buildMetadata } from '@/lib/seo'
 import { formatMoney } from '@/lib/utils'
@@ -32,7 +32,15 @@ const idOf = (v: Service | number | null | undefined) => (typeof v === 'object' 
 export default async function PricingPage({ params, searchParams }: Props) {
   const { lang, t } = await localeFromParams(params)
   const { service, location } = await searchParams
-  const [settings, pricing, services, locations] = await Promise.all([getSettings(), getPricing(), getServices(), getLocations()])
+  const [settings, pricing, services, locations, chosenService, chosenLocation] = await Promise.all([
+    getSettings(),
+    getPricing(),
+    getServices(),
+    getLocations(),
+    // The slug in the URL may be the other language's, after using the language switcher.
+    service ? getService(service) : null,
+    location ? getLocation(location) : null,
+  ])
 
   const rates: Rate[] = (pricing.rates ?? []).map((r) => ({
     serviceId: idOf(r.service),
@@ -73,8 +81,8 @@ export default async function PricingPage({ params, searchParams }: Props) {
             addOns={addOns}
             currency={settings.currency}
             spreadPercent={pricing.estimateSpreadPercent ?? 10}
-            initialService={service}
-            initialLocation={location}
+            initialService={chosenService?.slug ?? undefined}
+            initialLocation={chosenLocation?.slug ?? undefined}
           />
         </Suspense>
       </section>

@@ -1,17 +1,20 @@
 import type { Metadata } from 'next'
 
+import Link from 'next/link'
+
 import { BookingForm } from '@/components/BookingForm'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { Stars } from '@/components/Cards'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { getAvailabilityRules } from '@/lib/availability'
+import { getAvailabilityRules, isDateBookable } from '@/lib/availability'
 import { releasePendingBooking } from '@/lib/bookings'
-import { getPricing, getServices, getSettings } from '@/lib/queries'
+import { getPricing, getService, getServices, getSettings, getTestimonials } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
-type Props = { params: Promise<{ lang: string }>; searchParams: Promise<{ service?: string; package?: string; cancelled?: string }> }
+type Props = { params: Promise<{ lang: string }>; searchParams: Promise<{ service?: string; package?: string; cancelled?: string; date?: string }> }
 
 export async function generateMetadata({ params }: Pick<Props, 'params'>): Promise<Metadata> {
   const { lang, t } = await localeFromParams(params)
@@ -24,11 +27,21 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
 }
 
 export default async function BookPage({ params: routeParams, searchParams }: Props) {
-  const { t } = await localeFromParams(routeParams)
+  const { t, href } = await localeFromParams(routeParams)
   const params = await searchParams
   // Back from Stripe with "cancel": free the date this client was holding before showing the calendar.
   if (params.cancelled) await releasePendingBooking(params.cancelled)
-  const [settings, pricing, services, rules] = await Promise.all([getSettings(), getPricing(), getServices(), getAvailabilityRules()])
+  const [settings, pricing, services, rules, testimonials, chosenService] = await Promise.all([
+    getSettings(),
+    getPricing(),
+    getServices(),
+    getAvailabilityRules(),
+    getTestimonials({ featured: true }),
+    // The slug in the URL may be the other language's, after using the language switcher.
+    params.service ? getService(params.service) : null,
+  ])
+  const review = testimonials[0]
+  const googleRating = settings.googleRating?.value && settings.googleRating?.count ? settings.googleRating : null
   const bookable = services
     .filter((s) => s.packages && s.packages.length > 0)
     .map((s) => ({ slug: s.slug!, title: s.title, packages: s.packages!.map((p, i) => ({ id: p.id ?? String(i), name: p.name, price: p.price, hours: p.hours, includes: p.includes, popular: p.popular })) }))
@@ -48,9 +61,34 @@ export default async function BookPage({ params: routeParams, searchParams }: Pr
         depositPercent={pricing.depositPercent}
         currency={settings.currency}
         onlinePayments={Boolean(process.env.STRIPE_SECRET_KEY)}
-        initialService={params.service}
+        initialService={chosenService?.slug ?? undefined}
         initialPackage={params.package}
+        initialDate={params.date && isDateBookable(rules, params.date) ? params.date : undefined}
       />
+      {/* Reassurance for visitors close to paying, and a way out that is not "leave the site". */}
+      <div className="mt-12 grid gap-6 md:grid-cols-2">
+        {(review || googleRating) && (
+          <figure className="card p-6">
+            {googleRating && (
+              <p className="mb-3 flex items-center gap-2 text-sm font-medium">
+                <Stars rating={googleRating.value!} />
+                {fmt(t.reviews.summary, { value: googleRating.value!, count: googleRating.count! })}
+              </p>
+            )}
+            {review && (
+              <>
+                <blockquote className="text-sm leading-relaxed text-fg/85">“{review.quote}”</blockquote>
+                <figcaption className="mt-3 text-xs text-muted">{review.name}{review.role ? `, ${review.role}` : ''}</figcaption>
+              </>
+            )}
+          </figure>
+        )}
+        <div className="card p-6">
+          <h2 className="text-lg font-bold">{t.book.notReady}</h2>
+          <p className="mt-2 text-sm text-muted">{t.book.notReadyText}</p>
+          <Link href={href('/contact')} data-cta="book_ask_first" className="btn-ghost mt-4">{t.book.askFirst}</Link>
+        </div>
+      </div>
     </section>
   )
 }

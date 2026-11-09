@@ -39,13 +39,13 @@ export function Calendar({ value, onChange, blockedDates, blockedWeekdays, minDa
     })
 
   return (
-    <div className="rounded-2xl border border-line bg-surface-2 p-4">
+    <div className="rounded-2xl border border-line bg-surface-2 p-2 sm:p-4">
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={() => move(-1)} disabled={!canPrev} className="h-9 w-9 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label={t.calendar.prev}>
+        <button type="button" onClick={() => move(-1)} disabled={!canPrev} className="h-11 w-11 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label={t.calendar.prev}>
           ‹
         </button>
         <p className="font-semibold" aria-live="polite">{label}</p>
-        <button type="button" onClick={() => move(1)} disabled={!canNext} className="h-9 w-9 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label={t.calendar.next}>
+        <button type="button" onClick={() => move(1)} disabled={!canNext} className="h-11 w-11 rounded-full hover:bg-accent-soft disabled:opacity-30" aria-label={t.calendar.next}>
           ›
         </button>
       </div>
@@ -73,7 +73,7 @@ export function Calendar({ value, onChange, blockedDates, blockedWeekdays, minDa
               aria-pressed={selected}
               aria-label={`${new Date(`${date}T12:00:00Z`).toLocaleDateString(intlLocale[lang], { dateStyle: 'full', timeZone: 'UTC' })}${disabled ? t.calendar.unavailable : ''}`}
               className={cn(
-                'aspect-square rounded-lg text-sm transition',
+                'aspect-square min-h-10 rounded-lg text-sm transition',
                 selected ? 'bg-accent font-semibold text-white' : 'hover:bg-accent-soft',
                 disabled && 'cursor-not-allowed text-muted/40 line-through hover:bg-transparent',
               )}

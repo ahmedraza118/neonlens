@@ -14,10 +14,10 @@ export function Header({ businessName, phone }: { businessName: string; phone?: 
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-fg focus:px-3 focus:py-2 focus:text-white">
         {t.nav.skip}
       </a>
-      <div className="container-x flex h-16 items-center justify-between gap-6">
-        <Link href={href('/')} className="flex items-center gap-2 text-lg font-bold tracking-tight">
-          <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-accent" />
-          {businessName}
+      <div className="container-x flex h-16 items-center justify-between gap-3 sm:gap-6">
+        <Link href={href('/')} className="flex min-w-0 items-center gap-2 text-[15px] font-bold tracking-tight min-[400px]:text-base sm:text-lg">
+          <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent" />
+          <span className="truncate">{businessName}</span>
         </Link>
         <nav aria-label={t.nav.main} className="hidden items-center gap-7 text-sm font-medium lg:flex">
           {NAV.map((item) => (
@@ -26,14 +26,14 @@ export function Header({ businessName, phone }: { businessName: string; phone?: 
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher className="hidden sm:flex" />
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <LanguageSwitcher className="flex" />
           {/* One-tap call on phones: many clients in Romania prefer to call straight away. */}
           {phone && (
             <a
               href={`tel:${phone.replace(/[^\d+]/g, '')}`}
               aria-label={fmt(t.nav.call, { phone })}
-              className="grid h-10 w-10 place-items-center rounded-full bg-accent text-white sm:hidden"
+              className="grid h-10 w-10 place-items-center rounded-full bg-accent text-white max-[359px]:hidden sm:hidden"
             >
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
                 <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8Z" />

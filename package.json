@@ -17,6 +17,8 @@
     "seed:ro": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run src/seed/ro.ts",
     "migrate:local": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/apply-migration-locally.ts",
     "seed:prod": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
+    "growth:report": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/growth-report.ts",
+    "growth:demo": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/growth-demo.ts",
     "alt-text": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/generate-alt-text.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",

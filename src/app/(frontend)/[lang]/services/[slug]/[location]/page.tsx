@@ -113,13 +113,13 @@ export default async function ServiceLocationPage({ params }: Props) {
             <p className="eyebrow mb-4">{fmt(t.services.alsoIn, { city: location.name })}</p>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href={href(`/locations/${location.slug}`)} className="inline-block py-1 text-muted hover:text-fg">{fmt(t.services.allIn, { city: location.name })}</Link>
+                <Link href={href(`/locations/${location.slug}`)} className="inline-block py-2 text-muted hover:text-fg">{fmt(t.services.allIn, { city: location.name })}</Link>
               </li>
               {locations
                 .filter((l) => l.id !== location.id && hasAreaPage(l, service.id))
                 .map((l) => (
                   <li key={l.id}>
-                    <Link href={href(`/services/${service.slug}/${l.slug}`)} className="inline-block py-1 text-muted hover:text-fg">
+                    <Link href={href(`/services/${service.slug}/${l.slug}`)} className="inline-block py-2 text-muted hover:text-fg">
                       {fmt(t.common.in, { service: service.title, city: l.name })}
                     </Link>
                   </li>

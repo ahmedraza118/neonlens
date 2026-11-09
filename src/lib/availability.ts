@@ -15,6 +15,13 @@ export function toISODate(d: Date | string): string {
 /** How long an unpaid checkout holds its date (matches the Stripe session expiry in actions/booking.ts). */
 export const CHECKOUT_HOLD_MINUTES = 60
 
+/** A real calendar day: JavaScript would otherwise read 2027-02-31 as 3 March. */
+export function isRealDate(iso: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false
+  const parsed = new Date(`${iso}T12:00:00Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === iso
+}
+
 export type AvailabilityRules = {
   blockedDates: string[]
   blockedWeekdays: number[]
@@ -57,7 +64,7 @@ export async function getAvailabilityRules(): Promise<AvailabilityRules> {
 }
 
 export function isDateBookable(rules: AvailabilityRules, iso: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false
+  if (!isRealDate(iso)) return false
   if (iso < rules.minDate || iso > rules.maxDate) return false
   if (rules.blockedDates.includes(iso)) return false
   return !rules.blockedWeekdays.includes(new Date(`${iso}T12:00:00Z`).getUTCDay())

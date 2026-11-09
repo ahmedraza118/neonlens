@@ -8,7 +8,9 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { AnalyticsEvents } from './collections/AnalyticsEvents'
 import { Bookings } from './collections/Bookings'
+import { ChatConversations } from './collections/ChatConversations'
 import { ClientGalleries } from './collections/ClientGalleries'
 import { ClientMedia } from './collections/ClientMedia'
 import { Inquiries } from './collections/Inquiries'
@@ -34,6 +36,10 @@ export default buildConfig({
     user: Users.slug,
     meta: { titleSuffix: ' · NeonLens CMS' },
     importMap: { baseDir: path.resolve(dirname) },
+    components: {
+      afterNavLinks: ['@/components/admin/GrowthNavLink#GrowthNavLink'],
+      views: { growth: { Component: '@/components/admin/GrowthView#GrowthView', path: '/growth', exact: true } },
+    },
   },
   collections: [
     Projects,
@@ -44,6 +50,8 @@ export default buildConfig({
     Media,
     Inquiries,
     Bookings,
+    ChatConversations,
+    AnalyticsEvents,
     ClientGalleries,
     ClientMedia,
     Users,

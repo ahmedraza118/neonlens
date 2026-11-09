@@ -53,9 +53,9 @@ export const getHomepage = cache(async () => {
   return payload.findGlobal({ slug: 'homepage', depth: 2, ...lang() })
 })
 
-export const getPricing = cache(async () => {
+export const getPricing = cache(async (locale?: Locale) => {
   const payload = await getPayloadClient()
-  const doc = await payload.findGlobal({ slug: 'pricing', depth: 1, ...lang() })
+  const doc = await payload.findGlobal({ slug: 'pricing', depth: 1, ...lang(locale) })
   return { ...doc, depositPercent: doc.depositPercent ?? 30 }
 })
 

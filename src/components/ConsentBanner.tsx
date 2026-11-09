@@ -32,6 +32,14 @@ export function ConsentBanner() {
     document.cookie = `${CONSENT_COOKIE}=${value}; path=/; max-age=${60 * 60 * 24 * 180}; samesite=lax`
     const gtag = (window as unknown as { gtag?: Gtag }).gtag
     gtag?.('consent', 'update', { ad_storage: value, ad_user_data: value, ad_personalization: value, analytics_storage: value })
+    if (value === 'denied') {
+      try {
+        localStorage.removeItem('nl_vid')
+        localStorage.removeItem('nl_last')
+      } catch {
+        /* storage unavailable: nothing was kept */
+      }
+    }
     setOpen(false)
   }
 

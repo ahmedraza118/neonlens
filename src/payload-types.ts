@@ -75,6 +75,8 @@ export interface Config {
     media: Media;
     inquiries: Inquiry;
     bookings: Booking;
+    'chat-conversations': ChatConversation;
+    'analytics-events': AnalyticsEvent;
     'client-galleries': ClientGallery;
     'client-media': ClientMedia;
     users: User;
@@ -93,6 +95,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
+    'chat-conversations': ChatConversationsSelect<false> | ChatConversationsSelect<true>;
+    'analytics-events': AnalyticsEventsSelect<false> | AnalyticsEventsSelect<true>;
     'client-galleries': ClientGalleriesSelect<false> | ClientGalleriesSelect<true>;
     'client-media': ClientMediaSelect<false> | ClientMediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -625,6 +629,14 @@ export interface Inquiry {
    * Language the client used on the website (emails are sent in it).
    */
   locale?: ('en' | 'ro') | null;
+  /**
+   * How this lead reached you.
+   */
+  source?: ('form' | 'quote' | 'chat') | null;
+  /**
+   * Set automatically when the status first leaves New.
+   */
+  contactedAt?: string | null;
   sourcePage?: string | null;
   referrer?: string | null;
   utm?:
@@ -667,6 +679,90 @@ export interface Booking {
   notes?: string | null;
   stripeSessionId?: string | null;
   paidAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Written by the website assistant. Answers it could not give show up under "Unanswered".
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-conversations".
+ */
+export interface ChatConversation {
+  id: number;
+  preview?: string | null;
+  token: string;
+  ipHash?: string | null;
+  locale?: string | null;
+  startPage?: string | null;
+  /**
+   * ai = Claude, rules = built-in answers (no API key or the API failed).
+   */
+  mode?: string | null;
+  messageCount?: number | null;
+  unanswered?: number | null;
+  leadCaptured?: boolean | null;
+  inquiry?: (number | null) | Inquiry;
+  topics?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  messages?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Raw visit data. See the Growth dashboard for the summary.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "analytics-events".
+ */
+export interface AnalyticsEvent {
+  id: number;
+  type:
+    | 'pageview'
+    | 'engage'
+    | 'cta'
+    | 'click_call'
+    | 'click_email'
+    | 'click_whatsapp'
+    | 'form_start'
+    | 'generate_lead'
+    | 'booking_start'
+    | 'booking_step'
+    | 'begin_checkout'
+    | 'quote_used'
+    | 'date_check'
+    | 'chat_open'
+    | 'chat_message'
+    | 'chat_lead'
+    | 'leave_offer'
+    | 'vital';
+  path?: string | null;
+  session: string;
+  visitor?: string | null;
+  channel?: string | null;
+  source?: string | null;
+  campaign?: string | null;
+  referrer?: string | null;
+  device?: string | null;
+  locale?: string | null;
+  country?: string | null;
+  value?: number | null;
+  label?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -843,6 +939,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'bookings';
         value: number | Booking;
+      } | null)
+    | ({
+        relationTo: 'chat-conversations';
+        value: number | ChatConversation;
+      } | null)
+    | ({
+        relationTo: 'analytics-events';
+        value: number | AnalyticsEvent;
       } | null)
     | ({
         relationTo: 'client-galleries';
@@ -1198,6 +1302,8 @@ export interface InquiriesSelect<T extends boolean = true> {
   message?: T;
   quoteSummary?: T;
   locale?: T;
+  source?: T;
+  contactedAt?: T;
   sourcePage?: T;
   referrer?: T;
   utm?: T;
@@ -1226,6 +1332,47 @@ export interface BookingsSelect<T extends boolean = true> {
   notes?: T;
   stripeSessionId?: T;
   paidAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-conversations_select".
+ */
+export interface ChatConversationsSelect<T extends boolean = true> {
+  preview?: T;
+  token?: T;
+  ipHash?: T;
+  locale?: T;
+  startPage?: T;
+  mode?: T;
+  messageCount?: T;
+  unanswered?: T;
+  leadCaptured?: T;
+  inquiry?: T;
+  topics?: T;
+  messages?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "analytics-events_select".
+ */
+export interface AnalyticsEventsSelect<T extends boolean = true> {
+  type?: T;
+  path?: T;
+  session?: T;
+  visitor?: T;
+  channel?: T;
+  source?: T;
+  campaign?: T;
+  referrer?: T;
+  device?: T;
+  locale?: T;
+  country?: T;
+  value?: T;
+  label?: T;
   updatedAt?: T;
   createdAt?: T;
 }

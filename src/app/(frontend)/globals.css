@@ -18,6 +18,13 @@
   --color-accent-soft: #e4f3ef;
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  /* Fluid headings: every size grows smoothly with the screen instead of jumping at breakpoints. */
+  --text-4xl: clamp(1.75rem, 1.4rem + 1.75vw, 2.25rem);
+  --text-4xl--line-height: 1.15;
+  --text-5xl: clamp(2rem, 1.25rem + 2.6vw, 3rem);
+  --text-5xl--line-height: 1.1;
+  --text-6xl: clamp(2.25rem, 1.25rem + 3.2vw, 3.75rem);
+  --text-6xl--line-height: 1.08;
 }
 
 @layer base {
@@ -28,6 +35,24 @@
   body {
     @apply bg-page text-fg font-sans antialiased;
     -webkit-tap-highlight-color: transparent;
+    /* The layout uses viewport-fit=cover: keep content clear of the notch on phones held sideways. */
+    padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  }
+  /* iOS Safari gives date fields its own width, height and centred text, breaking the layout. */
+  input[type='date'] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    min-height: 3rem;
+  }
+  input[type='date']::-webkit-date-and-time-value {
+    text-align: left;
+  }
+  /* Phones and tablets: floating buttons step aside while the visitor is typing in a form. */
+  @media (max-width: 1023px) {
+    body:has(main input:focus, main textarea:focus, main select:focus) .float-action {
+      display: none;
+    }
   }
   /* Anchor jumps (#inquire) land below the sticky header. */
   [id] {

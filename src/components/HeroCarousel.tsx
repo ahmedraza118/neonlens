@@ -89,7 +89,7 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
     <div
       aria-roledescription="carousel"
       aria-label={t.hero.carousel}
-      className="relative isolate flex min-h-[78svh] items-end overflow-hidden rounded-2xl bg-neutral-900 text-white sm:min-h-[70svh] sm:rounded-3xl"
+      className="relative isolate flex min-h-[78svh] items-end overflow-hidden rounded-2xl bg-neutral-900 text-white sm:min-h-[70svh] sm:rounded-3xl [@media(max-height:500px)]:min-h-0"
       style={{ '--hero-interval': `${intervalSeconds}s` } as CSSProperties}
       // Pause while the pointer or keyboard focus is anywhere in the hero, so a focused button never
       // disappears under the visitor (the slide it belongs to would become inert).
@@ -165,8 +165,9 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
       {/* Dark gradient keeps white text readable on any photo */}
       <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
 
-      <div className="w-full p-5 pb-6 sm:p-12">
-        <h1 className="mb-4 max-w-2xl text-sm font-semibold text-white/85">{heading}</h1>
+      <div className="w-full p-5 pb-10 sm:p-12 sm:pb-16 [@media(max-height:500px)]:p-6 [@media(max-height:500px)]:pb-12">
+        {/* From lg the slide controls sit top-right: the heading must stop before them. */}
+        <h1 className="mb-4 max-w-2xl text-sm font-semibold text-white/85 lg:max-w-[calc(100%-22rem)]">{heading}</h1>
 
         {/* All slide texts share one grid cell (no layout jump); only the active one is visible. */}
         <div className="grid">
@@ -191,11 +192,11 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
                   <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-teal-300" />
                   {slide.eyebrow}
                 </p>
-                <p style={enter(180)} className="mt-4 max-w-3xl font-display text-[2rem] leading-[1.1] font-bold tracking-tight text-balance sm:text-6xl">
+                <p style={enter(180)} className="mt-4 max-w-3xl font-display text-[clamp(1.75rem,1.2rem+3.4vw,3.75rem)] leading-[1.1] font-bold tracking-tight text-balance [@media(max-height:500px)]:text-3xl">
                   {slide.title}
                 </p>
                 {slide.text && (
-                  <p style={enter(260)} className="mt-4 line-clamp-2 max-w-2xl text-base text-white/85 sm:mt-5 sm:line-clamp-none sm:text-lg">
+                  <p style={enter(260)} className="mt-4 line-clamp-2 max-w-2xl text-base text-white/85 sm:mt-5 sm:line-clamp-none sm:text-lg [@media(max-height:500px)]:hidden">
                     {slide.text}
                   </p>
                 )}
@@ -215,7 +216,7 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
 
         {count > 1 && (
           <div
-            className="mt-6 flex items-center justify-between gap-2 sm:absolute sm:top-8 sm:right-8 sm:mt-0 sm:justify-end sm:gap-3"
+            className="mt-6 flex items-center justify-between gap-2 sm:gap-3 lg:absolute lg:top-8 lg:right-8 lg:mt-0 lg:justify-end"
           >
             {/* One short progress bar per service; the active one fills up. */}
             <ol aria-label={t.hero.services} className="flex min-w-0 items-center gap-0.5 rounded-full bg-black/30 px-2 py-2.5 backdrop-blur-md sm:gap-1.5 sm:px-3">

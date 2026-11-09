@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { useI18n } from '@/i18n/client'
 import { fmt as fill } from '@/i18n/config'
+import { track } from '@/lib/consent'
 import { type AddOn, availableAddOns, calculateQuote, type Rate } from '@/lib/quote'
 import { formatMoney } from '@/lib/utils'
 
@@ -204,7 +205,7 @@ export function QuoteCalculator({
             </dl>
             <p className="mt-6 text-xs text-muted">{t.quote.disclaimer}</p>
             <div className="mt-6 grid gap-3">
-              <button type="button" className="btn-primary" onClick={() => setShowForm(true)}>
+              <button type="button" className="btn-primary" onClick={() => { setShowForm(true); track('quote_used', { label: service.slug, value: quote.total }) }}>
                 {t.quote.send}
               </button>
               <Link href={href(`/book?service=${service.slug}`)} className="btn-ghost">

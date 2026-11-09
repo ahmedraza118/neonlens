@@ -86,6 +86,21 @@ Everything in `src/seed/data.ts` is **placeholder**: business details, prices, p
 - Set `NEXT_PUBLIC_GA_ID` for Google Analytics 4. It runs with **Consent Mode v2**: nothing is stored until the visitor accepts the cookie banner (RO/EN, "Accept" and "Refuz" equally visible). A "Cookie settings" link appears in the footer.
 - Lead events sent automatically: `generate_lead` (inquiry/quote form sent), `begin_checkout` (booking), `click_call`, `click_whatsapp`, `click_email`. In GA4 → Admin → Events, mark them as **key events** to see which pages and campaigns bring clients.
 
+## Growth system
+
+| Piece | Where | Notes |
+| --- | --- | --- |
+| **Growth dashboard** | Admin → 📈 Growth dashboard (`/admin/growth`) | Visits, who stays or leaves, funnel, page exits, channels, devices, real-user speed, lead response time, bookings, chat topics, and a ranked "what to fix first" list |
+| **Website assistant** | Chat button on every page | Answers from your CMS content, checks dates, estimates prices and shows a contact form. Uses Claude when `ANTHROPIC_API_KEY` is set, built-in answers otherwise. Conversations: Admin → Chat conversations |
+| **Date checker** | Home, service pages, leave offer | Real availability, one date at a time |
+| **Daily digest** | `vercel.json` cron → `/api/cron/digest` | Set `CRON_SECRET`. Sends yesterday's numbers, waiting leads and urgent fixes; deletes analytics after 400 days and chats without a lead after 365 |
+| **Growth agents** | `.claude/agents/` | Ten Claude Code specialists (growth-director, analytics-analyst, conversion-optimizer, local-seo-strategist, performance-engineer, content-strategist, lead-followup-agent, chatbot-trainer, reputation-manager, competitor-scout) |
+
+- `npm run growth:report` prints the report (`-- --days 7`, `-- --json`).
+- `npm run growth:demo` fills a **local** database with labelled demo visits; `-- --clear` removes them and any `.test` leads and bookings. It refuses to run against a remote database.
+- **Privacy:** first-party analytics stores no IP, name or email. Visits are identified by a hash that changes daily; a browser identifier for "returning visitor" exists only after the cookie banner is accepted. Have the privacy policy reviewed, since it now covers the AI assistant.
+- Set `CHAT_MODEL=claude-haiku-5-5` to run the assistant far more cheaply, and `CHAT_DAILY_LIMIT` to cap Claude usage per day.
+
 ## Security notes
 
 - **Client galleries:** passwords must be 10+ characters. Changing a gallery's password, or its expiry date passing, immediately locks out everyone who used the old one. Private files get random names, are never cached, and full-resolution originals are only sent once *Allow downloads* is on.

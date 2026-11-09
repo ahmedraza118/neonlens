@@ -43,4 +43,4 @@ export function absoluteUrl(path = '/'): string {
 
 /** Typography classes for rich text / long-form content. */
 export const PROSE =
-  'prose prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-neon-2 prose-img:rounded-xl prose-li:marker:text-neon'
+  'prose max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-accent-strong prose-img:rounded-xl prose-li:marker:text-accent'

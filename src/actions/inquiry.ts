@@ -3,11 +3,9 @@
 import { headers } from 'next/headers'
 import { z } from 'zod'
 
-import { fmt, toLocale } from '@/i18n/config'
+import { toLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
-import { notifyStudio, rowsToHtml, sendEmail } from '@/lib/notify'
-import { getPayloadClient } from '@/lib/payload'
-import { getSettings } from '@/lib/queries'
+import { createLead } from '@/lib/leads'
 
 /** `values` echoes what was submitted so the form can show it again after an error. */
 export type InquiryState = { ok: boolean; message: string; errors?: Partial<Record<string, string>>; values?: Record<string, string> }
@@ -59,54 +57,9 @@ export async function submitInquiry(_prev: InquiryState, formData: FormData): Pr
     utm = undefined
   }
 
-  const payload = await getPayloadClient()
   const referrer = (await headers()).get('referer') ?? undefined
-  const eventDate = data.eventDate && !Number.isNaN(Date.parse(data.eventDate)) ? new Date(data.eventDate).toISOString() : undefined
-
-  await payload.create({
-    collection: 'inquiries',
-    data: { ...data, eventDate, utm, referrer, locale, status: 'new' },
-  })
-
-  const settings = await getSettings(locale)
-  // Studio alert in English; the client's copy uses their language.
-  const rows: Array<[string, string | undefined]> = [
-    ['Name', data.name],
-    ['Email', data.email],
-    ['Phone', data.phone],
-    ['Service', data.service],
-    ['Date', data.eventDate],
-    ['Location', data.location],
-    ['Budget', data.budget],
-    ['Message', data.message],
-    ['Quote', data.quoteSummary],
-    ['Page', data.sourcePage],
-    ['Language', locale.toUpperCase()],
-  ]
-  const r = t.actions.rows
-  // The copy sent to the visitor never repeats their free text (message/quote): otherwise the form
-  // could be used to send any text "from" the studio's address to any inbox.
-  const clientRows: Array<[string, string | undefined]> = [
-    [r.phone, data.phone],
-    [r.service, data.service],
-    [r.date, data.eventDate],
-    [r.location, data.location],
-    [r.budget, data.budget],
-  ]
-
-  await Promise.allSettled([
-    notifyStudio(`New inquiry: ${data.name}${data.service ? ` — ${data.service}` : ''}`, rows, data.email),
-    // Instant auto-reply: fast responses win bookings.
-    sendEmail({
-      to: data.email,
-      subject: fmt(t.actions.autoReplySubject, { name: settings.businessName }),
-      replyTo: settings.email,
-      html: `<p style="font-family:sans-serif">${fmt(t.actions.autoReplyHi, { name: data.name.split(' ')[0].replace(/[<>&]/g, '') })}</p>
-<p style="font-family:sans-serif">${t.actions.autoReplyBody}</p>
-${rowsToHtml(t.actions.autoReplyTitle, clientRows)}
-<p style="font-family:sans-serif">${t.actions.autoReplySignoff}<br>${settings.businessName}<br>${settings.phone}</p>`,
-    }),
-  ])
+  const { quoteSummary } = data
+  await createLead({ ...data, utm, referrer, source: quoteSummary ? 'quote' : 'form' }, locale)
 
   return { ok: true, message: t.actions.thanks }
 }

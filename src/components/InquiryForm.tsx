@@ -25,6 +25,7 @@ export function InquiryForm({ services, compact, defaultService, defaultLocation
   const startedAtRef = useRef<HTMLInputElement>(null)
   const utmRef = useRef<HTMLInputElement>(null)
   const { lang, t, href } = useI18n()
+  const startTracked = useRef(false)
   const BUDGETS = t.inquiry.budgets
 
   // Filled after hydration (not during render) so server and client HTML match, and again after
@@ -42,7 +43,7 @@ export function InquiryForm({ services, compact, defaultService, defaultLocation
 
   // GA4 key event: a real lead (the success state appears only once per submission).
   useEffect(() => {
-    if (state.ok) track('generate_lead', { form: quoteSummary ? 'quote' : 'inquiry', page: pathname })
+    if (state.ok) track('generate_lead', { form: quoteSummary ? 'quote' : 'inquiry', label: quoteSummary ? 'quote' : 'inquiry', page: pathname })
   }, [state.ok, quoteSummary, pathname])
 
   if (state.ok) {
@@ -50,6 +51,12 @@ export function InquiryForm({ services, compact, defaultService, defaultLocation
       <div role="status" tabIndex={-1} ref={(el) => el?.focus()} className="card p-8 text-center outline-none">
         <p className="font-display text-2xl font-bold">{t.inquiry.received}</p>
         <p className="mt-2 text-muted">{state.message}</p>
+        {/* Keep them on the site while they wait for the reply. */}
+        <p className="mt-6 text-sm font-medium">{t.inquiry.whileWaiting}</p>
+        <div className="mt-3 flex flex-wrap justify-center gap-3">
+          <Link href={href('/portfolio')} data-cta="after_lead_portfolio" className="btn-primary">{t.common.seeWork}</Link>
+          <Link href={href('/reviews')} data-cta="after_lead_reviews" className="btn-ghost">{t.common.readReviews}</Link>
+        </div>
       </div>
     )
   }
@@ -62,7 +69,16 @@ export function InquiryForm({ services, compact, defaultService, defaultLocation
     ) : null
 
   return (
-    <form action={action} className="grid gap-4 sm:grid-cols-2" noValidate>
+    <form
+      action={action}
+      className="grid gap-4 sm:grid-cols-2"
+      noValidate
+      onFocus={() => {
+        if (startTracked.current) return
+        startTracked.current = true
+        track('form_start', { label: quoteSummary ? 'quote' : 'inquiry' })
+      }}
+    >
       <input ref={startedAtRef} type="hidden" name="startedAt" defaultValue="" />
       <input type="hidden" name="sourcePage" value={pathname} />
       <input ref={utmRef} type="hidden" name="utm" defaultValue="" />

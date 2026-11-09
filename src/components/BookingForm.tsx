@@ -1,11 +1,12 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 
 import { type BookingState, createBooking } from '@/actions/booking'
 import { useI18n } from '@/i18n/client'
 import { fmt as fill } from '@/i18n/config'
 import { track } from '@/lib/consent'
+import { pulse } from '@/lib/pulse'
 import { depositFor } from '@/lib/quote'
 import { formatDate, formatMoney } from '@/lib/utils'
 
@@ -20,9 +21,10 @@ type Props = {
   onlinePayments: boolean
   initialService?: string
   initialPackage?: string
+  initialDate?: string
 }
 
-export function BookingForm({ services, rules, depositPercent, currency, onlinePayments, initialService, initialPackage }: Props) {
+export function BookingForm({ services, rules, depositPercent, currency, onlinePayments, initialService, initialPackage, initialDate }: Props) {
   const [state, action, pending] = useActionState<BookingState, FormData>(createBooking, { message: '' })
   const { lang, t, href } = useI18n()
   // Defaults = what was submitted, so a server-side error never clears the visitor's details.
@@ -39,7 +41,20 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
       service?.packages[0]?.id ??
       '',
   )
-  const [date, setDate] = useState<string | null>(null)
+  const [date, setDate] = useState<string | null>(initialDate ?? null)
+  const startedAtRef = useRef<HTMLInputElement>(null)
+  const detailsTracked = useRef(false)
+  // Filled after hydration, and again after a failed submission (React resets the form).
+  const firstSeenAt = useRef(0)
+  useEffect(() => {
+    firstSeenAt.current ||= Date.now()
+    if (startedAtRef.current) startedAtRef.current.value = String(firstSeenAt.current)
+  }, [state])
+  useEffect(() => pulse('booking_start'), [])
+  const chooseDate = (iso: string) => {
+    setDate(iso)
+    pulse('booking_step', { label: 'date' })
+  }
   const pkg = service?.packages.find((p) => p.id === pkgId)
   const deposit = pkg ? depositFor(pkg.price, depositPercent) : 0
   const fmt = (n: number) => formatMoney(n, currency, lang)
@@ -48,12 +63,16 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
   return (
     <form
       action={action}
-      onSubmit={() => track('begin_checkout', { service: serviceSlug, package: pkg?.name, value: deposit, currency })}
+      onSubmit={() => track('begin_checkout', { service: serviceSlug, package: pkg?.name, label: serviceSlug, value: deposit, currency })}
       className="grid gap-8 lg:grid-cols-[1.4fr_1fr]"
     >
       <input type="hidden" name="lang" value={lang} />
+      <input ref={startedAtRef} type="hidden" name="startedAt" defaultValue="" />
+      <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label>{t.inquiry.honeypot}<input type="text" name="company_website" tabIndex={-1} autoComplete="off" /></label>
+      </div>
       <div className="space-y-8">
-        <fieldset className="card p-6">
+        <fieldset className="card p-4 sm:p-6">
           <legend className="sr-only">{t.book.servicePackage}</legend>
           <p className="label">{t.book.step1}</p>
           <select
@@ -88,14 +107,21 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
           {err('packageId')}
         </fieldset>
 
-        <div className="card p-6">
+        <div className="card p-4 sm:p-6">
           <p className="label">{t.book.step3}</p>
           <input type="hidden" name="date" value={date ?? ''} />
-          <Calendar value={date} onChange={setDate} {...rules} />
+          <Calendar value={date} onChange={chooseDate} {...rules} />
           {err('date')}
         </div>
 
-        <fieldset className="card grid gap-4 p-6 sm:grid-cols-2">
+        <fieldset
+          className="card grid gap-4 p-4 sm:grid-cols-2 sm:p-6"
+          onFocus={() => {
+            if (detailsTracked.current) return
+            detailsTracked.current = true
+            pulse('booking_step', { label: 'details' })
+          }}
+        >
           <legend className="sr-only">{t.book.details}</legend>
           <p className="label sm:col-span-2">{t.book.step4}</p>
           <div>
@@ -124,13 +150,13 @@ export function BookingForm({ services, rules, depositPercent, currency, onlineP
       </div>
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="card p-6">
+        <div className="card p-4 sm:p-6">
           <p className="label">{t.book.summary}</p>
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between"><dt className="text-muted">{t.book.service}</dt><dd>{service?.title}</dd></div>
-            <div className="flex justify-between"><dt className="text-muted">{t.book.package}</dt><dd>{pkg?.name}</dd></div>
-            <div className="flex justify-between"><dt className="text-muted">{t.book.date}</dt><dd>{date ? formatDate(`${date}T12:00:00Z`, lang) : '—'}</dd></div>
-            <div className="flex justify-between"><dt className="text-muted">{t.book.total}</dt><dd>{pkg ? fmt(pkg.price) : '—'}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="shrink-0 text-muted">{t.book.service}</dt><dd className="min-w-0 text-right">{service?.title}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="shrink-0 text-muted">{t.book.package}</dt><dd className="min-w-0 text-right">{pkg?.name}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="shrink-0 text-muted">{t.book.date}</dt><dd className="min-w-0 text-right">{date ? formatDate(`${date}T12:00:00Z`, lang) : '—'}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="shrink-0 text-muted">{t.book.total}</dt><dd className="min-w-0 text-right">{pkg ? fmt(pkg.price) : '—'}</dd></div>
           </dl>
           <div className="mt-6 border-t border-line pt-6">
             <p className="text-sm text-muted">{fill(onlinePayments ? t.book.depositToday : t.book.depositLater, { percent: depositPercent })}</p>

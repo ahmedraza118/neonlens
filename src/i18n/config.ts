@@ -43,7 +43,8 @@ const RO_SUB_SEGMENTS: Record<string, Record<string, string>> = { book: { succes
 
 const invert = (map: Record<string, string>) => Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k]))
 const EN_SEGMENTS = invert(RO_SEGMENTS)
-const EN_SUB_SEGMENTS = Object.fromEntries(Object.entries(RO_SUB_SEGMENTS).map(([k, v]) => [k, invert(v)]))
+// Keyed by the public Romanian first segment, which is what mapSegments looks up.
+const EN_SUB_SEGMENTS = Object.fromEntries(Object.entries(RO_SUB_SEGMENTS).map(([k, v]) => [RO_SEGMENTS[k], invert(v)]))
 
 /** English internal first segments whose public Romanian URL is different (old English URLs). */
 export function isTranslatedInternalSegment(segment: string): boolean {
@@ -88,10 +89,10 @@ export function withLocale(path: string, lang: Locale): string {
  */
 export function parsePublicPath(pathname: string): { lang: Locale; path: string } {
   const match = pathname.match(/^\/([a-z]{2})(?=\/|$)/)
-  if (match && isLocale(match[1]) && match[1] !== defaultLocale) {
-    return { lang: match[1], path: pathname.slice(match[0].length) || '/' }
-  }
-  return { lang: defaultLocale, path: mapSegments(pathname || '/', EN_SEGMENTS, EN_SUB_SEGMENTS) }
+  // Pre-rendering sees the internal rewritten path of Romanian pages (/ro/pricing), not the public one.
+  const rest = match && isLocale(match[1]) ? pathname.slice(match[0].length) || '/' : pathname || '/'
+  if (match && isLocale(match[1]) && match[1] !== defaultLocale) return { lang: match[1], path: rest }
+  return { lang: defaultLocale, path: mapSegments(rest, EN_SEGMENTS, EN_SUB_SEGMENTS) }
 }
 
 /** Fills {placeholders} in a dictionary string. */

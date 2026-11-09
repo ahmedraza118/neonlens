@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 
+import { DateChecker } from '@/components/DateChecker'
 import { InquirySection } from '@/components/InquirySection'
 import { JsonLd } from '@/components/JsonLd'
 import { PageHero } from '@/components/PageHero'
@@ -64,7 +65,9 @@ export default async function ServicePage({ params }: Props) {
 
       <section className="container-x grid gap-12 py-16 lg:grid-cols-[2fr_1fr]">
         <Paragraphs text={service.intro} className="text-lg leading-relaxed text-fg/85" />
-        <aside className="card h-fit p-6">
+        <aside className="h-fit space-y-6">
+          <DateChecker service={service.slug ?? undefined} />
+          <div className="card p-6">
           <p className="eyebrow mb-4">{t.services.availableIn}</p>
           <ul className="space-y-2">
             {/* Area landing page where one exists, otherwise the area's overview page. */}
@@ -72,13 +75,14 @@ export default async function ServicePage({ params }: Props) {
               <li key={l.id}>
                 <Link
                   href={href(hasAreaPage(l, service.id) ? `/services/${service.slug}/${l.slug}` : `/locations/${l.slug}`)}
-                  className="flex justify-between gap-3 py-1 text-sm text-muted hover:text-fg"
+                  className="flex justify-between gap-3 py-2 text-sm text-muted hover:text-fg"
                 >
                   {hasAreaPage(l, service.id) ? fmt(t.common.in, { service: service.title, city: l.name }) : l.name} <span aria-hidden>→</span>
                 </Link>
               </li>
             ))}
           </ul>
+          </div>
         </aside>
       </section>
 

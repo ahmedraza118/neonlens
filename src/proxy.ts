@@ -8,7 +8,9 @@ import { defaultLocale, isLocale, isTranslatedInternalSegment, LOCALE_COOKIE, pa
  *  - /servicii/...    → Romanian (main language): rewritten internally to /ro/services/...
  *  - /ro/...          → redirected to the Romanian URL without prefix (one address per page)
  *  - /services/...    → old English URLs (before Romanian became the main language): → /en/services/...
- * Visitors who picked English in the language switcher (cookie) are sent to /en/... on Romanian URLs.
+ * Visitors who picked English (cookie) are sent to /en/... when they arrive on a Romanian URL from
+ * outside the site. Clicks inside the site are left alone: the visitor is choosing that page, and a
+ * cookie that is not updated yet (the switcher before JavaScript has loaded) must not undo the choice.
  */
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -31,7 +33,8 @@ export function proxy(req: NextRequest) {
 
   const { path } = parsePublicPath(pathname)
   const preferred = req.cookies.get(LOCALE_COOKIE)?.value
-  if (isLocale(preferred) && preferred !== defaultLocale) {
+  const internalNavigation = req.headers.get('sec-fetch-site') === 'same-origin'
+  if (isLocale(preferred) && preferred !== defaultLocale && !internalNavigation) {
     const url = req.nextUrl.clone()
     url.pathname = withLocale(path, preferred)
     return NextResponse.redirect(url, 307)

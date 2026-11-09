@@ -4,9 +4,11 @@ import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 import { Analytics } from '@/components/Analytics'
+import { ChatLauncher } from '@/components/chat/ChatLauncher'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { JsonLd } from '@/components/JsonLd'
+import { StayOffers } from '@/components/StayOffers'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { I18nProvider } from '@/i18n/client'
 import { getDictionary } from '@/i18n/dictionaries'
@@ -23,7 +25,7 @@ import '../globals.css'
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-jakarta', display: 'swap' })
 
 // viewport-fit=cover lets fixed elements use env(safe-area-inset-*) on notched iPhones.
-export const viewport: Viewport = { themeColor: '#fbfaf7', colorScheme: 'light', viewportFit: 'cover' }
+export const viewport: Viewport = { themeColor: '#fbfaf7', colorScheme: 'light', viewportFit: 'cover', interactiveWidget: 'resizes-content' }
 
 type Props = { children: ReactNode; params: Promise<{ lang: string }> }
 
@@ -53,6 +55,7 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>): Pro
     category: 'photography',
     // Regional targeting hints (used by Bing and some local directories): Bucharest, Romania.
     other: {
+      google: 'notranslate',
       'geo.region': settings.address?.country === 'RO' ? `RO-${/ilfov/i.test(settings.address?.region ?? '') ? 'IF' : 'B'}` : (settings.address?.country ?? ''),
       'geo.placename': settings.address?.city ?? '',
       ...(settings.geo?.lat && settings.geo?.lng
@@ -74,13 +77,19 @@ export default async function FrontendLayout({ children, params }: Props) {
     : null
 
   return (
-    <html lang={lang} className={jakarta.variable}>
-      <body>
+    // translate="no": the site has its own Romanian and English. Browser translators rewrite the
+    // page before React loads, which breaks hydration and undoes the language the visitor picked.
+    // suppressHydrationWarning: browser extensions add attributes to these two tags before React
+    // loads. It covers only the tags' own attributes, so real mismatches inside the page still show.
+    <html lang={lang} translate="no" className={jakarta.variable} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <I18nProvider lang={lang} dict={getDictionary(lang)}>
           <Header businessName={settings.businessName} phone={settings.phone} />
           <main id="main">{children}</main>
           <Footer settings={settings} services={services} locations={locations} />
           <WhatsAppButton number={settings.whatsapp} businessName={settings.businessName} />
+          <ChatLauncher hasWhatsApp={Boolean(settings.whatsapp)} />
+          <StayOffers hasWhatsApp={Boolean(settings.whatsapp)} />
         <JsonLd data={[localBusiness(settings, { locations, services, rating, lang }), website(settings, lang)]} />
           <Analytics />
         </I18nProvider>

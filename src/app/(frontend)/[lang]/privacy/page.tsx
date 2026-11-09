@@ -29,6 +29,8 @@ export default async function PrivacyPage({ params }: Props) {
         <p>{t.privacy.galleries}</p>
         <h2>{t.privacy.cookiesTitle}</h2>
         <p>{t.privacy.cookies}</p>
+        <h2>{t.privacy.chatTitle}</h2>
+        <p>{t.privacy.chat}</p>
         <h2>{t.privacy.rightsTitle}</h2>
         <p>
           {t.privacy.rights} <a href={`mailto:${settings.email}`}>{settings.email}</a>.

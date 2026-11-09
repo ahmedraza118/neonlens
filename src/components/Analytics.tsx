@@ -3,7 +3,7 @@ import Script from 'next/script'
 import { CONSENT_COOKIE } from '@/lib/consent'
 
 import { ConsentBanner } from './ConsentBanner'
-import { LeadTracking } from './LeadTracking'
+import { Pulse } from './Pulse'
 
 /**
  * Google Analytics 4 with Google Consent Mode v2 (required in the EU). Nothing is stored until the
@@ -12,7 +12,6 @@ import { LeadTracking } from './LeadTracking'
  */
 export function Analytics() {
   const id = process.env.NEXT_PUBLIC_GA_ID
-  if (!id) return null
   const init = [
     'window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;',
     `var c=(document.cookie.match(/(?:^|; )${CONSENT_COOKIE}=(granted|denied)/)||[])[1];`,
@@ -23,12 +22,17 @@ export function Analytics() {
   ].join('')
   return (
     <>
-      <Script id="ga4-init" strategy="afterInteractive">
-        {init}
-      </Script>
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${id}`} strategy="afterInteractive" />
+      {id && (
+        <>
+          <Script id="ga4-init" strategy="afterInteractive">
+            {init}
+          </Script>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${id}`} strategy="afterInteractive" />
+        </>
+      )}
+      {/* The studio's own analytics and the consent banner run even when GA4 is not set up. */}
       <ConsentBanner />
-      <LeadTracking />
+      <Pulse />
     </>
   )
 }

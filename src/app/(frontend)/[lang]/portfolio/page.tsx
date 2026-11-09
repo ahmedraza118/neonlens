@@ -7,7 +7,7 @@ import { InquirySection } from '@/components/InquirySection'
 import { SectionHeading } from '@/components/SectionHeading'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { getProjects, getServices, getSettings } from '@/lib/queries'
+import { getProjects, getService, getServices, getSettings } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
@@ -33,7 +33,8 @@ export default async function PortfolioPage({ params, searchParams }: Props) {
   const { t, href } = await localeFromParams(params)
   const { service: filter } = await searchParams
   const services = await getServices()
-  const active = services.find((s) => s.slug === filter)
+  // The slug in the URL may be the other language's, after using the language switcher.
+  const active = filter ? await getService(filter) : null
   const projects = await getProjects({ serviceId: active?.id })
 
   return (

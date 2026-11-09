@@ -1,7 +1,7 @@
 'use client'
 
-import { usePathname, useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 import { useI18n } from '@/i18n/client'
 import { LOCALE_COOKIE, type Locale, localeNames, locales, parsePublicPath, withLocale } from '@/i18n/config'
@@ -12,43 +12,41 @@ function rememberLocale(next: Locale) {
 }
 
 /**
- * The translated URL of the current page. Slugs differ per language, so the page's own hreflang
- * links (in <head>) are the source of truth; route names alone are the fallback.
+ * The translated URL of the current page. Route names are translated here, so the links work before
+ * JavaScript has loaded; a page reached with the other language's slug redirects to its proper URL.
+ * Once mounted, the page's hreflang tags give the exact URL and avoid that redirect.
  */
-function useTranslatedHrefs(): Record<Locale, string> | null {
+function useTranslatedHrefs(): Record<Locale, string> {
   const pathname = usePathname()
-  const search = useSearchParams().toString()
-  const query = search ? `?${search}` : ''
+  const { lang } = useI18n()
   const { path } = parsePublicPath(pathname)
-  const computed = Object.fromEntries(locales.map((l) => [l, withLocale(path, l) + query])) as Record<Locale, string>
-  // null until mounted: the server does not know a page's translated slug, so the link to the
-  // other language is only rendered once the real URL is known (crawlers use the hreflang tags).
-  const [fromHead, setFromHead] = useState<Partial<Record<Locale, string>> | null>(null)
+  const computed = Object.fromEntries(locales.map((l) => [l, withLocale(path, l)])) as Record<Locale, string>
+  const [fromHead, setFromHead] = useState<Partial<Record<Locale, string>>>({})
 
   useEffect(() => {
     const read = () => {
       const found: Partial<Record<Locale, string>> = {}
       for (const l of locales) {
         const href = document.head.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${l}"]`)?.href
-        if (href) found[l] = new URL(href).pathname + query
+        if (href) found[l] = new URL(href).pathname
       }
-      setFromHead(found)
+      // During client-side navigation the head still describes the previous page for a moment.
+      setFromHead(found[lang] === pathname ? found : {})
     }
     read()
-    // Metadata can stream in after the first paint on client-side navigations.
+    // React may reuse the tags and only change their href, so attributes are watched too.
     const observer = new MutationObserver(read)
-    observer.observe(document.head, { childList: true, subtree: true })
+    observer.observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ['href'] })
     return () => observer.disconnect()
-  }, [pathname, query])
+  }, [pathname, lang])
 
-  return fromHead && { ...computed, ...fromHead }
+  return { ...computed, ...fromHead }
 }
 
 /** RO | EN toggle. Remembers the choice in a cookie so the proxy can send the visitor back to it. */
 function Switcher({ className }: { className?: string }) {
   const { lang, t } = useI18n()
   const hrefs = useTranslatedHrefs()
-  const pathname = usePathname()
 
   return (
     <div role="group" aria-label={t.nav.language} className={cn('items-center rounded-full border border-line bg-surface p-0.5 text-xs font-semibold', className)}>
@@ -56,14 +54,19 @@ function Switcher({ className }: { className?: string }) {
         // A full page load (not <Link>): the <html lang> and every CMS text change with the language.
         <a
           key={l}
-          href={hrefs?.[l] ?? (l === lang ? pathname : undefined)}
+          href={hrefs[l]}
           hrefLang={l}
           lang={l}
-          onClick={() => rememberLocale(l)}
+          onClick={(e) => {
+            rememberLocale(l)
+            // Added at click time: reading the query while rendering would keep these links out of
+            // the pre-built HTML. Keeps the visitor's selection, e.g. ?service=… on the price page.
+            e.currentTarget.search = window.location.search
+          }}
           aria-current={l === lang ? 'true' : undefined}
           title={localeNames[l]}
           className={cn(
-            'rounded-full px-3 py-2 uppercase transition-colors sm:px-2.5 sm:py-1',
+            'grid h-9 min-w-9 place-items-center rounded-full px-2.5 uppercase transition-colors',
             l === lang ? 'bg-fg text-white' : 'text-muted hover:text-fg',
           )}
         >
@@ -74,10 +77,6 @@ function Switcher({ className }: { className?: string }) {
   )
 }
 
-export function LanguageSwitcher({ className }: { className?: string }) {
-  return (
-    <Suspense fallback={<div className={cn('h-7 w-[76px]', className)} />}>
-      <Switcher className={className ?? 'flex'} />
-    </Suspense>
-  )
+export function LanguageSwitcher({ className = 'flex' }: { className?: string }) {
+  return <Switcher className={className} />
 }

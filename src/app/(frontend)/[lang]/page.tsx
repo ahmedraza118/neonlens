@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { ProjectCard, ServiceCard, TestimonialCard } from '@/components/Cards'
+import { DateChecker } from '@/components/DateChecker'
 import { Faq } from '@/components/Faq'
 import { HeroCarousel, type HeroSlide } from '@/components/HeroCarousel'
 import { InquirySection } from '@/components/InquirySection'
@@ -91,6 +92,7 @@ export default async function HomePage({ params }: Props) {
       {/* Hero: rounded photo card cycling through the services, stats underneath */}
       <section className="container-x pt-4 sm:pt-6">
         <HeroCarousel heading={home.heroHeading} slides={slides} intervalSeconds={home.heroAutoplaySeconds ?? 6} />
+        <DateChecker className="relative z-10 mx-auto -mt-6 max-w-3xl shadow-xl shadow-black/10 sm:-mt-10" />
         {settings.stats && settings.stats.length > 0 && (
           <dl className="grid grid-cols-2 gap-x-4 gap-y-6 py-8 sm:grid-cols-4 sm:gap-6 sm:py-10">
             {settings.stats.map((s) => (

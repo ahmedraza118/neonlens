@@ -44,7 +44,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
 
         <div>
           <p className="eyebrow mb-4">{t.footer.services}</p>
-          <ul className="space-y-1 text-sm [&_a]:inline-block [&_a]:py-1">
+          <ul className="space-y-1 text-sm [&_a]:inline-block [&_a]:py-1.5">
             {services.map((s) => (
               <li key={s.id}>
                 <Link href={href(`/services/${s.slug}`)} className="text-muted hover:text-fg">
@@ -62,7 +62,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
 
         <div>
           <p className="eyebrow mb-4">{t.footer.areas}</p>
-          <ul className="space-y-1 text-sm [&_a]:inline-block [&_a]:py-1">
+          <ul className="space-y-1 text-sm [&_a]:inline-block [&_a]:py-1.5">
             {locations.map((l) => (
               <li key={l.id}>
                 <Link href={href(`/locations/${l.slug}`)} className="text-muted hover:text-fg">
@@ -88,7 +88,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
 
         <div>
           <p className="eyebrow mb-4">{t.footer.studio}</p>
-          <ul className="space-y-1 text-sm [&_a]:inline-block [&_a]:py-1">
+          <ul className="space-y-1 text-sm [&_a]:inline-block [&_a]:py-1.5">
             {[
               ['/about', t.footer.about],
               ['/portfolio', t.footer.portfolio],
@@ -120,7 +120,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
         </div>
       </div>
       {/* Extra bottom space on phones so the floating WhatsApp button never covers the last lines. */}
-      <div className="container-x flex flex-col gap-2 border-t border-line pt-6 pb-24 text-xs text-muted sm:flex-row sm:justify-between sm:pb-6">
+      <div className="container-x flex flex-col gap-2 border-t border-line pt-6 pb-24 text-xs text-muted sm:flex-row sm:justify-between">
         <p>
           {fmt(t.footer.copyright, { year: new Date().getFullYear(), name: settings.businessName })}
         </p>
@@ -130,7 +130,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
               {t.footer.review}
             </a>
           )}
-          {process.env.NEXT_PUBLIC_GA_ID && <ConsentSettingsButton label={t.consent.settings} />}
+          <ConsentSettingsButton label={t.consent.settings} />
         </div>
       </div>
     </footer>

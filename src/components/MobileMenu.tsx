@@ -8,8 +8,6 @@ import { createPortal } from 'react-dom'
 import { useI18n } from '@/i18n/client'
 import { NAV } from '@/lib/site'
 
-import { LanguageSwitcher } from './LanguageSwitcher'
-
 export function MobileMenu() {
   const [open, setOpen] = useState(false)
   const { t, href } = useI18n()
@@ -67,7 +65,7 @@ export function MobileMenu() {
             ref={navRef}
             id="mobile-nav"
             aria-label={t.nav.mobile}
-            className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto bg-page px-4 py-6"
+            className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto bg-page px-4 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
           >
             <ul className="space-y-1">
               {NAV.map((item) => (
@@ -81,10 +79,6 @@ export function MobileMenu() {
                   </Link>
                 </li>
               ))}
-              <li className="flex items-center justify-between border-b border-line py-4">
-                <span className="text-sm text-muted">{t.nav.language}</span>
-                <LanguageSwitcher />
-              </li>
               <li>
                 <Link
                   href={href('/book')}

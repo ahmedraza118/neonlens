@@ -1,5 +1,6 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -11,6 +12,7 @@ import { notifyStudio } from '@/lib/notify'
 import { getPayloadClient } from '@/lib/payload'
 import { getPricing, getService, getSettings } from '@/lib/queries'
 import { depositFor } from '@/lib/quote'
+import { clientIp, rateLimit } from '@/lib/request-guard'
 import { getStripe, toStripeAmount } from '@/lib/stripe'
 import { absoluteUrl, formatDate, formatMoney } from '@/lib/utils'
 
@@ -36,7 +38,11 @@ const schemaFor = (t: ReturnType<typeof getDictionary>) => z.object({
 export async function createBooking(_prev: BookingState, formData: FormData): Promise<BookingState> {
   const locale = toLocale(formData.get('lang'))
   const t = getDictionary(locale)
-  const raw = Object.fromEntries([...formData.entries()].filter(([k, v]) => k !== 'lang' && typeof v === 'string' && v !== ''))
+  // Every booking holds a date for an hour, so bots must not be able to block the calendar.
+  if (formData.get('company_website')) return { message: t.actions.tooQuick, values: echo(formData) }
+  const startedAt = Number(formData.get('startedAt') || 0)
+  if (!startedAt || Date.now() - startedAt < 2500) return { message: t.actions.tooQuick, values: echo(formData) }
+  const raw = Object.fromEntries([...formData.entries()].filter(([k, v]) => !['lang', 'startedAt', 'company_website'].includes(k) && typeof v === 'string' && v !== ''))
   const parsed = schemaFor(t).safeParse(raw)
   if (!parsed.success) {
     const errors: Record<string, string> = {}
@@ -50,6 +56,9 @@ export async function createBooking(_prev: BookingState, formData: FormData): Pr
   const pkg = service?.packages?.find((p) => p.id === data.packageId)
   if (!service || !pkg) return { message: t.actions.packageGone, errors: { packageId: t.actions.choosePackage }, values: echo(formData) }
   if (!isDateBookable(rules, data.date)) return { message: t.actions.dateTaken, errors: { date: t.actions.pickAnother }, values: echo(formData) }
+
+  // Counted only here: a form rejected above holds no date and must not use up the visitor's attempts.
+  if (!rateLimit(`booking:${clientIp({ headers: await headers() })}`, 6, 60 * 60 * 1000)) return { message: t.actions.tooManyBookings, values: echo(formData) }
 
   const deposit = depositFor(pkg.price, pricing.depositPercent)
   const payload = await getPayloadClient()
