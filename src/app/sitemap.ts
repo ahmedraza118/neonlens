@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 import { defaultLocale, type Locale, locales, withLocale } from '@/i18n/config'
-import { getContentPresence, getLocations, getPosts, getProjects, getServices, getSlugs } from '@/lib/queries'
+import { getContentPresence, getLocations, getPosts, getProjects, getServices, getSlugs, getTeam } from '@/lib/queries'
 import { isShown } from '@/lib/site'
 import { hasAreaPage } from '@/lib/areas'
 import { localizedPaths } from '@/lib/seo'
@@ -19,12 +19,13 @@ type Entry = Omit<MetadataRoute.Sitemap[number], 'url'> & { path: string | Recor
  * including every service × area landing page and image entries for Google Images.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, locations, projects, posts, presence] = await Promise.all([
+  const [services, locations, projects, posts, presence, team] = await Promise.all([
     getServices(defaultLocale),
     getLocations(defaultLocale),
     getProjects({ locale: defaultLocale }),
     getPosts(1000, defaultLocale),
     getContentPresence(),
+    getTeam({ locale: defaultLocale }),
   ])
   const slugs = async (collection: Parameters<typeof getSlugs>[0], id: number) => getSlugs(collection, id)
   const [serviceSlugs, locationSlugs, projectSlugs, postSlugs] = await Promise.all([
@@ -37,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: Entry[] = [
     // No lastModified on fixed pages: a date that is always "now" teaches Google to ignore it.
     { path: '/', changeFrequency: 'weekly', priority: 1 },
-    ...['/services', '/portfolio', '/pricing', '/book', '/locations', '/about', '/contact', '/reviews', '/blog', '/faq'].filter((path) => isShown(path, presence)).map((path) => ({
+    ...['/services', '/portfolio', '/pricing', '/book', '/locations', '/about', '/contact', '/reviews', '/blog', '/faq', '/team'].filter((path) => isShown(path, presence)).map((path) => ({
       path,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
@@ -74,6 +75,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: p.updatedAt,
       priority: 0.6,
       images: img(p.coverImage),
+    })),
+    // Team member slugs are names, the same in both languages.
+    ...team.map((m) => ({
+      path: `/team/${m.slug}`,
+      lastModified: m.updatedAt,
+      priority: 0.6,
+      images: img(m.photo),
     })),
   ]
 

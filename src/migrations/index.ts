@@ -4,6 +4,7 @@ import * as migration_20261103_210221_localization_video_carousel from './202611
 import * as migration_20261103_215652_localized_slugs from './20261103_215652_localized_slugs';
 import * as migration_20261105_213740_localized_venue_names from './20261105_213740_localized_venue_names';
 import * as migration_20261108_202934_growth_analytics_chat from './20261108_202934_growth_analytics_chat';
+import * as migration_20261113_210024_team from './20261113_210024_team';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20261108_202934_growth_analytics_chat.up,
     down: migration_20261108_202934_growth_analytics_chat.down,
-    name: '20261108_202934_growth_analytics_chat'
+    name: '20261108_202934_growth_analytics_chat',
+  },
+  {
+    up: migration_20261113_210024_team.up,
+    down: migration_20261113_210024_team.down,
+    name: '20261113_210024_team'
   },
 ];

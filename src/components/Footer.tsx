@@ -92,6 +92,7 @@ export function Footer({ settings, services, locations, presence }: { settings: 
           <ul className="space-y-1 text-sm [&_a]:inline-block [&_a]:py-1.5">
             {[
               ['/about', t.footer.about],
+              ['/team', t.footer.team],
               ['/portfolio', t.footer.portfolio],
               ['/reviews', t.footer.reviews],
               ['/blog', t.footer.journal],

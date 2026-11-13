@@ -37,6 +37,7 @@ const RO_SEGMENTS: Record<string, string> = {
   locations: 'zone',
   privacy: 'confidentialitate',
   client: 'galerie-client',
+  team: 'echipa',
 }
 /** Second-level segments that are translated too (book/success → rezervare/confirmare). */
 const RO_SUB_SEGMENTS: Record<string, Record<string, string>> = { book: { success: 'confirmare' } }

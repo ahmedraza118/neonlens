@@ -53,6 +53,13 @@ export const Projects: CollectionConfig = {
     { name: 'gallery', type: 'upload', relationTo: 'media', hasMany: true },
     videoField,
     { name: 'testimonial', type: 'relationship', relationTo: 'testimonials' },
+    {
+      name: 'crew',
+      type: 'relationship',
+      relationTo: 'team',
+      hasMany: true,
+      admin: { position: 'sidebar', description: 'Who shot this project. It appears on their profile and the project shows their names.' },
+    },
     { name: 'tags', type: 'text', hasMany: true, admin: { position: 'sidebar' } },
     seoField,
   ],

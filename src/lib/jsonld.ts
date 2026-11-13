@@ -1,5 +1,5 @@
 import { intlLocale, type Locale, withLocale } from '@/i18n/config'
-import type { Location, Media, Post, Project, Service, SiteSetting, Testimonial } from '@/payload-types'
+import type { Location, Media, Post, Project, Service, SiteSetting, Team, Testimonial } from '@/payload-types'
 
 import { absoluteUrl, isPlaceholderMedia } from './utils'
 
@@ -255,5 +255,41 @@ export function articleSchema(post: Post, settings: SiteSetting, lang: Locale = 
     author: { '@type': 'Organization', name: post.author || settings.businessName },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: absoluteUrl(withLocale(`/blog/${post.slug}`, lang)),
+  }
+}
+
+/** A team member as a Person who works for the business (helps Google connect people and brand). */
+export function personSchema(member: Team, opts: { lang?: Locale; jobTitle?: string; knowsLanguage?: string[] } = {}): Json {
+  const lang = opts.lang ?? 'ro'
+  const url = absoluteUrl(withLocale(`/team/${member.slug}`, lang))
+  const sameAs = Object.values(member.social ?? {}).filter((v): v is string => typeof v === 'string' && /^https?:\/\//.test(v))
+  const services = (member.services ?? []).filter((s): s is Service => typeof s === 'object' && s !== null)
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': `${url}#person`,
+    name: member.name,
+    url,
+    jobTitle: opts.jobTitle ?? member.role,
+    description: member.shortBio,
+    image: imageUrl(member.photo),
+    worksFor: { '@id': ORG_ID },
+    knowsLanguage: opts.knowsLanguage?.length ? opts.knowsLanguage : undefined,
+    knowsAbout: [...(member.specialties ?? []), ...services.map((s) => s.title)].filter(Boolean),
+    sameAs: sameAs.length ? sameAs : undefined,
+  }
+}
+
+/** The team page: an ordered list of the people, each linking to their profile. */
+export function teamListSchema(members: Team[], lang: Locale = 'ro'): Json {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: members.map((m, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: absoluteUrl(withLocale(`/team/${m.slug}`, lang)),
+      name: m.name,
+    })),
   }
 }

@@ -5,9 +5,10 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { InquirySection } from '@/components/InquirySection'
 import { Media } from '@/components/Media'
 import { Paragraphs } from '@/components/Paragraphs'
+import { TeamSection } from '@/components/Team'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { getLocations, getSettings } from '@/lib/queries'
+import { getLocations, getSettings, getTeam } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 
 export const revalidate = 3600
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AboutPage({ params }: Props) {
   const { t, href } = await localeFromParams(params)
-  const [settings, locations] = await Promise.all([getSettings(), getLocations()])
+  const [settings, locations, team] = await Promise.all([getSettings(), getLocations(), getTeam()])
   const about = settings.about
   return (
     <>
@@ -68,6 +69,7 @@ export default async function AboutPage({ params }: Props) {
           </dl>
         </section>
       )}
+      <TeamSection members={team.slice(0, 8)} />
       <section className="container-x py-16">
         <p className="text-muted">
           {fmt(t.about.based, { city: settings.address?.city ?? '' })}

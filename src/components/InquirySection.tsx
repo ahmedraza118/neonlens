@@ -11,11 +11,13 @@ export async function InquirySection({
   subheading,
   defaultService,
   defaultLocation,
+  defaultMessage,
 }: {
   heading?: string
   subheading?: string
   defaultService?: string
   defaultLocation?: string
+  defaultMessage?: string
 }) {
   const services = await getServices()
   const { t } = getI18n()
@@ -29,7 +31,7 @@ export async function InquirySection({
           <p className="mt-5 text-lg text-muted">{subheading ?? t.inquiry.subheading}</p>
         </div>
         <Suspense>
-          <InquiryForm services={services.map((s) => ({ title: s.title }))} defaultService={defaultService} defaultLocation={defaultLocation} />
+          <InquiryForm services={services.map((s) => ({ title: s.title }))} defaultService={defaultService} defaultLocation={defaultLocation} defaultMessage={defaultMessage} />
         </Suspense>
       </div>
     </section>

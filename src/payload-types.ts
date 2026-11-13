@@ -72,6 +72,7 @@ export interface Config {
     locations: Location;
     posts: Post;
     testimonials: Testimonial;
+    team: Team;
     media: Media;
     inquiries: Inquiry;
     bookings: Booking;
@@ -92,6 +93,7 @@ export interface Config {
     locations: LocationsSelect<false> | LocationsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    team: TeamSelect<false> | TeamSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
@@ -226,6 +228,10 @@ export interface Project {
     durationSeconds?: number | null;
   };
   testimonial?: (number | null) | Testimonial;
+  /**
+   * Who shot this project. It appears on their profile and the project shows their names.
+   */
+  crew?: (number | Team)[] | null;
   tags?: string[] | null;
   seo?: {
     /**
@@ -539,6 +545,105 @@ export interface Testimonial {
   service?: (number | null) | Service;
   source?: ('google' | 'direct' | 'facebook' | 'other') | null;
   featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Your photographers, videographers and crew. Each visible member gets a profile page. Use a real, recent portrait: clients book people they trust.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team".
+ */
+export interface Team {
+  id: number;
+  /**
+   * Full name, e.g. "Andrei Popescu".
+   */
+  name: string;
+  /**
+   * Shown under the name, e.g. "Fotograf principal" / "Lead photographer".
+   */
+  role: string;
+  disciplines: ('photographer' | 'videographer' | 'drone' | 'editor' | 'producer' | 'assistant')[];
+  /**
+   * Portrait, ideally 4:5 (e.g. 1600×2000). Put the face near the top: use the focal point.
+   */
+  photo: number | Media;
+  /**
+   * Optional: a favourite photo they took. Shown when visitors hover the portrait and on the profile.
+   */
+  signatureImage?: (number | null) | Media;
+  /**
+   * One or two sentences for the team cards (max 220 characters).
+   */
+  shortBio: string;
+  /**
+   * The full story for the profile page. Separate paragraphs with a blank line.
+   */
+  bio?: string | null;
+  /**
+   * Optional: how they like to work, in their own words.
+   */
+  quote?: string | null;
+  /**
+   * Year they started (shows "X years behind the camera").
+   */
+  since?: number | null;
+  languages?: ('ro' | 'en' | 'fr' | 'it' | 'de' | 'es' | 'hu')[] | null;
+  /**
+   * Short tags, e.g. "Documentary weddings", "Golden-hour portraits", "Drone".
+   */
+  specialties?: string[] | null;
+  /**
+   * Services they work on. They appear on those service pages under "Your team".
+   */
+  services?: (number | Service)[] | null;
+  /**
+   * Optional: what is in their bag, e.g. "Sony A1, 35mm f/1.4, 85mm f/1.4".
+   */
+  gear?: string | null;
+  social?: {
+    /**
+     * Full URL, e.g. https://instagram.com/…
+     */
+    instagram?: string | null;
+    website?: string | null;
+    linkedin?: string | null;
+  };
+  /**
+   * URL segment for this language. Leave empty to generate it from the title. Use the words people search for (e.g. "fotograf-nunta"). Changing it later breaks existing links.
+   */
+  slug?: string | null;
+  /**
+   * Untick to hide this person from the site.
+   */
+  visible?: boolean | null;
+  /**
+   * Show on the homepage.
+   */
+  featured?: boolean | null;
+  /**
+   * Lower numbers come first.
+   */
+  order?: number | null;
+  seo?: {
+    /**
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | Lumenza".
+     */
+    title?: string | null;
+    /**
+     * 140–160 characters. Shown in Google results — write it like an ad.
+     */
+    description?: string | null;
+    /**
+     * Social share image. Defaults to the cover image.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Hide this page from search engines.
+     */
+    noIndex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -929,6 +1034,10 @@ export interface PayloadLockedDocument {
         value: number | Testimonial;
       } | null)
     | ({
+        relationTo: 'team';
+        value: number | Team;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -1034,6 +1143,7 @@ export interface ProjectsSelect<T extends boolean = true> {
         durationSeconds?: T;
       };
   testimonial?: T;
+  crew?: T;
   tags?: T;
   seo?:
     | T
@@ -1214,6 +1324,46 @@ export interface TestimonialsSelect<T extends boolean = true> {
   service?: T;
   source?: T;
   featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team_select".
+ */
+export interface TeamSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  disciplines?: T;
+  photo?: T;
+  signatureImage?: T;
+  shortBio?: T;
+  bio?: T;
+  quote?: T;
+  since?: T;
+  languages?: T;
+  specialties?: T;
+  services?: T;
+  gear?: T;
+  social?:
+    | T
+    | {
+        instagram?: T;
+        website?: T;
+        linkedin?: T;
+      };
+  slug?: T;
+  visible?: T;
+  featured?: T;
+  order?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

@@ -20,6 +20,7 @@ import { Posts } from './collections/Posts'
 import { Projects } from './collections/Projects'
 import { Services } from './collections/Services'
 import { Testimonials } from './collections/Testimonials'
+import { Team } from './collections/Team'
 import { Users } from './collections/Users'
 import { Availability } from './globals/Availability'
 import { Homepage } from './globals/Homepage'
@@ -50,6 +51,7 @@ export default buildConfig({
     Locations,
     Posts,
     Testimonials,
+    Team,
     Media,
     Inquiries,
     Bookings,

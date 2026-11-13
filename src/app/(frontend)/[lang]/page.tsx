@@ -7,10 +7,11 @@ import { Faq } from '@/components/Faq'
 import { HeroCarousel, type HeroSlide } from '@/components/HeroCarousel'
 import { InquirySection } from '@/components/InquirySection'
 import { SectionHeading } from '@/components/SectionHeading'
+import { TeamSection } from '@/components/Team'
 import { VideoPlayer } from '@/components/VideoPlayer'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { asMedia, getHomepage, getLocations, getProjects, getServices, getSettings, getTestimonials, populated } from '@/lib/queries'
+import { asMedia, getHomepage, getLocations, getProjects, getServices, getSettings, getTeam, getTestimonials, populated } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 import { formatMoney } from '@/lib/utils'
 import type { Project, Service } from '@/payload-types'
@@ -40,13 +41,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HomePage({ params }: Props) {
   const { lang, t, href } = await localeFromParams(params)
-  const [settings, home, services, locations, featured, testimonials] = await Promise.all([
+  const [settings, home, services, locations, featured, testimonials, team] = await Promise.all([
     getSettings(),
     getHomepage(),
     getServices(),
     getLocations(),
     getProjects({ featured: true, limit: 6 }),
     getTestimonials({ featured: true }),
+    getTeam({ featured: true }),
   ])
   const picked = (home.featuredProjects ?? []).map((p) => populated<Project>(p)).filter((p): p is Project => !!p)
   const projects = picked.length ? picked : featured
@@ -179,6 +181,9 @@ export default async function HomePage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* Team: people book people */}
+      <TeamSection members={team.slice(0, 4)} />
 
       {/* Testimonials */}
       {testimonials.length > 0 && (

@@ -2,21 +2,23 @@ import Link from 'next/link'
 
 import { fmt } from '@/i18n/config'
 import { getI18n } from '@/i18n/server'
-import { getProjects, getTestimonials } from '@/lib/queries'
+import { getProjects, getTeam, getTestimonials } from '@/lib/queries'
 import { formatMoney } from '@/lib/utils'
 import type { Location, Service, SiteSetting } from '@/payload-types'
 
 import { ProjectCard, TestimonialCard } from './Cards'
 import { Faq } from './Faq'
 import { SectionHeading } from './SectionHeading'
+import { TeamSection } from './Team'
 import { VideoPlayer } from './VideoPlayer'
 
 /** Shared body for /services/[service] and /services/[service]/[location]. */
 export async function ServiceBody({ service, settings, location }: { service: Service; settings: SiteSetting; location?: Location | null }) {
-  const [localProjects, allProjects, testimonials] = await Promise.all([
+  const [localProjects, allProjects, testimonials, team] = await Promise.all([
     location ? getProjects({ serviceId: service.id, locationId: location.id, limit: 6 }) : Promise.resolve([]),
     getProjects({ serviceId: service.id, limit: 6 }),
     getTestimonials({ serviceId: service.id }),
+    getTeam({ serviceId: service.id }),
   ])
   // Prefer projects shot in this city; top up with others from the same service.
   const projects = [...localProjects, ...allProjects.filter((p) => !localProjects.some((l) => l.id === p.id))].slice(0, 6)
@@ -122,6 +124,9 @@ export async function ServiceBody({ service, settings, location }: { service: Se
           </div>
         </section>
       )}
+
+      {/* The people who would actually shoot this: the strongest trust signal for a photographer. */}
+      <TeamSection members={team.slice(0, 4)} eyebrow={t.team.sectionEyebrow} title={fmt(t.team.serviceTitle, { service: service.title })} className="border-t border-line" />
 
       <Faq faqs={faqs} heading={fmt(location ? t.services.faqIn : t.services.faq, { service: service.title, city })} />
     </>

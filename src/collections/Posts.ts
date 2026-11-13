@@ -39,7 +39,15 @@ export const Posts: CollectionConfig = {
       defaultValue: () => new Date().toISOString(),
       admin: { position: 'sidebar' },
     },
-    { name: 'author', type: 'text', defaultValue: 'Lumenza', admin: { position: 'sidebar' } },
+    {
+      name: 'author',
+      type: 'text',
+      // The database column keeps its original default (changing it makes SQLite rebuild the posts
+      // table, which on Turso can drop the translated rows). The old studio name is swapped here.
+      defaultValue: 'NeonLens Studio',
+      admin: { position: 'sidebar' },
+      hooks: { beforeChange: [({ value }) => (!value || value === 'NeonLens Studio' ? 'Lumenza' : value)] },
+    },
     { name: 'excerpt', type: 'textarea', required: true, localized: true },
     { name: 'coverImage', type: 'upload', relationTo: 'media', required: true },
     { name: 'content', type: 'richText', required: true, localized: true },

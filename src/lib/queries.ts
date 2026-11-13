@@ -5,7 +5,7 @@ import { cache } from 'react'
 
 import { type Locale, locales, otherLocale } from '@/i18n/config'
 import { getRequestLocale } from '@/i18n/server'
-import type { Location, Post, Project, Service, SiteSetting, Testimonial } from '@/payload-types'
+import type { Location, Post, Project, Service, SiteSetting, Team, Testimonial } from '@/payload-types'
 
 import { getPayloadClient } from './payload'
 
@@ -70,7 +70,7 @@ export const getServices = cache(async (locale?: Locale): Promise<Service[]> => 
   return res.docs
 })
 
-type SluggedCollection = 'services' | 'locations' | 'projects' | 'posts'
+type SluggedCollection = 'services' | 'locations' | 'projects' | 'posts' | 'team'
 const PUBLISHED: Where = { _status: { equals: 'published' } }
 
 /**
@@ -109,7 +109,7 @@ export const getLocations = cache(async (locale?: Locale): Promise<Location[]> =
 
 export const getLocation = cache(async (slug: string): Promise<Location | null> => findBySlug('locations', slug, 1))
 
-type ProjectFilter = { serviceId?: number; locationId?: number; featured?: boolean; limit?: number; exclude?: number; locale?: Locale }
+type ProjectFilter = { serviceId?: number; locationId?: number; crewId?: number; featured?: boolean; limit?: number; exclude?: number; locale?: Locale }
 
 export const getProjects = cache(async (filter: ProjectFilter = {}): Promise<Project[]> => {
   const payload = await getPayloadClient()
@@ -117,6 +117,7 @@ export const getProjects = cache(async (filter: ProjectFilter = {}): Promise<Pro
     PUBLISHED,
     ...(filter.serviceId ? [{ service: { equals: filter.serviceId } }] : []),
     ...(filter.locationId ? [{ location: { equals: filter.locationId } }] : []),
+    ...(filter.crewId ? [{ crew: { in: [filter.crewId] } }] : []),
     ...(filter.featured ? [{ featured: { equals: true } }] : []),
     ...(filter.exclude ? [{ id: { not_equals: filter.exclude } }] : []),
   ]
@@ -178,11 +179,32 @@ export function aggregateRating(testimonials: Testimonial[]) {
  * never sees empty pages. They come back on their own once content is published in /admin.
  */
 export const getContentPresence = cache(async () => {
-  const [settings, projects, posts, testimonials] = await Promise.all([getSettings(), getProjects(), getPosts(1), getTestimonials()])
+  const [settings, projects, posts, testimonials, team] = await Promise.all([getSettings(), getProjects(), getPosts(1), getTestimonials(), getTeam()])
   return {
+    team: team.length > 0,
     portfolio: projects.length > 0,
     blog: posts.length > 0,
     reviews: testimonials.length > 0 || Boolean(settings.googleRating?.value && settings.googleRating.count),
   }
 })
 export type ContentPresence = Awaited<ReturnType<typeof getContentPresence>>
+
+/** The local API skips access rules, so visibility is filtered here: hidden members never leak. */
+const VISIBLE: Where = { visible: { equals: true } }
+
+type TeamFilter = { serviceId?: number; featured?: boolean; discipline?: string; exclude?: number; locale?: Locale }
+
+export const getTeam = cache(async (filter: TeamFilter = {}): Promise<Team[]> => {
+  const payload = await getPayloadClient()
+  const and: Where[] = [
+    VISIBLE,
+    ...(filter.serviceId ? [{ services: { in: [filter.serviceId] } }] : []),
+    ...(filter.featured ? [{ featured: { equals: true } }] : []),
+    ...(filter.discipline ? [{ disciplines: { in: [filter.discipline] } }] : []),
+    ...(filter.exclude ? [{ id: { not_equals: filter.exclude } }] : []),
+  ]
+  const res = await payload.find({ collection: 'team', where: { and }, limit: 100, sort: 'order', depth: 1, ...lang(filter.locale) })
+  return res.docs
+})
+
+export const getTeamMember = cache(async (slug: string): Promise<Team | null> => findBySlug('team', slug, 1, undefined, [VISIBLE]))

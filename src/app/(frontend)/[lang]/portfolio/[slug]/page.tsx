@@ -13,6 +13,7 @@ import { VideoPlayer } from '@/components/VideoPlayer'
 import { fmt, toLocale } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
 import { projectSchema, videoSchema } from '@/lib/jsonld'
+import { CrewCredit } from '@/components/Team'
 import { getProject, getProjects, getSlugs, populated } from '@/lib/queries'
 import { buildMetadata, localizedPaths } from '@/lib/seo'
 import { formatDate, PROSE } from '@/lib/utils'
@@ -103,6 +104,7 @@ export default async function ProjectPage({ params }: Props) {
             )}
           </dl>
           <div className="space-y-10">
+            <CrewCredit crew={project.crew} />
             <section>
               <h2 className="eyebrow mb-3">{t.portfolio.brief}</h2>
               <Paragraphs text={project.brief} className="text-lg leading-relaxed text-fg/85" />

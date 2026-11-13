@@ -16,9 +16,11 @@ type Props = {
   defaultLocation?: string
   quoteSummary?: string
   budget?: string
+  /** Starts the message, e.g. "I would like Andrei to photograph our wedding." */
+  defaultMessage?: string
 }
 
-export function InquiryForm({ services, compact, defaultService, defaultLocation, quoteSummary, budget }: Props) {
+export function InquiryForm({ services, compact, defaultService, defaultLocation, quoteSummary, budget, defaultMessage }: Props) {
   const [state, action, pending] = useActionState<InquiryState, FormData>(submitInquiry, { ok: false, message: '' })
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -147,7 +149,7 @@ export function InquiryForm({ services, compact, defaultService, defaultLocation
       )}
       <div className="sm:col-span-2">
         <label htmlFor="inq-message" className="label">{t.inquiry.message}</label>
-        <textarea id="inq-message" name="message" rows={compact ? 3 : 5} defaultValue={v('message')} className="input" placeholder={t.inquiry.placeholder} />
+        <textarea id="inq-message" name="message" rows={compact ? 3 : 5} defaultValue={v('message', defaultMessage ?? '')} className="input" placeholder={t.inquiry.placeholder} />
       </div>
       <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted">
