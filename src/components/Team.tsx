@@ -63,7 +63,8 @@ export function TeamCard({ member, priority, sizes }: { member: Team; priority?:
         </div>
       </div>
       <p className="mt-4 line-clamp-2 text-sm text-muted">{member.shortBio}</p>
-      <p className="mt-2 text-sm font-medium text-accent">
+      <TopSkills member={member} />
+      <p className="mt-4 text-sm font-medium text-accent">
         {t.team.profile} <span aria-hidden className="inline-block transition group-hover:translate-x-1">→</span>
       </p>
     </Link>
@@ -134,5 +135,99 @@ export function CrewCredit({ crew }: { crew: Array<Team | number> | null | undef
         ))}
       </ul>
     </div>
+  )
+}
+
+type Skill = NonNullable<Team['skills']>[number]
+const LEVEL_STEPS: Record<Skill['level'], number> = { expert: 5, advanced: 4, experienced: 3, growing: 2 }
+
+/** Five-step meter. `tone="dark"` for the dashboard card, `"light"` for team cards. */
+export function SkillMeter({ level, tone = 'light', label }: { level: Skill['level']; tone?: 'light' | 'dark'; label: string }) {
+  const filled = LEVEL_STEPS[level] ?? 3
+  return (
+    <span role="meter" aria-valuemin={0} aria-valuemax={5} aria-valuenow={filled} aria-label={label} className="flex gap-1">
+      {Array.from({ length: 5 }, (_, i) => (
+        <span
+          key={i}
+          className={cn(
+            'h-1.5 flex-1 rounded-full',
+            i >= filled ? (tone === 'dark' ? 'bg-white/15' : 'bg-line') : tone === 'dark' ? 'bg-[#5eead4]' : 'bg-accent',
+          )}
+        />
+      ))}
+    </span>
+  )
+}
+
+/** Top skills on a team card: lets visitors compare people at a glance. */
+export function TopSkills({ member, max = 2 }: { member: Team; max?: number }) {
+  const { t } = getI18n()
+  const skills = (member.skills ?? []).slice(0, max)
+  if (skills.length === 0) return null
+  return (
+    <ul className="mt-4 space-y-2.5">
+      {skills.map((s) => (
+        <li key={s.id ?? s.name}>
+          <div className="mb-1 flex justify-between gap-3 text-xs">
+            <span className="font-medium text-fg/85">{s.name}</span>
+            <span className="text-muted">{t.team.levels[s.level]}</span>
+          </div>
+          <SkillMeter level={s.level} label={`${s.name}: ${t.team.levels[s.level]}`} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/**
+ * The skills dashboard on a profile. Dark, high-contrast card so it reads like a spec sheet; every
+ * skill linked to a service gets a booking shortcut, turning "she's great at weddings" into a click.
+ */
+export function SkillsDashboard({ member }: { member: Team }) {
+  const { t, href } = getI18n()
+  const skills = member.skills ?? []
+  if (skills.length === 0) return null
+  const name = firstName(member)
+  const experts = skills.filter((s) => s.level === 'expert').length
+  return (
+    <section aria-labelledby="skills-title" className="relative mt-10 overflow-hidden rounded-3xl bg-[#16181a] p-6 text-white sm:p-8">
+      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-accent/40 blur-3xl" />
+      <div className="relative flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.18em] text-[#5eead4] uppercase">{t.team.skillsEyebrow}</p>
+          <h2 id="skills-title" className="mt-2 text-2xl font-bold sm:text-3xl">
+            {fmt(t.team.skillsTitle, { name })}
+          </h2>
+        </div>
+        {experts > 0 && (
+          <p className="rounded-full bg-white/10 px-3.5 py-1.5 text-sm">
+            <span className="font-semibold text-[#5eead4]">{experts}</span> {t.team.expertCount}
+          </p>
+        )}
+      </div>
+      <ul className="relative mt-8 grid gap-x-10 gap-y-6 md:grid-cols-2">
+        {skills.map((s) => {
+          const service = populated<{ slug?: string | null; title?: string }>(s.service as never)
+          return (
+            <li key={s.id ?? s.name}>
+              <div className="mb-2 flex items-baseline justify-between gap-3">
+                <span className="font-semibold">{s.name}</span>
+                <span className="shrink-0 text-xs font-medium tracking-wide text-white/65 uppercase">{t.team.levels[s.level]}</span>
+              </div>
+              <SkillMeter level={s.level} tone="dark" label={`${s.name}: ${t.team.levels[s.level]}`} />
+              {service?.slug && (
+                <Link
+                  href={href(`/book?service=${service.slug}`)}
+                  data-cta="team_skill_book"
+                  className="mt-2.5 inline-flex items-center gap-1 text-sm text-[#5eead4] hover:text-white"
+                >
+                  {fmt(t.team.bookFor, { name })} <span aria-hidden>→</span>
+                </Link>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </section>
   )
 }

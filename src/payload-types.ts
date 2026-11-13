@@ -595,6 +595,23 @@ export interface Team {
    */
   specialties?: string[] | null;
   /**
+   * The skills dashboard on the profile, strongest first. Link a skill to a service and visitors get a one-tap "book for this" button. Be honest: clients compare.
+   */
+  skills?:
+    | {
+        /**
+         * e.g. "Fotografie de nuntă" / "Wedding photography"
+         */
+        name: string;
+        level: 'expert' | 'advanced' | 'experienced' | 'growing';
+        /**
+         * Optional
+         */
+        service?: (number | null) | Service;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Services they work on. They appear on those service pages under "Your team".
    */
   services?: (number | Service)[] | null;
@@ -1343,6 +1360,14 @@ export interface TeamSelect<T extends boolean = true> {
   since?: T;
   languages?: T;
   specialties?: T;
+  skills?:
+    | T
+    | {
+        name?: T;
+        level?: T;
+        service?: T;
+        id?: T;
+      };
   services?: T;
   gear?: T;
   social?:

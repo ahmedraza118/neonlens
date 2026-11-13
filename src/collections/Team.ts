@@ -125,6 +125,38 @@ export const Team: CollectionConfig = {
       admin: { description: 'Short tags, e.g. "Documentary weddings", "Golden-hour portraits", "Drone".' },
     },
     {
+      name: 'skills',
+      type: 'array',
+      labels: { singular: 'Skill', plural: 'Skills' },
+      admin: {
+        description:
+          'The skills dashboard on the profile, strongest first. Link a skill to a service and visitors get a one-tap "book for this" button. Be honest: clients compare.',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'name', type: 'text', required: true, localized: true, admin: { width: '45%', description: 'e.g. "Fotografie de nuntă" / "Wedding photography"' } },
+            {
+              name: 'level',
+              type: 'select',
+              required: true,
+              defaultValue: 'advanced',
+              options: [
+                { label: '★★★★★ Expert', value: 'expert' },
+                { label: '★★★★ Advanced', value: 'advanced' },
+                { label: '★★★ Experienced', value: 'experienced' },
+                { label: '★★ Growing', value: 'growing' },
+              ],
+              admin: { width: '25%' },
+            },
+            { name: 'service', type: 'relationship', relationTo: 'services', admin: { width: '30%', description: 'Optional' } },
+          ],
+        },
+      ],
+    },
+    {
       name: 'services',
       type: 'relationship',
       relationTo: 'services',

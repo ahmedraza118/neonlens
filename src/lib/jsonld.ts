@@ -275,7 +275,7 @@ export function personSchema(member: Team, opts: { lang?: Locale; jobTitle?: str
     image: imageUrl(member.photo),
     worksFor: { '@id': ORG_ID },
     knowsLanguage: opts.knowsLanguage?.length ? opts.knowsLanguage : undefined,
-    knowsAbout: [...(member.specialties ?? []), ...services.map((s) => s.title)].filter(Boolean),
+    knowsAbout: [...new Set([...(member.skills ?? []).map((s) => s.name), ...(member.specialties ?? []), ...services.map((s) => s.title)])].filter(Boolean),
     sameAs: sameAs.length ? sameAs : undefined,
   }
 }

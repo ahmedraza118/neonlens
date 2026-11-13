@@ -10,7 +10,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { Media } from '@/components/Media'
 import { Paragraphs } from '@/components/Paragraphs'
 import { SectionHeading } from '@/components/SectionHeading'
-import { firstName, TeamCard, yearsOf } from '@/components/Team'
+import { firstName, SkillsDashboard, TeamCard, yearsOf } from '@/components/Team'
 import { fmt, intlLocale, toLocale } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
 import { personSchema } from '@/lib/jsonld'
@@ -86,6 +86,8 @@ export default async function TeamMemberPage({ params }: Props) {
             )}
 
             <Paragraphs text={member.bio || member.shortBio} className="mt-8 space-y-5 text-lg leading-relaxed text-fg/85" />
+
+            <SkillsDashboard member={member} />
 
             <dl className="mt-10 grid gap-6 rounded-2xl border border-line bg-surface p-6 sm:grid-cols-2">
               {member.since && (
