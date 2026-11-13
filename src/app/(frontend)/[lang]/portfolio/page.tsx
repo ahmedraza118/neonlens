@@ -7,7 +7,7 @@ import { InquirySection } from '@/components/InquirySection'
 import { SectionHeading } from '@/components/SectionHeading'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { getProjects, getService, getServices, getSettings } from '@/lib/queries'
+import { getContentPresence, getProjects, getService, getServices, getSettings } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
@@ -18,14 +18,14 @@ type Props = { params: Promise<{ lang: string }>; searchParams: Promise<{ servic
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { lang, t } = await localeFromParams(params)
   const { service } = await searchParams
-  const settings = await getSettings()
+  const [settings, presence] = await Promise.all([getSettings(), getContentPresence()])
   return buildMetadata({
     title: t.portfolio.metaTitle,
     description: fmt(t.portfolio.metaDescription, { name: settings.businessName }),
     path: '/portfolio',
     lang,
     // Filtered views are variations of the same page; keep them out of the index.
-    noIndexFollow: Boolean(service),
+    noIndexFollow: Boolean(service) || !presence.portfolio,
   })
 }
 

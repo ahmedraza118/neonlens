@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'NeonLens Studio',
-    short_name: 'NeonLens',
+    name: 'Lumenza',
+    short_name: 'Lumenza',
     start_url: '/',
     display: 'standalone',
     background_color: '#fbfaf7',

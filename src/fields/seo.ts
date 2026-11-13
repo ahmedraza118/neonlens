@@ -10,7 +10,7 @@ export const seoField: Field = {
       name: 'title',
       type: 'text',
       localized: true,
-      admin: { description: 'The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".' },
+      admin: { description: 'The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | Lumenza".' },
       maxLength: 70,
     },
     {

@@ -5,7 +5,7 @@ import { Stars, TestimonialCard } from '@/components/Cards'
 import { InquirySection } from '@/components/InquirySection'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { aggregateRating, getSettings, getTestimonials } from '@/lib/queries'
+import { aggregateRating, getContentPresence, getSettings, getTestimonials } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 
 export const revalidate = 3600
@@ -14,12 +14,13 @@ type Props = { params: Promise<{ lang: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, t } = await localeFromParams(params)
-  const settings = await getSettings()
+  const [settings, presence] = await Promise.all([getSettings(), getContentPresence()])
   return buildMetadata({
     title: t.reviews.metaTitle,
     description: fmt(t.reviews.metaDescription, { name: settings.businessName }),
     path: '/reviews',
     lang,
+    noIndexFollow: !presence.reviews,
   })
 }
 

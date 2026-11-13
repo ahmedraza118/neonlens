@@ -4,8 +4,21 @@
     {
       "name": "neonlens-dev",
       "runtimeExecutable": "/bin/zsh",
-      "runtimeArgs": ["-c", "export PATH=$HOME/.nvm/versions/node/v22.19.0/bin:$PATH && npm run dev"],
+      "runtimeArgs": [
+        "-c",
+        "export PATH=$HOME/.nvm/versions/node/v22.19.0/bin:$PATH && npm run dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "neonlens-prod",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": [
+        "-c",
+        "export PATH=$HOME/.nvm/versions/node/v22.19.0/bin:$PATH && npm run start -- -p 3002"
+      ],
+      "port": 3002,
+      "autoPort": false
     }
   ]
 }

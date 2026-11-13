@@ -229,7 +229,7 @@ export interface Project {
   tags?: string[] | null;
   seo?: {
     /**
-     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | Lumenza".
      */
     title?: string | null;
     /**
@@ -349,7 +349,7 @@ export interface Service {
   keywords?: string[] | null;
   seo?: {
     /**
-     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | Lumenza".
      */
     title?: string | null;
     /**
@@ -503,7 +503,7 @@ export interface Location {
     | null;
   seo?: {
     /**
-     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | Lumenza".
      */
     title?: string | null;
     /**
@@ -586,7 +586,7 @@ export interface Post {
     | null;
   seo?: {
     /**
-     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | NeonLens".
+     * The complete title shown in Google (used as is). Max ~60 characters: main keyword + area first, brand last, e.g. "Fotograf nuntă București și Ilfov | Lumenza".
      */
     title?: string | null;
     /**

@@ -131,7 +131,7 @@ export const ro: Dictionary = {
     localInquiry: '{service} în {city}?',
   },
   locations: {
-    metaTitle: 'Zone acoperite',
+    metaTitle: 'Fotograf în București și Ilfov — zone acoperite',
     metaDescription: '{name} fotografiază și filmează în {cities}. Vezi locații, proiecte și taxe de deplasare.',
     crumb: 'Zone acoperite',
     eyebrow: 'Zone acoperite',
@@ -172,7 +172,7 @@ export const ro: Dictionary = {
     inquiry: 'Îți dorești ceva asemănător?',
   },
   blog: {
-    metaTitle: 'Jurnal — prețuri, locații și ghiduri de planificare',
+    metaTitle: 'Blog foto-video nuntă: prețuri, locații, sfaturi',
     metaDescription:
       'Ghiduri sincere de la {name}: cât costă fotografia și filmarea, cele mai frumoase locații și cum să-ți planifici ședința.',
     eyebrow: 'Jurnal',
@@ -183,7 +183,7 @@ export const ro: Dictionary = {
     rssTitle: 'Jurnalul {name}',
   },
   about: {
-    metaTitle: 'Despre {name}',
+    metaTitle: 'Despre {name} — studio foto-video în București',
     eyebrow: 'Despre noi',
     based: 'Suntem în {city} și lucrăm în ',
   },
@@ -196,7 +196,7 @@ export const ro: Dictionary = {
     leave: 'Lasă-ne o recenzie pe Google',
   },
   faq: {
-    metaTitle: 'Întrebări frecvente — rezervare, prețuri și livrare',
+    metaTitle: 'Întrebări frecvente — rezervare și prețuri',
     metaDescription: 'Răspunsuri la întrebările despre rezervarea {name}: avans, deplasare, termene de livrare, galerii și altele.',
     crumb: 'Întrebări frecvente',
     title: 'Întrebări, cu răspunsuri.',
@@ -204,7 +204,7 @@ export const ro: Dictionary = {
     inquiry: 'Mai ai o întrebare?',
   },
   contact: {
-    metaTitle: 'Contact și disponibilitate',
+    metaTitle: 'Contact fotograf și videograf București',
     metaDescription:
       'Povestește-i lui {name} despre nunta, evenimentul sau proiectul tău de brand. Răspundem în 24 de ore — sau scrie-ne pe WhatsApp.',
     eyebrow: 'Contact',
@@ -217,7 +217,7 @@ export const ro: Dictionary = {
     studio: 'Studio',
   },
   pricing: {
-    metaTitle: 'Prețuri și calculator de ofertă',
+    metaTitle: 'Prețuri fotograf și videograf nuntă București',
     metaDescription:
       'Prețuri transparente pentru fotografie și videografie, de la {from}. Construiește-ți pachetul și primește o estimare instant.',
     fairRates: 'tarife corecte',

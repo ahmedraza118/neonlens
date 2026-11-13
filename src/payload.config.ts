@@ -29,12 +29,15 @@ import { SiteSettings } from './globals/SiteSettings'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// TURSO_* are the names Vercel's Turso integration sets; DATABASE_* are ours.
+const dbUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || 'file:./neonlens.db'
+
 export default buildConfig({
   // No serverURL on purpose: upload URLs stay relative (/api/media/file/…) so next/image
   // treats them as local images, and absoluteUrl() adds the domain where one is required.
   admin: {
     user: Users.slug,
-    meta: { titleSuffix: ' · NeonLens CMS' },
+    meta: { titleSuffix: ' · Lumenza CMS' },
     importMap: { baseDir: path.resolve(dirname) },
     components: {
       afterNavLinks: ['@/components/admin/GrowthNavLink#GrowthNavLink'],
@@ -78,11 +81,13 @@ export default buildConfig({
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   // Local: a SQLite file. Production: a Turso (libSQL) URL + auth token — same adapter.
   db: sqliteAdapter({
-    // Dev auto-syncs the schema. Production uses the files in src/migrations, applied once by
-    // `npm run vercel-build` before building. After changing fields run `npm run migrate:create`.
+    // Dev auto-syncs the schema of a LOCAL file only. A remote database (Turso, the live site) is
+    // changed only by the files in src/migrations (`npx payload migrate`, and `npm run vercel-build`
+    // on deploy): dev auto-sync on it collides with the migrated tables and can drop live data.
+    // After changing fields run `npm run migrate:create`.
+    push: dbUrl.startsWith('file:'),
     client: {
-      // TURSO_* are the names Vercel's Turso integration sets; DATABASE_* are ours.
-      url: process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || 'file:./neonlens.db',
+      url: dbUrl,
       authToken: process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN,
     },
   }),

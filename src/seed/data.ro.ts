@@ -1,5 +1,5 @@
 /**
- * Conținut demo în română (localizarea "ro", limba principală a site-ului) pentru NeonLens Studio —
+ * Conținut demo în română (localizarea "ro", limba principală a site-ului) pentru Lumenza —
  * București și Ilfov. Oglindește ./data.ts 1:1 — aceleași exporturi, aceleași chei, aceleași lungimi și
  * aceeași ordine a listelor — astfel încât valorile se citesc pe aceleași căi din ambele fișiere.
  * Înlocuiți-l cu datele reale ale firmei, proiecte reale și recenzii reale înainte de lansare —
@@ -7,10 +7,10 @@
  */
 
 export const settings = {
-  businessName: 'NeonLens Studio',
+  businessName: 'Lumenza',
   tagline: 'Fotograf și videograf de nuntă și brand în București',
   description:
-    'NeonLens este un studio foto-video din București: fotografie de nuntă cinematică, filme de nuntă, foto și video de botez, evenimente și conținut pentru branduri în București, județul Ilfov și în jurul lacurilor și palatelor din apropierea Capitalei. Lucrăm în română și engleză.',
+    'Lumenza este un studio foto-video din București: fotografie de nuntă cinematică, filme de nuntă, foto și video de botez, evenimente și conținut pentru branduri în București, județul Ilfov și în jurul lacurilor și palatelor din apropierea Capitalei. Lucrăm în română și engleză.',
   email: 'hello@neonlens.studio',
   phone: '+40 712 345 678',
   whatsapp: '40712345678',
@@ -30,7 +30,7 @@ export const settings = {
   ],
   about: {
     heading: 'Doi povestitori din București și o geantă foto mult prea grea.',
-    body: `NeonLens a pornit în 2017, când un fotograf documentarist și un regizor de videoclipuri muzicale, amândoi născuți și crescuți în București, au decis că nunțile merită aceeași grijă ca un platou de filmare.
+    body: `Lumenza a pornit în 2017, când un fotograf documentarist și un regizor de videoclipuri muzicale, amândoi născuți și crescuți în București, au decis că nunțile merită aceeași grijă ca un platou de filmare.
 
 Astăzi suntem o echipă mică, de patru oameni, cu studioul în Sectorul 1, la câteva minute de Piața Victoriei. Cunoaștem orașul pe de rost — cât durează drumul pe Kiseleff sâmbătă după-amiaza, când e lumina cea mai blândă în Herăstrău, pe ce mal al lacului Snagov apune soarele. Pregătim fiecare ședință ca pe o producție — listă de cadre, studiu de lumină, echipament de rezervă — iar în ziua cea mare ne dăm la o parte și lăsăm momentele reale să se întâmple.
 
@@ -60,7 +60,7 @@ export const homepage = {
   heroEyebrow: 'Foto & film · București și Ilfov',
   heroHeading: 'Fotograf și videograf de nuntă în București și Ilfov',
   heroSubheading:
-    'Suntem NeonLens — o echipă foto-video din București care creează imagini sincere și cinematice pentru cupluri și branduri din Capitală, din județul Ilfov și de pe malurile lacului Snagov.',
+    'Suntem Lumenza — o echipă foto-video din București care creează imagini sincere și cinematice pentru cupluri și branduri din Capitală, din județul Ilfov și de pe malurile lacului Snagov.',
   process: [
     { title: 'Scrieți-ne', description: 'Trimiteți-ne un mesaj rapid sau pe WhatsApp. Vă confirmăm disponibilitatea și vă trimitem o ofertă personalizată în 24 de ore.' },
     { title: 'Planificăm împreună', description: 'Un apel sau o cafea în București ca să vă cunoaștem povestea, apoi lista de cadre, programul zilei și vizita locațiilor din oraș sau din Ilfov.' },
@@ -75,7 +75,7 @@ export const services = [
     slug: 'fotograf-nunta',
     title: 'Fotograf de nuntă',
     seo: {
-      title: 'Fotograf nuntă București și Ilfov | NeonLens Studio',
+      title: 'Fotograf nuntă București și Ilfov | Lumenza',
       description: 'Fotograf de nuntă în București și Ilfov, stil documentar. Doi fotografi, preview în 72h și galerie privată. Pachete de la 1.200 €. Verificați data!',
     },
     category: 'photo',
@@ -118,7 +118,7 @@ Fiecare nuntă include un apel de planificare, un program construit în jurul ce
     slug: 'videograf-nunta',
     title: 'Videograf de nuntă',
     seo: {
-      title: 'Videograf nuntă București și Ilfov | NeonLens Studio',
+      title: 'Videograf nuntă București și Ilfov | Lumenza',
       description: 'Filmare nuntă în București, Snagov și tot Ilfovul: sunet curat al jurămintelor, cadre cu drona și film highlight de 4–6 minute. Pachete de la 1.500 €.',
     },
     category: 'video',
@@ -158,7 +158,7 @@ Fiecare pachet video include un film highlight pentru social media, ceremonia ș
     slug: 'video-prezentare-firma',
     title: 'Video de prezentare firmă și brand',
     seo: {
-      title: 'Video prezentare firmă București | NeonLens Studio',
+      title: 'Video prezentare firmă București | Lumenza',
       description: 'Producție video în București: filme de prezentare firmă, reclame pentru social media și video-uri de recrutare. De la concept la montajul final în 2 săptămâni.',
     },
     category: 'video',
@@ -198,7 +198,7 @@ Lucrați cu o singură echipă din București pentru foto și video, așa că fo
     slug: 'fotograf-evenimente-corporate',
     title: 'Fotograf evenimente corporate',
     seo: {
-      title: 'Fotograf evenimente corporate București | NeonLens',
+      title: 'Fotograf evenimente corporate București | Lumenza',
       description: 'Fotograf evenimente corporate în București: conferințe, lansări, gale și portrete de echipă la birou. Selecție de fotografii livrată chiar în aceeași zi.',
     },
     category: 'photo',
@@ -234,7 +234,7 @@ Amenajăm și studiouri foto la birou, din Pipera până în centru, astfel înc
     slug: 'fotografie-produs',
     title: 'Fotografie de produs',
     seo: {
-      title: 'Fotografie produs București | NeonLens Studio',
+      title: 'Fotografie produs București | Lumenza',
       description: 'Studio de fotografie produs în București: packshot-uri pe fundal alb pentru eMAG și Amazon și imagini lifestyle. Aduceți produsele la studio, în Sectorul 1.',
     },
     category: 'photo',
@@ -268,7 +268,7 @@ Aduceți produsele la studio, în Sectorul 1, sau trimiteți-le prin curier. Tot
     slug: 'fotograf-botez',
     title: 'Fotograf și video botez',
     seo: {
-      title: 'Fotograf botez București și Ilfov | NeonLens',
+      title: 'Fotograf botez București și Ilfov | Lumenza',
       description: 'Fotograf și video de botez în București și Ilfov: tot ritualul botezului, fără bliț în biserică, portrete de familie și petrecerea. Pachete de la 450 €.',
     },
     category: 'hybrid',
@@ -674,7 +674,7 @@ Cu o zi înainte am verificat Pasajul Macca-Villacrosse și curtea Mănăstirii 
     deliverables: ['520 de fotografii editate', 'Preview în 48h'], tags: ['ploaie', 'nuntă restrânsă', 'Centrul Vechi'],
   },
   {
-    key: 'p6', slug: 'fotografie-produs-ceramica-bucuresti', title: 'Ceramică lucrată manual — ședință de catalog și lifestyle', service: 'product-photo', location: 'bucharest', venue: 'Studioul NeonLens, București', clientType: 'Brand e-commerce', date: '2026-02-08', featured: false, testimonial: 't6',
+    key: 'p6', slug: 'fotografie-produs-ceramica-bucuresti', title: 'Ceramică lucrată manual — ședință de catalog și lifestyle', service: 'product-photo', location: 'bucharest', venue: 'Studioul Lumenza, București', clientType: 'Brand e-commerce', date: '2026-02-08', featured: false, testimonial: 't6',
     excerpt: '40 de produse pe fundal alb plus scene lifestyle stilizate pentru un brand independent de ceramică din București.',
     brief: 'Un brand de ceramică din București, aflat în creștere, avea nevoie de packshot-uri unitare pentru noul magazin online și pentru listarea pe eMAG, plus imagini lifestyle pentru Instagram.',
     approach: `## Tethered și cu culori calibrate

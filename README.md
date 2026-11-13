@@ -1,4 +1,4 @@
-# NeonLens — photo & videography studio website
+# Lumenza — photo & videography studio website (lumenza.ro)
 
 Next.js 16 (App Router, TypeScript, Tailwind v4) + **Payload CMS 3**, which runs inside the same app. The admin is at `/admin`.
 It is built for three things: **ranking on Google** (local SEO), **turning visitors into inquiries**, and **running the business** (bookings, deposits, client galleries).
@@ -106,6 +106,17 @@ Everything in `src/seed/data.ts` is **placeholder**: business details, prices, p
 - **Client galleries:** passwords must be 10+ characters. Changing a gallery's password, or its expiry date passing, immediately locks out everyone who used the old one. Private files get random names, are never cached, and full-resolution originals are only sent once *Allow downloads* is on.
 - **Bookings:** a date is held for 60 minutes while a client pays, and released if they cancel in Stripe. If two payments still land on the same day, you get an urgent "DOUBLE BOOKING" alert.
 - **Stripe webhook events:** `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`.
+
+## Launching lumenza.ro
+
+1. **Real details:** fill in every `TODO` in `src/seed/business.ts` (email, phone, WhatsApp, address). They must match the Google Business Profile exactly.
+2. **Database:** create a Turso database (`lumenza`) and a Vercel Blob store, then put `DATABASE_URL`, `DATABASE_AUTH_TOKEN` and `BLOB_READ_WRITE_TOKEN` in `.env`. Also set `SEED_ADMIN_EMAIL` to your own email and a strong `SEED_ADMIN_PASSWORD`.
+3. **Schema and content:** run `npx payload migrate`, then `npm run seed:launch`. This loads services, areas, pricing and settings with plain grey placeholder images. It adds no invented reviews, projects or posts. Portfolio, Journal and Reviews stay hidden from menus, the sitemap and Google until you publish real ones in `/admin`.
+4. **Vercel:** import the GitHub repo and add the environment variables from `.env.example` for Production. Set `NEXT_PUBLIC_SERVER_URL=https://lumenza.ro`.
+5. **Domain:** in Vercel → Domains, add `lumenza.ro` and `www.lumenza.ro`, with www redirecting to the root. In the RoTLD panel, set the nameservers to `ns1.vercel-dns.com` and `ns2.vercel-dns.com`. Vercel issues the HTTPS certificate on its own once DNS has updated, usually within a few hours.
+6. **Before telling Google:** in `/admin`, replace every grey placeholder with real photos and check prices, packages, delivery times and FAQ answers on each service. Then add the site to Google Search Console (`NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`) and submit `https://lumenza.ro/sitemap.xml`.
+
+To test the launch content locally without touching `neonlens.db`, point `DATABASE_URL` at a new file, run `npx payload migrate` and `npm run seed:launch`, then `npm run build && npm run start`. Dev mode on a migrated database errors, so use the production build.
 
 ## Deploying (Vercel + Turso + Vercel Blob)
 

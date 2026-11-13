@@ -6,7 +6,7 @@ import { InquirySection } from '@/components/InquirySection'
 import { SectionHeading } from '@/components/SectionHeading'
 import { fmt } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
-import { getPosts, getSettings } from '@/lib/queries'
+import { getContentPresence, getPosts, getSettings } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
 
 export const revalidate = 3600
@@ -15,12 +15,14 @@ type Props = { params: Promise<{ lang: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, t } = await localeFromParams(params)
-  const settings = await getSettings()
+  const [settings, presence] = await Promise.all([getSettings(), getContentPresence()])
   return buildMetadata({
     title: t.blog.metaTitle,
     description: fmt(t.blog.metaDescription, { name: settings.businessName }),
     path: '/blog',
     lang,
+    // Nothing published yet: keep the empty page out of Google until it has posts.
+    noIndexFollow: !presence.blog,
   })
 }
 

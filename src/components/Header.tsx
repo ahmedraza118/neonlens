@@ -2,12 +2,12 @@ import Link from 'next/link'
 
 import { fmt } from '@/i18n/config'
 import { getI18n } from '@/i18n/server'
-import { NAV } from '@/lib/site'
+import { type ContentPage, isShown, NAV } from '@/lib/site'
 
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
 
-export function Header({ businessName, phone }: { businessName: string; phone?: string | null }) {
+export function Header({ businessName, phone, presence }: { businessName: string; phone?: string | null; presence?: Record<ContentPage, boolean> }) {
   const { t, href } = getI18n()
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-page/90 backdrop-blur">
@@ -20,7 +20,7 @@ export function Header({ businessName, phone }: { businessName: string; phone?: 
           <span className="truncate">{businessName}</span>
         </Link>
         <nav aria-label={t.nav.main} className="hidden items-center gap-7 text-sm font-medium lg:flex">
-          {NAV.map((item) => (
+          {NAV.filter((item) => isShown(item.href, presence)).map((item) => (
             <Link key={item.href} href={href(item.href)} className="text-muted transition-colors hover:text-fg">
               {t.nav[item.key]}
             </Link>
@@ -43,7 +43,7 @@ export function Header({ businessName, phone }: { businessName: string; phone?: 
           <Link href={href('/book')} className="btn-primary hidden !px-5 !py-2.5 sm:inline-flex">
             {t.nav.book}
           </Link>
-          <MobileMenu />
+          <MobileMenu presence={presence} />
         </div>
       </div>
     </header>

@@ -4,13 +4,14 @@ import { fmt } from '@/i18n/config'
 import { hasAreaPage } from '@/lib/areas'
 import { ConsentSettingsButton } from './ConsentBanner'
 import { getI18n } from '@/i18n/server'
+import { type ContentPage, isShown } from '@/lib/site'
 import type { Location, Service, SiteSetting } from '@/payload-types'
 
 /**
  * Footer with full NAP (name, address, phone — must match Google Business Profile) and
  * internal links to every service and city page, which helps search engines discover them.
  */
-export function Footer({ settings, services, locations }: { settings: SiteSetting; services: Service[]; locations: Location[] }) {
+export function Footer({ settings, services, locations, presence }: { settings: SiteSetting; services: Service[]; locations: Location[]; presence?: Record<ContentPage, boolean> }) {
   const social = Object.entries(settings.social ?? {}).filter(([k, v]) => k !== 'id' && typeof v === 'string' && v)
   // Links to the existing service × area landing pages (one per area, the first service that has one).
   const popular = locations
@@ -98,7 +99,7 @@ export function Footer({ settings, services, locations }: { settings: SiteSettin
               ['/book', t.footer.book],
               ['/client', t.footer.clientLogin],
               ['/privacy', t.footer.privacy],
-            ].map(([path, label]) => (
+            ].filter(([path]) => isShown(path, presence)).map(([path, label]) => (
               <li key={path}>
                 <Link href={href(path)} className="text-muted hover:text-fg">
                   {label}

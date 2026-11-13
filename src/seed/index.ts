@@ -7,18 +7,29 @@
 import config from '@payload-config'
 import { sql } from '@payloadcms/db-sqlite'
 import { getPayload, type Payload } from 'payload'
+import sharp from 'sharp'
 
 import { slugify } from '@/lib/utils'
 import type { Media } from '@/payload-types'
 
+import { business, missingBusinessDetails } from './business'
 import * as data from './data'
 import * as dataRo from './data.ro'
 import { markdownToLexical } from './lexical'
 import { applyRomanian } from './romanian'
 
+// Spread into every call (`{ ...ctx }`), never shared: the cloud-storage plugin keeps the file being
+// uploaded on the context object, so one shared object made every upload after the first one skip Blob.
 const ctx = { disableRevalidate: true }
 
+// The live site must never show stock photos as Lumenza's work: the launch seed uses plain
+// placeholders instead (soft grey, no text), to be replaced with real photos in /admin.
+const LAUNCH = process.env.SEED_LAUNCH === '1'
+
 async function download(seed: string, width: number, height: number): Promise<Buffer> {
+  if (LAUNCH) {
+    return sharp({ create: { width, height, channels: 3, background: { r: 226, g: 222, b: 216 } } }).jpeg({ quality: 70 }).toBuffer()
+  }
   const url = `https://picsum.photos/seed/${encodeURIComponent(seed)}/${width}/${height}`
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
@@ -50,13 +61,13 @@ async function image(payload: Payload, seed: string, alt: string, size: [number,
   return oneAtATime(async () => {
     const doc = await payload.create({
       collection: 'media',
-      context: ctx,
+      context: { ...ctx },
       locale: 'en',
       data: { alt, altNeedsReview: true, ...extra },
       // Romanian file names: Romanian is the site's main language (Google Images reads them).
-      file: { data: buffer, mimetype: 'image/jpeg', name: `${slugify(altRo ?? alt).slice(0, 55)}-${slugify(seed)}.jpg`, size: buffer.length },
+      file: { data: buffer, mimetype: 'image/jpeg', name: LAUNCH ? `placeholder-${slugify(seed)}.jpg` : `${slugify(altRo ?? alt).slice(0, 55)}-${slugify(seed)}.jpg`, size: buffer.length },
     })
-    if (altRo) await payload.update({ collection: 'media', id: doc.id, locale: 'ro', context: ctx, data: { alt: altRo } })
+    if (altRo) await payload.update({ collection: 'media', id: doc.id, locale: 'ro', context: { ...ctx }, data: { alt: altRo } })
     return doc
   })
 }
@@ -85,7 +96,7 @@ async function wipe(payload: Payload) {
   // Bookings point at services, so they go first.
   const order = ['bookings', 'inquiries', 'client-media', 'client-galleries', 'projects', 'posts', 'testimonials', 'locations', 'services', 'media'] as const
   for (const collection of order) {
-    const res = await payload.delete({ collection, where: { id: { exists: true } }, context: ctx, overrideAccess: true })
+    const res = await payload.delete({ collection, where: { id: { exists: true } }, context: { ...ctx }, overrideAccess: true })
     if (res.errors.length > 0) {
       throw new Error(`Could not clear "${collection}": ${res.errors[0].message}`)
     }
@@ -93,6 +104,12 @@ async function wipe(payload: Payload) {
 }
 
 async function seed() {
+  // `npm run seed:launch`: real business details from business.ts, and none of the invented
+  // reviews, portfolio projects, booked dates or client gallery. The general guides in the Journal are kept.
+  const launch = LAUNCH
+  if (launch && missingBusinessDetails().length > 0) {
+    throw new Error(`Fill in src/seed/business.ts first (still TODO: ${missingBusinessDetails().join(', ')}).`)
+  }
   if (process.env.NODE_ENV === 'production' && !process.env.SEED_FORCE) {
     throw new Error('Refusing to seed in production. Set SEED_FORCE=1 if you really mean it.')
   }
@@ -122,16 +139,16 @@ async function seed() {
     }
   }
 
-  log('Downloading placeholder photos (≈90 images, takes a minute)…')
+  log(launch ? 'Creating plain placeholder images (replace them with real photos in /admin)…' : 'Downloading placeholder photos (≈90 images, takes a minute)…')
 
   // Services
   const serviceIds: Record<string, number> = {}
   const serviceDocs = await pool(data.services, 3, async (s, i) => {
     const ro = dataRo.services[i]
-    const hero = await image(payload, `svc-${s.key}`, `${s.title} in Bucharest by NeonLens Studio`, undefined, {}, `${ro.title} în București — NeonLens Studio`)
+    const hero = await image(payload, `svc-${s.key}`, `${s.title} in Bucharest by Lumenza`, undefined, {}, `${ro.title} în București — Lumenza`)
     return payload.create({
       collection: 'services',
-      context: ctx,
+      context: { ...ctx },
       locale: 'en',
       data: {
         title: s.title,
@@ -163,7 +180,7 @@ async function seed() {
     const hero = await image(payload, `loc-${l.key}`, `Wedding photographer and videographer in ${l.name}`, undefined, {}, `Fotograf și videograf de nuntă în ${ro.name}`)
     return payload.create({
       collection: 'locations',
-      context: ctx,
+      context: { ...ctx },
       locale: 'en',
       data: {
         name: l.name,
@@ -187,10 +204,10 @@ async function seed() {
 
   // Testimonials
   const testimonialIds: Record<string, number> = {}
-  for (const [i, t] of data.testimonials.entries()) {
+  for (const [i, t] of (launch ? [] : data.testimonials).entries()) {
     const doc = await payload.create({
       collection: 'testimonials',
-      context: ctx,
+      context: { ...ctx },
       locale: 'en',
       data: {
         name: t.name,
@@ -205,10 +222,10 @@ async function seed() {
     })
     testimonialIds[t.key] = doc.id
   }
-  log(`Created ${data.testimonials.length} testimonials`)
+  log(`Created ${Object.keys(testimonialIds).length} testimonials`)
 
   // Projects
-  const projectDocs = await pool(data.projects, 2, async (p, i) => {
+  const projectDocs = await pool(launch ? [] : data.projects, 2, async (p, i) => {
     const ro = dataRo.projects[i]
     const roSvc = dataRo.services.find((x) => x.key === p.service)?.title ?? ''
     const roLoc = dataRo.locations.find((x) => x.key === p.location)?.name ?? ''
@@ -227,7 +244,7 @@ async function seed() {
     )
     return payload.create({
       collection: 'projects',
-      context: ctx,
+      context: { ...ctx },
       locale: 'en',
       draft: false,
       data: {
@@ -260,7 +277,7 @@ async function seed() {
     const cover = await image(payload, `post-${p.key}`, p.title.replace(/\?.*$/, ''), undefined, {}, dataRo.posts[i].title.replace(/\?.*$/, ''))
     return payload.create({
       collection: 'posts',
-      context: ctx,
+      context: { ...ctx },
       locale: 'en',
       draft: false,
       data: {
@@ -275,7 +292,7 @@ async function seed() {
         relatedServices: p.services.map((k) => serviceIds[k]),
         relatedLocation: p.location ? locationIds[p.location] : undefined,
         faqs: p.faqs.map((f) => ({ ...f })),
-        author: 'NeonLens Studio',
+        author: 'Lumenza',
       },
     })
   })
@@ -284,13 +301,13 @@ async function seed() {
   // Globals
   const [heroImage, aboutImage, ogImage] = await Promise.all([
     image(payload, 'home-hero', 'Couple at sunset in Bucharest, wedding photography Bucharest and Ilfov', [2400, 1600], {}, 'Miri la apus în București, fotograf nuntă București și Ilfov'),
-    image(payload, 'about', 'The NeonLens Studio team with cameras in Bucharest', [1600, 2000], {}, 'Echipa NeonLens Studio cu camerele, în București'),
-    image(payload, 'og-default', 'NeonLens Studio — wedding photographer and videographer in Bucharest', [1200, 630], {}, 'NeonLens Studio — fotograf și videograf de nuntă în București'),
+    image(payload, 'about', 'The Lumenza team with cameras in Bucharest', [1600, 2000], {}, 'Echipa Lumenza cu camerele, în București'),
+    image(payload, 'og-default', 'Lumenza — wedding photographer and videographer in Bucharest', [1200, 630], {}, 'Lumenza — fotograf și videograf de nuntă în București'),
   ])
 
   await payload.updateGlobal({
     slug: 'site-settings',
-    context: ctx,
+    context: { ...ctx },
     locale: 'en',
     data: {
       ...data.settings,
@@ -300,12 +317,28 @@ async function seed() {
       about: { ...data.settings.about, image: aboutImage.id },
       defaultOgImage: ogImage.id,
       social: { ...data.settings.social },
+      ...(launch
+        ? {
+            businessName: business.name,
+            email: business.email,
+            phone: business.phone,
+            whatsapp: business.whatsapp || undefined,
+            address: { ...business.address },
+            geo: { ...business.geo },
+            foundingYear: business.foundingYear,
+            social: { ...business.social },
+            googleBusinessProfileUrl: business.googleBusinessProfileUrl,
+            googleReviewUrl: business.googleReviewUrl,
+            stats: [],
+            about: { heading: business.about.en.heading, body: business.about.en.body, image: aboutImage.id, founderName: '' },
+          }
+        : {}),
     },
   })
 
   await payload.updateGlobal({
     slug: 'homepage',
-    context: ctx,
+    context: { ...ctx },
     locale: 'en',
     data: {
       ...data.homepage,
@@ -317,7 +350,7 @@ async function seed() {
 
   await payload.updateGlobal({
     slug: 'pricing',
-    context: ctx,
+    context: { ...ctx },
     locale: 'en',
     data: {
       depositPercent: data.pricing.depositPercent,
@@ -328,14 +361,14 @@ async function seed() {
   })
 
   const today = new Date()
-  const blocked = [21, 35, 36, 49, 63].map((d) => {
+  const blocked = (launch ? [] : [21, 35, 36, 49, 63]).map((d) => {
     const date = new Date(today)
     date.setUTCDate(date.getUTCDate() + d)
     return { date: date.toISOString(), reason: 'Booked (demo)' }
   })
   await payload.updateGlobal({
     slug: 'availability',
-    context: ctx,
+    context: { ...ctx },
     locale: 'en',
     data: { bookingWindowDays: 540, minNoticeDays: 7, blockedDates: blocked },
   })
@@ -343,10 +376,10 @@ async function seed() {
 
   // Demo client gallery
   const galleryPassword = process.env.SEED_GALLERY_PASSWORD
-  if (galleryPassword) {
+  if (galleryPassword && !launch) {
     const gallery = await payload.create({
       collection: 'client-galleries',
-      context: ctx,
+      context: { ...ctx },
       locale: 'en',
       data: {
         title: 'Ana & Mihai — Wedding proofing',
@@ -366,7 +399,7 @@ async function seed() {
       return oneAtATime(() =>
         payload.create({
           collection: 'client-media',
-          context: ctx,
+          context: { ...ctx },
           data: { gallery: gallery.id },
           file: { data: buffer, mimetype: 'image/jpeg', name: `ana-mihai-wedding-${String(i + 1).padStart(3, '0')}.jpg`, size: buffer.length },
         }),
@@ -376,7 +409,7 @@ async function seed() {
   }
 
   log('Adding the Romanian translations…')
-  await applyRomanian(payload, log)
+  await applyRomanian(payload, log, launch ? business.about.ro : undefined)
 
   log('Done ✨  Run `npm run dev` and open http://localhost:3000 (English: /en)')
 }

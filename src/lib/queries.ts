@@ -171,3 +171,18 @@ export function aggregateRating(testimonials: Testimonial[]) {
   const total = testimonials.reduce((sum, t) => sum + t.rating, 0)
   return { value: Math.round((total / testimonials.length) * 10) / 10, count: testimonials.length }
 }
+
+/**
+ * Which content-driven pages have something to show. A new site starts with no portfolio, posts or
+ * reviews: those pages then drop out of the menus and the sitemap and are not indexed, so Google
+ * never sees empty pages. They come back on their own once content is published in /admin.
+ */
+export const getContentPresence = cache(async () => {
+  const [settings, projects, posts, testimonials] = await Promise.all([getSettings(), getProjects(), getPosts(1), getTestimonials()])
+  return {
+    portfolio: projects.length > 0,
+    blog: posts.length > 0,
+    reviews: testimonials.length > 0 || Boolean(settings.googleRating?.value && settings.googleRating.count),
+  }
+})
+export type ContentPresence = Awaited<ReturnType<typeof getContentPresence>>

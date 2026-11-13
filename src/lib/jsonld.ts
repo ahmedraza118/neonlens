@@ -1,7 +1,7 @@
 import { intlLocale, type Locale, withLocale } from '@/i18n/config'
 import type { Location, Media, Post, Project, Service, SiteSetting, Testimonial } from '@/payload-types'
 
-import { absoluteUrl } from './utils'
+import { absoluteUrl, isPlaceholderMedia } from './utils'
 
 /**
  * Schema.org structured data. Google uses it for rich results (stars, FAQs, breadcrumbs,
@@ -12,12 +12,12 @@ type Json = Record<string, unknown>
 const ORG_ID = absoluteUrl('/#business')
 
 function imageUrl(media: Media | number | null | undefined): string | undefined {
-  if (!media || typeof media !== 'object' || !media.url) return undefined
+  if (!media || typeof media !== 'object' || !media.url || isPlaceholderMedia(media)) return undefined
   return absoluteUrl(media.url)
 }
 
 export function imageObject(media: Media | number | null | undefined, extra: Json = {}): Json | undefined {
-  if (!media || typeof media !== 'object' || !media.url) return undefined
+  if (!media || typeof media !== 'object' || !media.url || isPlaceholderMedia(media)) return undefined
   return {
     '@type': 'ImageObject',
     contentUrl: absoluteUrl(media.url),
@@ -27,8 +27,8 @@ export function imageObject(media: Media | number | null | undefined, extra: Jso
     caption: media.caption || media.alt,
     description: media.alt,
     creator: { '@id': ORG_ID },
-    copyrightNotice: '© NeonLens Studio',
-    creditText: 'NeonLens Studio',
+    copyrightNotice: '© Lumenza',
+    creditText: 'Lumenza',
     acquireLicensePage: absoluteUrl('/contact'),
     ...extra,
   }

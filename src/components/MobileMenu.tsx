@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { useI18n } from '@/i18n/client'
-import { NAV } from '@/lib/site'
+import { type ContentPage, isShown, NAV } from '@/lib/site'
 
-export function MobileMenu() {
+export function MobileMenu({ presence }: { presence?: Record<ContentPage, boolean> }) {
   const [open, setOpen] = useState(false)
   const { t, href } = useI18n()
   const pathname = usePathname()
@@ -68,7 +68,7 @@ export function MobileMenu() {
             className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto bg-page px-4 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
           >
             <ul className="space-y-1">
-              {NAV.map((item) => (
+              {NAV.filter((item) => isShown(item.href, presence)).map((item) => (
                 <li key={item.href}>
                   <Link
                     href={href(item.href)}

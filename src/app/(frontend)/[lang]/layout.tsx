@@ -15,7 +15,7 @@ import { getDictionary } from '@/i18n/dictionaries'
 import { isLocale, locales, ogLocale, withLocale } from '@/i18n/config'
 import { setRequestLocale } from '@/i18n/server'
 import { localBusiness, website } from '@/lib/jsonld'
-import { getLocations, getServices, getSettings } from '@/lib/queries'
+import { getContentPresence, getLocations, getServices, getSettings } from '@/lib/queries'
 import { fallbackOgUrl, ogImageUrl } from '@/lib/seo'
 import { absoluteUrl } from '@/lib/utils'
 
@@ -69,7 +69,7 @@ export default async function FrontendLayout({ children, params }: Props) {
   const raw = (await params).lang
   if (!isLocale(raw)) notFound()
   const lang = setRequestLocale(raw)
-  const [settings, services, locations] = await Promise.all([getSettings(), getServices(), getLocations()])
+  const [settings, services, locations, presence] = await Promise.all([getSettings(), getServices(), getLocations(), getContentPresence()])
   // Structured-data stars only from the real Google rating entered in Business & SEO settings.
   // Ratings computed from the site's own testimonials count as self-serving reviews for Google.
   const rating = settings.googleRating?.value && settings.googleRating?.count
@@ -84,9 +84,9 @@ export default async function FrontendLayout({ children, params }: Props) {
     <html lang={lang} translate="no" className={jakarta.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <I18nProvider lang={lang} dict={getDictionary(lang)}>
-          <Header businessName={settings.businessName} phone={settings.phone} />
+          <Header businessName={settings.businessName} phone={settings.phone} presence={presence} />
           <main id="main">{children}</main>
-          <Footer settings={settings} services={services} locations={locations} />
+          <Footer settings={settings} services={services} locations={locations} presence={presence} />
           <WhatsAppButton number={settings.whatsapp} businessName={settings.businessName} />
           <ChatLauncher hasWhatsApp={Boolean(settings.whatsapp)} />
           <StayOffers hasWhatsApp={Boolean(settings.whatsapp)} />

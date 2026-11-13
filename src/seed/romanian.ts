@@ -12,6 +12,8 @@ import * as en from './data'
 import * as ro from './data.ro'
 import { markdownToLexical } from './lexical'
 
+// Spread into every call (`{ ...ctx }`), never shared: the cloud-storage plugin keeps the file being
+// uploaded on the context object, so one shared object made every upload after the first one skip Blob.
 const ctx = { disableRevalidate: true }
 const locale = 'ro' as const
 
@@ -34,7 +36,12 @@ async function findBySlug<C extends 'services' | 'locations' | 'projects' | 'pos
   return (res.docs[0] ?? null) as DataFromCollectionSlug<C> | null
 }
 
-export async function applyRomanian(payload: Payload, log: (msg: string) => void = (m) => payload.logger.info(m)) {
+export async function applyRomanian(
+  payload: Payload,
+  log: (msg: string) => void = (m) => payload.logger.info(m),
+  // The launch seed replaces the demo "about" story with the real one from business.ts.
+  about: { heading: string; body: string } = ro.settings.about,
+) {
   let count = 0
 
   for (const [i, s] of en.services.entries()) {
@@ -45,7 +52,7 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
       collection: 'services',
       id: doc.id,
       locale,
-      context: ctx,
+      context: { ...ctx },
       data: {
         title: t.title,
         slug: t.slug,
@@ -70,7 +77,7 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
       collection: 'locations',
       id: doc.id,
       locale,
-      context: ctx,
+      context: { ...ctx },
       data: {
         name: t.name,
         slug: t.slug,
@@ -90,7 +97,7 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
     const res = await payload.find({ collection: 'testimonials', where: { name: { equals: tm.name } }, limit: 1, depth: 0 })
     const doc = res.docs[0]
     if (!doc) continue
-    await payload.update({ collection: 'testimonials', id: doc.id, locale, context: ctx, data: { quote: t.quote, role: t.role } })
+    await payload.update({ collection: 'testimonials', id: doc.id, locale, context: { ...ctx }, data: { quote: t.quote, role: t.role } })
     count++
   }
 
@@ -102,7 +109,7 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
       collection: 'projects',
       id: doc.id,
       locale,
-      context: ctx,
+      context: { ...ctx },
       data: {
         _status: 'published',
         title: t.title,
@@ -127,7 +134,7 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
       collection: 'posts',
       id: doc.id,
       locale,
-      context: ctx,
+      context: { ...ctx },
       data: {
         _status: 'published',
         title: t.title,
@@ -144,11 +151,11 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
   await payload.updateGlobal({
     slug: 'site-settings',
     locale,
-    context: ctx,
+    context: { ...ctx },
     data: {
       tagline: ro.settings.tagline,
       description: ro.settings.description,
-      about: { ...settings.about, heading: ro.settings.about.heading, body: ro.settings.about.body, founderRole: ro.settings.about.founderRole },
+      about: { ...settings.about, heading: about.heading, body: about.body, founderRole: settings.about?.founderName ? ro.settings.about.founderRole : undefined },
       stats: merge(settings.stats, ro.settings.stats, ['value', 'label']),
       generalFaqs: merge(settings.generalFaqs, ro.settings.generalFaqs, ['question', 'answer']),
     },
@@ -158,7 +165,7 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
   await payload.updateGlobal({
     slug: 'homepage',
     locale,
-    context: ctx,
+    context: { ...ctx },
     data: {
       heroEyebrow: ro.homepage.heroEyebrow,
       heroHeading: ro.homepage.heroHeading,
@@ -171,7 +178,7 @@ export async function applyRomanian(payload: Payload, log: (msg: string) => void
   await payload.updateGlobal({
     slug: 'pricing',
     locale,
-    context: ctx,
+    context: { ...ctx },
     data: { addOns: merge(pricing.addOns, ro.pricing.addOns, ['name', 'description']) },
   })
 

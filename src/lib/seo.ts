@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { defaultLocale, type Locale, locales, ogLocale, withLocale } from '@/i18n/config'
 import type { Media } from '@/payload-types'
 
-import { absoluteUrl } from './utils'
+import { absoluteUrl, isPlaceholderMedia } from './utils'
 
 type SeoGroup = { title?: string | null; description?: string | null; image?: number | Media | null; noIndex?: boolean | null } | null | undefined
 
@@ -27,7 +27,7 @@ type BuildArgs = {
 
 /** Picks the 1200×630 JPEG crop generated for every upload, falling back to the original. */
 export function ogImageUrl(media: Media | null | undefined): string | undefined {
-  if (!media) return undefined
+  if (!media || isPlaceholderMedia(media)) return undefined
   const url = media.sizes?.og?.url || media.url
   return url ? absoluteUrl(url) : undefined
 }
@@ -65,7 +65,8 @@ export function buildMetadata({ title, description, path, lang, image, seo, type
 
   return {
     // A custom SEO title from the CMS is the complete title: no "| Business name" is appended.
-    title: absoluteTitle || seo?.title ? { absolute: finalTitle } : finalTitle,
+    // Long titles drop the brand too: Google cuts titles at ~60 characters, so the keywords stay visible.
+    title: absoluteTitle || seo?.title || finalTitle.length > 50 ? { absolute: finalTitle } : finalTitle,
     description: finalDescription,
     // `types` repeats the RSS link here: a page's `alternates` replaces the layout's.
     alternates: { ...languageAlternates(path, lang), types: { 'application/rss+xml': absoluteUrl(withLocale('/blog/rss.xml', lang)) } },

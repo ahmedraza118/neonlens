@@ -27,7 +27,7 @@ export async function sendEmail(opts: { to: string; subject: string; html: strin
   }
   const resend = new Resend(key)
   const { error } = await resend.emails.send({
-    from: process.env.EMAIL_FROM || 'NeonLens <onboarding@resend.dev>',
+    from: process.env.EMAIL_FROM || 'Lumenza <onboarding@resend.dev>',
     to: opts.to,
     subject: opts.subject,
     html: opts.html,

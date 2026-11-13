@@ -44,3 +44,12 @@ export function absoluteUrl(path = '/'): string {
 /** Typography classes for rich text / long-form content. */
 export const PROSE =
   'prose max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-accent-strong prose-img:rounded-xl prose-li:marker:text-accent'
+
+/**
+ * The launch seed's plain grey stand-ins (files named `placeholder-…`). They are kept out of share
+ * previews, structured data and the image sitemap, so Google and social networks only ever see
+ * real photos. Replacing the file in /admin removes the flag on its own.
+ */
+export const isPlaceholderMedia = (media: unknown): boolean =>
+  typeof media === 'object' && media !== null && typeof (media as { filename?: unknown }).filename === 'string' &&
+  (media as { filename: string }).filename.startsWith('placeholder-')

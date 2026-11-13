@@ -39,7 +39,7 @@ export const Posts: CollectionConfig = {
       defaultValue: () => new Date().toISOString(),
       admin: { position: 'sidebar' },
     },
-    { name: 'author', type: 'text', defaultValue: 'NeonLens Studio', admin: { position: 'sidebar' } },
+    { name: 'author', type: 'text', defaultValue: 'Lumenza', admin: { position: 'sidebar' } },
     { name: 'excerpt', type: 'textarea', required: true, localized: true },
     { name: 'coverImage', type: 'upload', relationTo: 'media', required: true },
     { name: 'content', type: 'richText', required: true, localized: true },

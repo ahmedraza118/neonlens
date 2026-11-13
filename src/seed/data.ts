@@ -1,14 +1,14 @@
 /**
- * Demo content for NeonLens Studio (Bucharest & Ilfov). Replace it with your own business details, real
+ * Demo content for Lumenza (Bucharest & Ilfov). Replace it with your own business details, real
  * projects and real reviews before launch — never publish invented testimonials on a live site.
  * The Romanian locale mirrors this file 1:1 in ./data.ro.ts — keep both in the same shape.
  */
 
 export const settings = {
-  businessName: 'NeonLens Studio',
+  businessName: 'Lumenza',
   tagline: 'Wedding & brand photographer and videographer in Bucharest',
   description:
-    'NeonLens is an English-speaking photo and video studio in Bucharest creating cinematic wedding photography, wedding films, christening and event coverage and brand content across Bucharest, Ilfov County and the lakes and palaces around the capital. We work in English and Romanian.',
+    'Lumenza is an English-speaking photo and video studio in Bucharest creating cinematic wedding photography, wedding films, christening and event coverage and brand content across Bucharest, Ilfov County and the lakes and palaces around the capital. We work in English and Romanian.',
   email: 'hello@neonlens.studio',
   phone: '+40 712 345 678',
   whatsapp: '40712345678',
@@ -29,7 +29,7 @@ export const settings = {
   ],
   about: {
     heading: 'Two Bucharest storytellers, one camera bag that is far too heavy.',
-    body: `NeonLens started in 2017 when a documentary photographer and a music-video director, both born and raised in Bucharest, decided weddings deserved the same care as film sets.
+    body: `Lumenza started in 2017 when a documentary photographer and a music-video director, both born and raised in Bucharest, decided weddings deserved the same care as film sets.
 
 Today we are a small crew of four with a studio in Sector 1, a few minutes from Piața Victoriei. We know this city by heart — how long Kiseleff takes on a Saturday afternoon, when the light is softest in Herăstrău, which side of Lake Snagov catches the sunset. We plan every shoot like a production — shot lists, light studies, backup gear — and then on the day we get out of the way and let real moments happen.
 
@@ -59,7 +59,7 @@ export const homepage = {
   heroEyebrow: 'Photo & film · Bucharest & Ilfov',
   heroHeading: 'English-speaking wedding & event photographer and videographer in Bucharest',
   heroSubheading:
-    'We are NeonLens — a photo and video crew based in Bucharest, creating honest, cinematic images for couples and brands across the capital, Ilfov County and the lakes around Snagov.',
+    'We are Lumenza — a photo and video crew based in Bucharest, creating honest, cinematic images for couples and brands across the capital, Ilfov County and the lakes around Snagov.',
   process: [
     { title: 'Say hello', description: 'Send a quick inquiry or WhatsApp. We confirm availability and send a tailored quote within 24 hours.' },
     { title: 'Plan it together', description: 'A call or a coffee in Bucharest to learn your story, then a shot list, timeline and location scouting in the city or in Ilfov.' },
@@ -74,7 +74,7 @@ export const services = [
     slug: 'wedding-photography',
     title: 'Wedding Photography',
     seo: {
-      title: 'Wedding Photographer Bucharest & Ilfov | NeonLens',
+      title: 'Wedding Photographer Bucharest & Ilfov | Lumenza',
       description: 'Documentary wedding photographer in Bucharest and Ilfov. Two photographers, a 72h sneak peek and a private gallery. Packages from €1,200. Check your date.',
     },
     category: 'photo',
@@ -117,7 +117,7 @@ Every wedding includes a planning call, a timeline built around the best light a
     slug: 'wedding-videography',
     title: 'Wedding Videography',
     seo: {
-      title: 'Wedding Videographer Bucharest & Ilfov | NeonLens',
+      title: 'Wedding Videographer Bucharest & Ilfov | Lumenza',
       description: 'Cinematic wedding films in Bucharest, Snagov and all of Ilfov: clean audio of your vows, drone footage and a 4–6 min highlight film. From €1,500.',
     },
     category: 'video',
@@ -157,7 +157,7 @@ Every film package includes a highlight film for social media, the full ceremony
     slug: 'brand-video-production',
     title: 'Brand & Corporate Video',
     seo: {
-      title: 'Brand & Corporate Video Bucharest | NeonLens',
+      title: 'Brand & Corporate Video Bucharest | Lumenza',
       description: 'Corporate and brand video production in Bucharest: company presentation films, social ads and recruitment videos. Concept to final cut in 2 weeks.',
     },
     category: 'video',
@@ -197,7 +197,7 @@ You get one Bucharest crew for photo and video, so the stills and the film alway
     slug: 'corporate-event-photography',
     title: 'Corporate & Event Photography',
     seo: {
-      title: 'Corporate Event Photographer Bucharest | NeonLens',
+      title: 'Corporate Event Photographer Bucharest | Lumenza',
       description: 'Corporate event photographer in Bucharest for conferences, launches and galas, plus on-site team headshots. Same-day selects for your social media.',
     },
     category: 'photo',
@@ -233,7 +233,7 @@ We also set up headshot studios in offices from Pipera to the city centre, so yo
     slug: 'product-photography',
     title: 'Product Photography',
     seo: {
-      title: 'Product Photography Bucharest | NeonLens Studio',
+      title: 'Product Photography Bucharest | Lumenza',
       description: 'Product photography studio in Bucharest: white-background packshots for eMAG and Amazon plus styled lifestyle images. Drop off products in Sector 1.',
     },
     category: 'photo',
@@ -267,7 +267,7 @@ Drop your products off at the studio in Sector 1 or send them by courier. Everyt
     slug: 'christening-photographer',
     title: 'Christening Photography & Video',
     seo: {
-      title: 'Christening Photographer Bucharest & Ilfov | NeonLens',
+      title: 'Christening Photographer Bucharest & Ilfov | Lumenza',
       description: 'Christening photographer and videographer in Bucharest and Ilfov: the full Orthodox ritual, no flash in church, family portraits and the party. From €450.',
     },
     category: 'hybrid',
@@ -673,7 +673,7 @@ We scouted the covered Macca-Villacrosse Passage and the courtyard of Stavropole
     deliverables: ['520 edited photos', 'Sneak peek in 48h'], tags: ['rain', 'intimate', 'Old Town'],
   },
   {
-    key: 'p6', slug: 'ceramics-product-photography-bucharest', title: 'Handmade ceramics — catalogue and lifestyle shoot', service: 'product-photo', location: 'bucharest', venue: 'NeonLens studio, Bucharest', clientType: 'E-commerce brand', date: '2026-02-08', featured: false, testimonial: 't6',
+    key: 'p6', slug: 'ceramics-product-photography-bucharest', title: 'Handmade ceramics — catalogue and lifestyle shoot', service: 'product-photo', location: 'bucharest', venue: 'Lumenza studio, Bucharest', clientType: 'E-commerce brand', date: '2026-02-08', featured: false, testimonial: 't6',
     excerpt: '40 products on white plus styled lifestyle scenes for an independent Bucharest ceramics brand.',
     brief: 'A growing ceramics brand from Bucharest needed consistent packshots for its new online shop and eMAG listing, plus lifestyle images for Instagram.',
     approach: `## Tethered and colour-calibrated

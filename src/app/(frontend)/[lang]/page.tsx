@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Keyword-first H1 text ("Fotograf și videograf de nuntă în București și Ilfov") + brand.
     // Keyword-first; the brand is added only while the title stays short enough for Google (~65).
     title: home.heroHeading
-      ? `${home.heroHeading} | ${settings.businessName}`.length <= 70
+      ? `${home.heroHeading} | ${settings.businessName}`.length <= 62
         ? `${home.heroHeading} | ${settings.businessName}`
         : home.heroHeading
       : `${settings.businessName} — ${settings.tagline}`,

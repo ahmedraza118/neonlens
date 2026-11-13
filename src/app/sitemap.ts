@@ -1,15 +1,16 @@
 import type { MetadataRoute } from 'next'
 
 import { defaultLocale, type Locale, locales, withLocale } from '@/i18n/config'
-import { getLocations, getPosts, getProjects, getServices, getSlugs } from '@/lib/queries'
+import { getContentPresence, getLocations, getPosts, getProjects, getServices, getSlugs } from '@/lib/queries'
+import { isShown } from '@/lib/site'
 import { hasAreaPage } from '@/lib/areas'
 import { localizedPaths } from '@/lib/seo'
-import { absoluteUrl } from '@/lib/utils'
+import { absoluteUrl, isPlaceholderMedia } from '@/lib/utils'
 import type { Media } from '@/payload-types'
 
 export const revalidate = 3600
 
-const img = (m: Media | number | null | undefined) => (m && typeof m === 'object' && m.url ? [absoluteUrl(m.url)] : [])
+const img = (m: Media | number | null | undefined) => (m && typeof m === 'object' && m.url && !isPlaceholderMedia(m) ? [absoluteUrl(m.url)] : [])
 
 type Entry = Omit<MetadataRoute.Sitemap[number], 'url'> & { path: string | Record<Locale, string> }
 
@@ -18,11 +19,12 @@ type Entry = Omit<MetadataRoute.Sitemap[number], 'url'> & { path: string | Recor
  * including every service × area landing page and image entries for Google Images.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, locations, projects, posts] = await Promise.all([
+  const [services, locations, projects, posts, presence] = await Promise.all([
     getServices(defaultLocale),
     getLocations(defaultLocale),
     getProjects({ locale: defaultLocale }),
     getPosts(1000, defaultLocale),
+    getContentPresence(),
   ])
   const slugs = async (collection: Parameters<typeof getSlugs>[0], id: number) => getSlugs(collection, id)
   const [serviceSlugs, locationSlugs, projectSlugs, postSlugs] = await Promise.all([
@@ -35,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: Entry[] = [
     // No lastModified on fixed pages: a date that is always "now" teaches Google to ignore it.
     { path: '/', changeFrequency: 'weekly', priority: 1 },
-    ...['/services', '/portfolio', '/pricing', '/book', '/locations', '/about', '/contact', '/reviews', '/blog', '/faq'].map((path) => ({
+    ...['/services', '/portfolio', '/pricing', '/book', '/locations', '/about', '/contact', '/reviews', '/blog', '/faq'].filter((path) => isShown(path, presence)).map((path) => ({
       path,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
