@@ -7,7 +7,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { PageHero } from '@/components/PageHero'
 import { Paragraphs } from '@/components/Paragraphs'
 import { ServiceBody } from '@/components/ServiceBody'
-import { hasAreaPage, placeName, serviceLocationNote } from '@/lib/areas'
+import { areaPageIndexable, hasAreaPage, placeName, serviceLocationNote } from '@/lib/areas'
 import { fmt, toLocale } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
 import { serviceSchema } from '@/lib/jsonld'
@@ -46,6 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     })(),
     lang,
     image: populated(location.heroImage) ?? populated(service.heroImage),
+    geo: { placename: location.name, region: location.region, lat: location.geo?.lat, lng: location.geo?.lng },
+    // Near-copies of the main service page stay out of Google until switched on in the CMS.
+    noIndexFollow: !areaPageIndexable(location, service.id),
   })
 }
 

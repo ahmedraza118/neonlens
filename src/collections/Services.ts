@@ -37,6 +37,16 @@ export const Services: CollectionConfig = {
     { name: 'excerpt', type: 'textarea', required: true, localized: true, admin: { description: 'Short summary for cards.' } },
     { name: 'heroImage', type: 'upload', relationTo: 'media', required: true },
     {
+      name: 'gallery',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
+      admin: {
+        description:
+          'Your best photos for this service (8–16 works well), shown as a gallery on the service page. Real photos from real shoots only, each with descriptive alt text: Google Images ranks them.',
+      },
+    },
+    {
       name: 'intro',
       type: 'textarea',
       required: true,

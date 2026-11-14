@@ -19,6 +19,7 @@
     "seed:prod": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
     "seed:launch": "cross-env PAYLOAD_MIGRATING=true SEED_LAUNCH=1 NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
     "team:iulian": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/add-team-iulian.ts",
+    "seo:content-fixes": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/seo-content-fixes.ts",
     "growth:report": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/growth-report.ts",
     "growth:demo": "cross-env PAYLOAD_MIGRATING=true NODE_OPTIONS=--no-deprecation payload run scripts/growth-demo.ts",
     "alt-text": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/generate-alt-text.ts",

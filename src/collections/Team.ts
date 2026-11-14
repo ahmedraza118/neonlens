@@ -19,6 +19,9 @@ const visibleOrAdmin: Access = ({ req }) => (req.user ? true : { visible: { equa
  * The people behind the camera. Every visible member gets a profile page (/echipa/<name>), appears
  * on /echipa and the About page, and is listed on the service pages they work on. Link them to
  * portfolio projects with the project's "Crew" field.
+ *
+ * Business rule: clients book the studio, not a person. The site never offers to book or contact
+ * an individual member, so do not add booking links or personal contact details to these pages.
  */
 export const Team: CollectionConfig = {
   slug: 'team',
@@ -28,7 +31,7 @@ export const Team: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'role', 'disciplines', 'visible', 'order'],
     description:
-      'Your photographers, videographers and crew. Each visible member gets a profile page. Use a real, recent portrait: clients book people they trust.',
+      'Your photographers, videographers and crew. The site presents them as one team: profiles introduce each person, but visitors can only contact and book the studio, never a specific person.',
   },
   access: { read: visibleOrAdmin, create: isAdmin, update: isAdmin, delete: isAdmin },
   defaultSort: 'order',
@@ -130,7 +133,7 @@ export const Team: CollectionConfig = {
       labels: { singular: 'Skill', plural: 'Skills' },
       admin: {
         description:
-          'The skills dashboard on the profile, strongest first. Link a skill to a service and visitors get a one-tap "book for this" button. Be honest: clients compare.',
+          'Strongest first. Shown on the profile and merged into the team page\'s "What we cover together" board. Use the same name for a skill several people share (e.g. "Fotografie de nuntă") so they are grouped. Linking a service adds a link to that service page.',
         initCollapsed: true,
       },
       fields: [
@@ -165,10 +168,13 @@ export const Team: CollectionConfig = {
     },
     { name: 'gear', type: 'text', localized: true, admin: { description: 'Optional: what is in their bag, e.g. "Sony A1, 35mm f/1.4, 85mm f/1.4".' } },
     {
+      // Kept in the database but not editable or shown: clients contact the studio, never a team
+      // member directly. (Removing the field would need a migration that rebuilds the table.)
       name: 'social',
       type: 'group',
+      admin: { hidden: true },
       fields: [
-        { name: 'instagram', type: 'text', admin: { description: 'Full URL, e.g. https://instagram.com/…' } },
+        { name: 'instagram', type: 'text' },
         { name: 'website', type: 'text' },
         { name: 'linkedin', type: 'text' },
       ],

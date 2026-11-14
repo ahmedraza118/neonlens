@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next'
 import { defaultLocale, type Locale, locales, withLocale } from '@/i18n/config'
 import { getContentPresence, getLocations, getPosts, getProjects, getServices, getSlugs, getTeam } from '@/lib/queries'
 import { isShown } from '@/lib/site'
-import { hasAreaPage } from '@/lib/areas'
+import { areaPageIndexable } from '@/lib/areas'
 import { localizedPaths } from '@/lib/seo'
 import { absoluteUrl, isPlaceholderMedia } from '@/lib/utils'
 import type { Media } from '@/payload-types'
@@ -50,9 +50,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
       images: img(s.heroImage),
     })),
-    // Only the service × area pages that exist (see hasAreaPage).
+    // Only the service × area pages switched on for indexing (see areaPageIndexable): a sitemap must not list noindex pages.
     ...services.flatMap((s, i) =>
-      locations.flatMap((l, j) => (hasAreaPage(l, s.id) ? [{
+      locations.flatMap((l, j) => (areaPageIndexable(l, s.id) ? [{
         path: Object.fromEntries(locales.map((lang) => [lang, `/services/${serviceSlugs[i][lang]}/${locationSlugs[j][lang]}`])) as Record<Locale, string>,
         lastModified: [s.updatedAt, l.updatedAt].sort().at(-1),
         priority: 0.8,

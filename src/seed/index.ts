@@ -285,7 +285,9 @@ async function seed() {
         title: p.title,
         slug: p.slug,
         category: p.category,
-        publishedAt: new Date(p.publishedAt).toISOString(),
+        // A live site must not show posts dated before it existed (Google compares datePublished
+        // with when it first saw the page): the launch seed publishes them today.
+        publishedAt: (launch ? new Date() : new Date(p.publishedAt)).toISOString(),
         excerpt: p.excerpt,
         coverImage: cover.id,
         content: markdownToLexical(p.content),

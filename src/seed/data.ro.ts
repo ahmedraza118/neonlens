@@ -300,7 +300,7 @@ Familiile mixte și nașii veniți din străinătate sunt bineveniți: lucrăm �
     faqs: [
       { question: 'Cum se împarte timpul între biserică și restaurant?', answer: 'Ajungem la biserică cu 20–30 de minute înainte, pentru detalii și fotografii cu familia, fotografiem slujba, apoi plecăm înainte spre restaurant ca să surprindem decorul înainte să sosească invitații. În București și Ilfov planificăm traseul ținând cont de traficul de duminică, de obicei lejer.' },
       { question: 'Ce momente ale botezului ortodox surprindeți?', answer: 'Pe toate: lepădările de la intrarea în biserică, sfințirea apei, cufundarea de trei ori în cristelniță, ungerea cu mir, îmbrăcarea în haina albă și lumânarea, tunderea, prima împărtășanie și momentul în care nașii primesc copilul. Dacă sărbătoriți în aceeași zi și împlinirea unui an, fotografiem și tăierea moțului.' },
-      { question: 'Când primim fotografiile și filmul?', answer: 'Primiți un preview în 72 de ore, galeria online completă în 2–3 săptămâni și filmul editat în 4–6 săptămâni.' },
+      { question: 'Când primim fotografiile și filmul de la botez?', answer: 'Primiți un preview în 72 de ore, galeria online completă în 2–3 săptămâni și filmul editat în 4–6 săptămâni.' },
     ],
     keywords: ['fotograf botez București', 'fotograf botez Ilfov', 'filmare botez București', 'foto video botez București'],
   },

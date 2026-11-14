@@ -3,11 +3,13 @@ import Link from 'next/link'
 import { fmt } from '@/i18n/config'
 import { getI18n } from '@/i18n/server'
 import { getProjects, getTeam, getTestimonials } from '@/lib/queries'
-import { formatMoney } from '@/lib/utils'
-import type { Location, Service, SiteSetting } from '@/payload-types'
+import { populated } from '@/lib/populated'
+import { formatMoney, isPlaceholderMedia } from '@/lib/utils'
+import type { Location, Media as MediaDoc, Service, SiteSetting } from '@/payload-types'
 
 import { ProjectCard, TestimonialCard } from './Cards'
 import { Faq } from './Faq'
+import { Media } from './Media'
 import { SectionHeading } from './SectionHeading'
 import { TeamSection } from './Team'
 import { VideoPlayer } from './VideoPlayer'
@@ -23,6 +25,8 @@ export async function ServiceBody({ service, settings, location }: { service: Se
   // Prefer projects shot in this city; top up with others from the same service.
   const projects = [...localProjects, ...allProjects.filter((p) => !localProjects.some((l) => l.id === p.id))].slice(0, 6)
   const faqs = [...(location?.faqs ?? []), ...(service.faqs ?? [])]
+  // Real photos only: the launch placeholders never appear as a "gallery".
+  const gallery = (service.gallery ?? []).map((m) => populated<MediaDoc>(m)).filter((m): m is MediaDoc => Boolean(m) && !isPlaceholderMedia(m))
   const { lang, t, href } = getI18n()
   const city = location?.name ?? ''
 
@@ -36,6 +40,20 @@ export async function ServiceBody({ service, settings, location }: { service: Se
               <div key={h.id} className="card p-7">
                 <h3 className="text-lg font-bold">{h.title}</h3>
                 {h.description && <p className="mt-2 text-sm text-muted">{h.description}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {gallery.length > 0 && (
+        <section className="container-x py-12">
+          <SectionHeading eyebrow={t.services.galleryEyebrow} title={t.services.galleryTitle} />
+          {/* CSS columns keep every photo in its own proportions (portrait next to landscape). */}
+          <div className="columns-2 gap-3 sm:gap-4 lg:columns-3">
+            {gallery.map((m) => (
+              <div key={m.id} className="mb-3 break-inside-avoid overflow-hidden rounded-xl bg-surface-2 sm:mb-4 sm:rounded-2xl">
+                <Media media={m} quality={80} sizes="(min-width: 1024px) 33vw, 50vw" className="h-auto w-full" />
               </div>
             ))}
           </div>
@@ -125,8 +143,8 @@ export async function ServiceBody({ service, settings, location }: { service: Se
         </section>
       )}
 
-      {/* The people who would actually shoot this: the strongest trust signal for a photographer. */}
-      <TeamSection members={team.slice(0, 4)} eyebrow={t.team.sectionEyebrow} title={fmt(t.team.serviceTitle, { service: service.title })} className="border-t border-line" />
+      {/* The team members who work on this service. They are introduced, not offered for individual booking. */}
+      <TeamSection members={team.slice(0, 4)} intro={fmt(t.team.serviceIntro, { name: settings.businessName })} className="border-t border-line" />
 
       <Faq faqs={faqs} heading={fmt(location ? t.services.faqIn : t.services.faq, { service: service.title, city })} />
     </>

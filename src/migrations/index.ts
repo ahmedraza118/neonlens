@@ -6,6 +6,7 @@ import * as migration_20261105_213740_localized_venue_names from './20261105_213
 import * as migration_20261108_202934_growth_analytics_chat from './20261108_202934_growth_analytics_chat';
 import * as migration_20261113_210024_team from './20261113_210024_team';
 import * as migration_20261113_213051_team_skills from './20261113_213051_team_skills';
+import * as migration_20261114_095618_service_gallery_area_index from './20261114_095618_service_gallery_area_index';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20261113_213051_team_skills.up,
     down: migration_20261113_213051_team_skills.down,
-    name: '20261113_213051_team_skills'
+    name: '20261113_213051_team_skills',
+  },
+  {
+    up: migration_20261114_095618_service_gallery_area_index.up,
+    down: migration_20261114_095618_service_gallery_area_index.down,
+    name: '20261114_095618_service_gallery_area_index'
   },
 ];

@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }),
     path: localizedPaths(await getSlugs('locations', location.id), (s) => `/locations/${s}`),
     lang,
+    geo: { placename: location.name, region: location.region, lat: location.geo?.lat, lng: location.geo?.lng },
     image: populated(location.heroImage),
     seo: location.seo,
   })

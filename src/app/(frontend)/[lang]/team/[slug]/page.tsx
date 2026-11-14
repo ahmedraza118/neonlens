@@ -10,12 +10,13 @@ import { JsonLd } from '@/components/JsonLd'
 import { Media } from '@/components/Media'
 import { Paragraphs } from '@/components/Paragraphs'
 import { SectionHeading } from '@/components/SectionHeading'
-import { firstName, SkillsDashboard, TeamCard, yearsOf } from '@/components/Team'
+import { SkillsDashboard, TeamCard } from '@/components/Team'
 import { fmt, intlLocale, toLocale } from '@/i18n/config'
 import { localeFromParams } from '@/i18n/server'
 import { personSchema } from '@/lib/jsonld'
 import { getProjects, getSettings, getTeam, getTeamMember, populated } from '@/lib/queries'
 import { buildMetadata } from '@/lib/seo'
+import { firstName, yearsOf } from '@/lib/team'
 import type { Media as MediaDoc, Service } from '@/payload-types'
 
 export const revalidate = 3600
@@ -41,6 +42,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   })
 }
 
+/**
+ * A team member's profile. It introduces the person and what they add to the team; it does not
+ * sell them individually. There is no "book this person" path and no personal contact link: the
+ * only call to action is the studio's inquiry form, with nothing pre-filled about who should come.
+ */
 export default async function TeamMemberPage({ params }: Props) {
   const { lang, t, href } = await localeFromParams(params)
   const { slug } = await params
@@ -48,108 +54,104 @@ export default async function TeamMemberPage({ params }: Props) {
   if (!member) notFound()
   if (member.slug !== slug) permanentRedirect(href(`/team/${member.slug}`))
 
-  const [projects, others] = await Promise.all([getProjects({ crewId: member.id, limit: 6 }), getTeam({ exclude: member.id })])
+  const [settings, projects, others] = await Promise.all([getSettings(), getProjects({ crewId: member.id, limit: 6 }), getTeam({ exclude: member.id })])
   const name = firstName(member)
   const years = yearsOf(member)
   const disciplines = (member.disciplines ?? []) as Discipline[]
   const services = (member.services ?? []).map((s) => populated<Service>(s)).filter((s): s is Service => Boolean(s))
   const languages = (member.languages ?? []) as Array<keyof typeof t.team.languageNames>
   const signature = populated<MediaDoc>(member.signatureImage)
-  const social = Object.entries(member.social ?? {}).filter(([k, v]) => k !== 'id' && typeof v === 'string' && /^https?:\/\//.test(v)) as Array<[string, string]>
-  const socialLabel: Record<string, string> = { instagram: 'Instagram', website: 'Website', linkedin: 'LinkedIn' }
+  const languageList = languages.length > 0 ? new Intl.ListFormat(intlLocale[lang], { type: 'conjunction' }).format(languages.map((l) => t.team.languageNames[l] ?? l)) : null
 
   return (
     <>
-      <section className="container-x pt-12 pb-16">
-        <Breadcrumbs items={[{ name: t.team.crumb, path: '/team' }, { name: member.name, path: `/team/${member.slug}` }]} />
-        <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
-          <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-surface-2">
-              <Media media={member.photo} fill priority quality={90} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
-              {years && (
-                <span className="absolute bottom-5 left-5 rounded-full bg-page/90 px-4 py-1.5 text-sm font-semibold shadow-sm backdrop-blur">
-                  {fmt(t.team.years, { n: years })}
-                </span>
-              )}
+      <section className="relative overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute -top-48 left-[-12rem] h-[28rem] w-[28rem] rounded-full bg-accent/10 blur-3xl" />
+        <div className="container-x relative pt-12 pb-16">
+          <Breadcrumbs items={[{ name: t.team.crumb, path: '/team' }, { name: member.name, path: `/team/${member.slug}` }]} />
+          <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              <div className="relative mx-auto max-w-md lg:max-w-none">
+                <div aria-hidden className="absolute -inset-3 -rotate-2 rounded-[2rem] bg-accent-soft" />
+                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-surface-2 shadow-xl shadow-black/10 ring-1 ring-black/5">
+                  <Media media={member.photo} fill priority quality={80} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="min-w-0">
-            {disciplines.length > 0 && <p className="eyebrow mb-4">{disciplines.map((d) => t.team.discipline[d]).join(' · ')}</p>}
-            <h1 className="text-4xl font-bold sm:text-6xl">{member.name}</h1>
-            <p className="mt-3 text-xl text-muted">{member.role}</p>
+            <div className="min-w-0">
+              <Link href={href('/team')} className="eyebrow mb-4 inline-flex items-center gap-2 hover:text-accent-strong">
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+                {fmt(t.team.memberEyebrow, { name: settings.businessName })}
+              </Link>
+              <h1 className="text-4xl leading-[1.05] font-bold sm:text-6xl">{member.name}</h1>
+              <p className="mt-3 text-xl text-muted">{member.role}</p>
 
-            {member.quote && (
-              <blockquote className="mt-8 border-l-4 border-accent pl-5 font-display text-2xl leading-snug text-fg/90 sm:text-3xl">
-                “{member.quote}”
-              </blockquote>
-            )}
+              <ul className="mt-6 flex flex-wrap gap-2 text-sm">
+                {disciplines.map((d) => (
+                  <li key={d} className="rounded-full bg-accent-soft px-3.5 py-1.5 font-medium text-accent-strong">
+                    {t.team.discipline[d]}
+                  </li>
+                ))}
+                {years && <li className="rounded-full border border-line bg-surface px-3.5 py-1.5">{fmt(t.team.years, { n: years })}</li>}
+                {languageList && (
+                  <li className="rounded-full border border-line bg-surface px-3.5 py-1.5">
+                    {t.team.speaks} {languageList}
+                  </li>
+                )}
+              </ul>
 
-            <Paragraphs text={member.bio || member.shortBio} className="mt-8 space-y-5 text-lg leading-relaxed text-fg/85" />
-
-            <SkillsDashboard member={member} />
-
-            <dl className="mt-10 grid gap-6 rounded-2xl border border-line bg-surface p-6 sm:grid-cols-2">
-              {member.since && (
-                <div>
-                  <dt className="eyebrow mb-1.5">{fmt(t.team.since, { year: member.since })}</dt>
-                  <dd className="font-semibold">{years ? fmt(t.team.years, { n: years }) : member.since}</dd>
-                </div>
+              {member.quote && (
+                <blockquote className="mt-8 border-l-4 border-accent pl-5 font-display text-2xl leading-snug text-fg/90 sm:text-3xl">“{member.quote}”</blockquote>
               )}
-              {languages.length > 0 && (
-                <div>
-                  <dt className="eyebrow mb-1.5">{t.team.speaks}</dt>
-                  <dd className="font-semibold">
-                    {new Intl.ListFormat(intlLocale[lang], { type: 'conjunction' }).format(languages.map((l) => t.team.languageNames[l] ?? l))}
-                  </dd>
-                </div>
-              )}
-              {services.length > 0 && (
-                <div className="sm:col-span-2">
-                  <dt className="eyebrow mb-2">{t.team.worksOn}</dt>
-                  <dd className="flex flex-wrap gap-2">
-                    {services.map((s) => (
-                      <Link key={s.id} href={href(`/services/${s.slug}`)} className="rounded-full border border-line px-3.5 py-1.5 text-sm hover:border-accent hover:text-accent">
-                        {s.title}
-                      </Link>
-                    ))}
-                  </dd>
-                </div>
-              )}
-              {member.specialties && member.specialties.length > 0 && (
-                <div className="sm:col-span-2">
-                  <dt className="eyebrow mb-2">{t.team.specialties}</dt>
-                  <dd className="flex flex-wrap gap-2">
-                    {member.specialties.map((s) => (
-                      <span key={s} className="rounded-full bg-accent-soft px-3.5 py-1.5 text-sm text-accent-strong">
-                        {s}
-                      </span>
-                    ))}
-                  </dd>
-                </div>
-              )}
-              {member.gear && (
-                <div className="sm:col-span-2">
-                  <dt className="eyebrow mb-1.5">{t.team.gear}</dt>
-                  <dd className="text-fg/85">{member.gear}</dd>
-                </div>
-              )}
-            </dl>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a href="#inquire" className="btn-primary" data-cta="team_ask">
-                {fmt(t.team.ask, { name })}
-              </a>
-              {projects.length > 0 && (
-                <a href="#work" className="btn-ghost">
-                  {fmt(t.team.work, { name })}
+              <Paragraphs text={member.bio || member.shortBio} className="mt-8 space-y-5 text-lg leading-relaxed text-fg/85" />
+
+              <SkillsDashboard member={member} />
+
+              {(services.length > 0 || (member.specialties && member.specialties.length > 0) || member.gear) && (
+                <dl className="mt-8 grid gap-6 rounded-2xl border border-line bg-surface p-6 sm:grid-cols-2">
+                  {services.length > 0 && (
+                    <div className="sm:col-span-2">
+                      <dt className="eyebrow mb-2">{t.team.worksOn}</dt>
+                      <dd className="flex flex-wrap gap-2">
+                        {services.map((s) => (
+                          <Link key={s.id} href={href(`/services/${s.slug}`)} className="rounded-full border border-line px-3.5 py-1.5 text-sm hover:border-accent hover:text-accent">
+                            {s.title}
+                          </Link>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                  {member.specialties && member.specialties.length > 0 && (
+                    <div className="sm:col-span-2">
+                      <dt className="eyebrow mb-2">{t.team.specialties}</dt>
+                      <dd className="flex flex-wrap gap-2">
+                        {member.specialties.map((s) => (
+                          <span key={s} className="rounded-full bg-accent-soft px-3.5 py-1.5 text-sm text-accent-strong">
+                            {s}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                  {member.gear && (
+                    <div className="sm:col-span-2">
+                      <dt className="eyebrow mb-1.5">{t.team.gear}</dt>
+                      <dd className="text-fg/85">{member.gear}</dd>
+                    </div>
+                  )}
+                </dl>
+              )}
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <a href="#inquire" className="btn-primary" data-cta="team_member_inquire">
+                  {fmt(t.team.memberCta, { name: settings.businessName })}
                 </a>
-              )}
-              {social.map(([key, url]) => (
-                <a key={key} href={url} target="_blank" rel="noopener noreferrer me" className="text-sm text-muted underline decoration-line underline-offset-4 hover:text-fg">
-                  {socialLabel[key] ?? key} ↗
-                </a>
-              ))}
+                <Link href={href('/team')} className="btn-ghost">
+                  {t.team.seeAll}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -159,7 +161,7 @@ export default async function TeamMemberPage({ params }: Props) {
         <section className="container-x pb-16">
           <figure>
             <div className="relative aspect-[16/9] overflow-hidden rounded-3xl bg-surface-2">
-              <Media media={signature} fill sizes="100vw" className="object-cover" />
+              <Media media={signature} fill sizes="(min-width: 1152px) 1152px, 100vw" className="object-cover" />
             </div>
             <figcaption className="mt-3 text-sm text-muted">
               {t.team.signature} — {member.name}
@@ -183,7 +185,7 @@ export default async function TeamMemberPage({ params }: Props) {
         <section className="border-t border-line bg-surface-2/60 py-20">
           <div className="container-x">
             <div className="flex flex-wrap items-end justify-between gap-6">
-              <SectionHeading title={t.team.others} />
+              <SectionHeading eyebrow={t.team.sectionEyebrow} title={t.team.others} />
               <Link href={href('/team')} className="btn-ghost mb-12">
                 {t.team.seeAll}
               </Link>
@@ -204,12 +206,7 @@ export default async function TeamMemberPage({ params }: Props) {
           knowsLanguage: languages.map((l) => (l === 'ro' ? 'ro-RO' : l)),
         })}
       />
-      <InquirySection
-        heading={fmt(t.team.askHeading, { name })}
-        subheading={fmt(t.team.askSubheading, { name })}
-        defaultService={services[0]?.title}
-        defaultMessage={fmt(t.team.askMessage, { name: member.name })}
-      />
+      <InquirySection heading={t.team.inquiryHeading} subheading={t.team.inquirySubheading} />
     </>
   )
 }

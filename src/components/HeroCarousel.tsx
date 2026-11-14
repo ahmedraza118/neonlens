@@ -137,7 +137,7 @@ export function HeroCarousel({ heading, slides, intervalSeconds }: Props) {
                   media={slide.image}
                   fill
                   priority={i === 0}
-                  quality={i === 0 ? 90 : 85}
+                  quality={i === 0 ? 80 : 75}
                   sizes="(min-width: 1152px) 1152px, 100vw"
                   className="object-cover"
                 />

@@ -21,8 +21,9 @@ export const revalidate = 3600
 type Props = { params: Promise<{ lang: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { lang } = await localeFromParams(params)
+  const { lang, t } = await localeFromParams(params)
   const [settings, home] = await Promise.all([getSettings(), getHomepage()])
+  const yearsActive = settings.foundingYear ? new Date().getFullYear() - settings.foundingYear : 0
   return buildMetadata({
     // Keyword-first H1 text ("Fotograf și videograf de nuntă în București și Ilfov") + brand.
     // Keyword-first; the brand is added only while the title stays short enough for Google (~65).
@@ -32,7 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         : home.heroHeading
       : `${settings.businessName} — ${settings.tagline}`,
     absoluteTitle: true,
-    description: settings.description,
+    // One complete sentence written for the search result, not the long business description cut short.
+    description: yearsActive >= 2 ? fmt(t.home.metaDescription, { years: yearsActive }) : settings.description,
     path: '/',
     lang,
     image: populated(home.heroImage),

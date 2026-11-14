@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import { fmt } from '@/i18n/config'
-import { hasAreaPage } from '@/lib/areas'
+import { areaPageIndexable } from '@/lib/areas'
 import { ConsentSettingsButton } from './ConsentBanner'
 import { getI18n } from '@/i18n/server'
 import { type ContentPage, isShown } from '@/lib/site'
@@ -13,9 +13,9 @@ import type { Location, Service, SiteSetting } from '@/payload-types'
  */
 export function Footer({ settings, services, locations, presence }: { settings: SiteSetting; services: Service[]; locations: Location[]; presence?: Record<ContentPage, boolean> }) {
   const social = Object.entries(settings.social ?? {}).filter(([k, v]) => k !== 'id' && typeof v === 'string' && v)
-  // Links to the existing service × area landing pages (one per area, the first service that has one).
+  // Site-wide links only to service × area pages Google may index (one per area); noindex pages get no footer links.
   const popular = locations
-    .map((l) => ({ l, s: services.find((s) => hasAreaPage(l, s.id)) }))
+    .map((l) => ({ l, s: services.find((s) => areaPageIndexable(l, s.id)) }))
     .filter((x): x is { l: Location; s: Service } => Boolean(x.s))
     .slice(0, 6)
   const { t, href } = getI18n()

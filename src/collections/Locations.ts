@@ -42,10 +42,19 @@ export const Locations: CollectionConfig = {
     {
       name: 'serviceNotes',
       type: 'array',
-      admin: { description: 'Optional extra copy for a specific service in this city.' },
+      admin: { description: 'Copy for one service in this area. Each row creates a landing page, e.g. /servicii/fotograf-nunta/snagov.' },
       fields: [
         { name: 'service', type: 'relationship', relationTo: 'services', required: true },
         { name: 'content', type: 'textarea', required: true, localized: true },
+        {
+          name: 'indexable',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            description:
+              'Let Google index this service + area page. Leave off until the page has its own photos and at least 300 words above that appear on no other page. While off, the page still works for visitors but is "noindex", so it cannot compete with the main service page.',
+          },
+        },
       ],
     },
     { name: 'nearbyAreas', type: 'text', hasMany: true, localized: true },

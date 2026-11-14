@@ -299,7 +299,7 @@ English-speaking families, mixed couples and godparents flying in from abroad ar
     faqs: [
       { question: 'How do you handle the timing between the church and the restaurant?', answer: 'We arrive at the church 20–30 minutes early for details and family photos, cover the service, then drive ahead to the restaurant to photograph the setting before guests arrive. In Bucharest and Ilfov we plan the route around Sunday traffic, which is usually light.' },
       { question: 'Which moments of the Orthodox christening do you capture?', answer: 'All of them: the renunciation at the church door, the blessing of the water, the triple immersion, the anointing with holy chrism, the white garment and candle, the tonsure, the first communion and the godparents receiving the baby. If you celebrate the first birthday on the same day, we also cover the traditional tăierea moțului.' },
-      { question: 'When will we receive the photos and the film?', answer: 'You get a sneak peek within 72 hours, the full online gallery within 2–3 weeks and the edited film within 4–6 weeks.' },
+      { question: 'When will we receive the christening photos and film?', answer: 'You get a sneak peek within 72 hours, the full online gallery within 2–3 weeks and the edited film within 4–6 weeks.' },
     ],
     keywords: ['christening photographer Bucharest', 'fotograf botez București', 'baptism photography Bucharest', 'christening video Bucharest'],
   },

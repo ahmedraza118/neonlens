@@ -23,6 +23,8 @@ type BuildArgs = {
   absoluteTitle?: boolean
   publishedTime?: string
   noIndex?: boolean
+  /** The place this page is about (area pages). Replaces the site-wide regional hints, which point at the studio's city. */
+  geo?: { placename: string; region?: string | null; lat?: number | null; lng?: number | null }
 }
 
 /** Picks the 1200×630 JPEG crop generated for every upload, falling back to the original. */
@@ -32,14 +34,22 @@ export function ogImageUrl(media: Media | null | undefined): string | undefined 
   return url ? absoluteUrl(url) : undefined
 }
 
-/** Text-only branded card for pages without a photo. */
-/** Google shows ~155–160 characters; longer texts (e.g. the business description) are cut at a word. */
-export function clampDescription(text: string, max = 158): string {
+/**
+ * Google shows ~155 characters. Longer texts end on their last complete sentence when one fits, so
+ * the snippet never reads as cut off; only a single very long sentence is cut at a word, with "…".
+ */
+export function clampDescription(text: string, max = 155): string {
   const clean = text.replace(/\s+/g, ' ').trim()
   if (clean.length <= max) return clean
+  const head = clean.slice(0, max + 1)
+  const sentenceEnd = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '))
+  if (sentenceEnd >= 60) return head.slice(0, sentenceEnd + 1)
   const cut = clean.slice(0, max - 1)
   return `${cut.slice(0, cut.lastIndexOf(' ') > 100 ? cut.lastIndexOf(' ') : cut.length).replace(/[,;:—–-]+$/, '')}…`
 }
+
+/** ISO 3166-2 code for the regional hint: Ilfov County or the city of Bucharest. */
+const roRegionCode = (region: string | null | undefined) => `RO-${/ilfov/i.test(region ?? '') ? 'IF' : 'B'}`
 
 const pathFor = (path: BuildArgs['path'], lang: Locale) => (typeof path === 'string' ? path : path[lang])
 
@@ -56,7 +66,7 @@ export function fallbackOgUrl(title: string, eyebrow?: string): string {
   return absoluteUrl(`/og?${params.toString()}`)
 }
 
-export function buildMetadata({ title, description, path, lang, image, seo, type = 'website', publishedTime, noIndex, absoluteTitle, noIndexFollow }: BuildArgs): Metadata {
+export function buildMetadata({ title, description, path, lang, image, seo, type = 'website', publishedTime, noIndex, absoluteTitle, noIndexFollow, geo }: BuildArgs): Metadata {
   const seoImage = seo?.image && typeof seo.image === 'object' ? seo.image : null
   const finalTitle = seo?.title || title
   const finalDescription = clampDescription(seo?.description || description)
@@ -71,6 +81,17 @@ export function buildMetadata({ title, description, path, lang, image, seo, type
     // `types` repeats the RSS link here: a page's `alternates` replaces the layout's.
     alternates: { ...languageAlternates(path, lang), types: { 'application/rss+xml': absoluteUrl(withLocale('/blog/rss.xml', lang)) } },
     robots: hidden ? { index: false, follow: false } : noIndexFollow ? { index: false, follow: true } : undefined,
+    // A page's `other` replaces the layout's, so the translate hint is repeated here.
+    ...(geo
+      ? {
+          other: {
+            google: 'notranslate',
+            'geo.region': roRegionCode(geo.region),
+            'geo.placename': geo.placename,
+            ...(geo.lat && geo.lng ? { 'geo.position': `${geo.lat};${geo.lng}`, ICBM: `${geo.lat}, ${geo.lng}` } : {}),
+          },
+        }
+      : {}),
     openGraph: {
       title: finalTitle,
       description: finalDescription,

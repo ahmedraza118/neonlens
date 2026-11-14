@@ -26,7 +26,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function FaqPage({ params }: Props) {
   const { t } = await localeFromParams(params)
   const [settings, services] = await Promise.all([getSettings(), getServices()])
-  const serviceFaqs = services.flatMap((s) => s.faqs ?? [])
+  // The same question can appear on two services with different answers ("When do we get the
+  // photos?"). Repeats get the service name added, so no question is listed twice.
+  const seen = new Set((settings.generalFaqs ?? []).map((f) => f.question.trim().toLocaleLowerCase()))
+  const serviceFaqs = services.flatMap((s) =>
+    (s.faqs ?? []).map((f) => {
+      const key = f.question.trim().toLocaleLowerCase()
+      if (!seen.has(key)) {
+        seen.add(key)
+        return f
+      }
+      return { ...f, question: `${f.question.trim().replace(/\?$/, '')} (${s.title})?` }
+    }),
+  )
   return (
     <>
       <section className="container-x pt-12">

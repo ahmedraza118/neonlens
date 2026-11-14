@@ -280,6 +280,10 @@ export interface Service {
   excerpt: string;
   heroImage: number | Media;
   /**
+   * Your best photos for this service (8–16 works well), shown as a gallery on the service page. Real photos from real shoots only, each with descriptive alt text: Google Images ranks them.
+   */
+  gallery?: (number | Media)[] | null;
+  /**
    * Opening paragraphs. Separate paragraphs with a blank line.
    */
   intro: string;
@@ -482,12 +486,16 @@ export interface Location {
       }[]
     | null;
   /**
-   * Optional extra copy for a specific service in this city.
+   * Copy for one service in this area. Each row creates a landing page, e.g. /servicii/fotograf-nunta/snagov.
    */
   serviceNotes?:
     | {
         service: number | Service;
         content: string;
+        /**
+         * Let Google index this service + area page. Leave off until the page has its own photos and at least 300 words above that appear on no other page. While off, the page still works for visitors but is "noindex", so it cannot compete with the main service page.
+         */
+        indexable?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -549,7 +557,7 @@ export interface Testimonial {
   createdAt: string;
 }
 /**
- * Your photographers, videographers and crew. Each visible member gets a profile page. Use a real, recent portrait: clients book people they trust.
+ * Your photographers, videographers and crew. The site presents them as one team: profiles introduce each person, but visitors can only contact and book the studio, never a specific person.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team".
@@ -595,7 +603,7 @@ export interface Team {
    */
   specialties?: string[] | null;
   /**
-   * The skills dashboard on the profile, strongest first. Link a skill to a service and visitors get a one-tap "book for this" button. Be honest: clients compare.
+   * Strongest first. Shown on the profile and merged into the team page's "What we cover together" board. Use the same name for a skill several people share (e.g. "Fotografie de nuntă") so they are grouped. Linking a service adds a link to that service page.
    */
   skills?:
     | {
@@ -620,9 +628,6 @@ export interface Team {
    */
   gear?: string | null;
   social?: {
-    /**
-     * Full URL, e.g. https://instagram.com/…
-     */
     instagram?: string | null;
     website?: string | null;
     linkedin?: string | null;
@@ -1186,6 +1191,7 @@ export interface ServicesSelect<T extends boolean = true> {
   tagline?: T;
   excerpt?: T;
   heroImage?: T;
+  gallery?: T;
   intro?: T;
   highlights?:
     | T
@@ -1266,6 +1272,7 @@ export interface LocationsSelect<T extends boolean = true> {
     | {
         service?: T;
         content?: T;
+        indexable?: T;
         id?: T;
       };
   nearbyAreas?: T;

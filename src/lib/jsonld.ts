@@ -77,10 +77,10 @@ export function localBusiness(
     foundingDate: settings.foundingYear ? String(settings.foundingYear) : undefined,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: settings.address?.street ?? undefined,
+      streetAddress: settings.address?.street || undefined,
       addressLocality: settings.address?.city,
-      addressRegion: settings.address?.region ?? undefined,
-      postalCode: settings.address?.postalCode ?? undefined,
+      addressRegion: settings.address?.region || undefined,
+      postalCode: settings.address?.postalCode || undefined,
       addressCountry: settings.address?.country,
     },
     geo:
@@ -258,11 +258,13 @@ export function articleSchema(post: Post, settings: SiteSetting, lang: Locale = 
   }
 }
 
-/** A team member as a Person who works for the business (helps Google connect people and brand). */
+/**
+ * A team member as a Person who works for the business (helps Google connect people and brand).
+ * No personal profiles (sameAs): clients reach the studio, not individual team members.
+ */
 export function personSchema(member: Team, opts: { lang?: Locale; jobTitle?: string; knowsLanguage?: string[] } = {}): Json {
   const lang = opts.lang ?? 'ro'
   const url = absoluteUrl(withLocale(`/team/${member.slug}`, lang))
-  const sameAs = Object.values(member.social ?? {}).filter((v): v is string => typeof v === 'string' && /^https?:\/\//.test(v))
   const services = (member.services ?? []).filter((s): s is Service => typeof s === 'object' && s !== null)
   return {
     '@context': 'https://schema.org',
@@ -276,7 +278,6 @@ export function personSchema(member: Team, opts: { lang?: Locale; jobTitle?: str
     worksFor: { '@id': ORG_ID },
     knowsLanguage: opts.knowsLanguage?.length ? opts.knowsLanguage : undefined,
     knowsAbout: [...new Set([...(member.skills ?? []).map((s) => s.name), ...(member.specialties ?? []), ...services.map((s) => s.title)])].filter(Boolean),
-    sameAs: sameAs.length ? sameAs : undefined,
   }
 }
 

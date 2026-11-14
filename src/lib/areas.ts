@@ -20,6 +20,18 @@ export function hasAreaPage(location: Location, serviceId: number): boolean {
   return !location.isPrimary && Boolean(serviceLocationNote(location, serviceId))
 }
 
+/**
+ * Whether Google may index a service × area page. Off by default: until an area page has its own
+ * photos and substantial text of its own, it repeats most of the main service page and would split
+ * that page's ranking. The page still works for visitors and passes its links on ("noindex, follow").
+ * Switch it on per page in the CMS: Locations → Service notes → "indexable".
+ */
+export function areaPageIndexable(location: Location, serviceId: number): boolean {
+  if (!hasAreaPage(location, serviceId)) return false
+  const note = location.serviceNotes?.find((n) => populated<Service>(n.service)?.id === serviceId || n.service === serviceId)
+  return note?.indexable === true
+}
+
 /** "Snagov, Ilfov" — without repeating the region when it equals the name ("București"). */
 export function placeName(location: Pick<Location, 'name' | 'region'>): string {
   return location.region && location.region !== location.name ? `${location.name}, ${location.region}` : location.name
